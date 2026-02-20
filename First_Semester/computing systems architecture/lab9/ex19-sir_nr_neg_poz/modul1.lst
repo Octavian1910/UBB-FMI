@@ -1,0 +1,66 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _parsare
+     4                                  
+     5                                  segment data public data use32
+     6 00000000 0A000000                zece dd 10
+     7 00000004 01000000                minus dd 1
+     8                                  
+     9                                  segment code public code use32
+    10                                  
+    11                                  _parsare:
+    12 00000000 55                          push ebp
+    13 00000001 89E5                        mov ebp,esp
+    14 00000003 31C9                        xor ecx,ecx
+    15 00000005 31D2                        xor edx,edx
+    16                                      
+    17 00000007 8B7508                      mov esi,[ebp+8]
+    18 0000000A 8B7D0C                      mov edi,[ebp+12]
+    19                                      parcurge:
+    20 0000000D AC                              lodsb
+    21 0000000E 3C0A                            cmp al,10
+    22 00000010 743A                            je finish
+    23 00000012 3C00                            cmp al,0
+    24 00000014 7436                            je finish
+    25                                          
+    26 00000016 3C2D                            cmp al,'-'
+    27 00000018 750A                            jne nu_pune_minus
+    28 0000001A C705[04000000]FFFF-             mov dword[minus],-1
+    28 00000022 FFFF               
+    29                                          
+    30                                          nu_pune_minus:
+    31 00000024 3C20                            cmp al,' '
+    32 00000026 7416                            je salvare
+    33                                          
+    34                                          ;construire nr
+    35 00000028 88C3                            mov bl,al   ;salvam uc
+    36 0000002A 80EB30                          sub bl,'0'
+    37 0000002D 0FB6DB                          movzx ebx,bl
+    38 00000030 89D0                            mov eax,edx
+    39 00000032 F725[00000000]                  mul dword [zece] ;eax = eax*10
+    40 00000038 01D8                            add eax,ebx ;eax = eax*10 + uc
+    41 0000003A 89C2                            mov edx,eax     ;in edx tinem minte rezultatul
+    42                                          
+    43 0000003C EBCF                        jmp parcurge
+    44                                      
+    45                                      salvare:
+    46 0000003E 89D0                            mov eax,edx
+    47 00000040 F725[04000000]                  mul dword [minus]
+    48                                          mov [minus],1
+    48          ******************       error: operation size not specified
+    49 00000046 AB                              stosd
+    50 00000047 41                              inc ecx
+    51 00000048 31D2                            xor edx,edx
+    52 0000004A EBC1                            jmp parcurge
+    53                                      
+    54                                      finish: ;salvam si ultimul nr
+    55 0000004C 89D0                            mov eax,edx
+    56 0000004E AB                              stosd
+    57 0000004F 41                              inc ecx
+    58                                      
+    59 00000050 89C8                        mov eax,ecx ;len sir
+    60 00000052 89EC                        mov esp,ebp
+    61 00000054 5D                          pop ebp
+    62 00000055 C3                          ret
+    63                                  
+    64                                  

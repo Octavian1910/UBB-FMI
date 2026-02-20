@@ -1,0 +1,43 @@
+     1                                  bits 32
+     2                                  
+     3                                  
+     4                                  global _inlocuire
+     5                                  
+     6                                  segment data public data use32
+     7 00000000 00000000                lungime dd 0
+     8                                  
+     9                                  segment code public code use32
+    10                                  
+    11                                  _inlocuire:
+    12                                  
+    13 00000000 55                              push ebp
+    14 00000001 89E5                            mov ebp,esp
+    15                                          
+    16 00000003 8B5D08                          mov ebx,[ebp + 8]  ; alfabet
+    17 00000006 8B750C                          mov esi,[ebp + 12] ; sir2
+    18 00000009 8B7D0C                          mov edi,[ebp + 12] ; sir2
+    19                                          
+    20                                          .parcurge:
+    21 0000000C AC                                  lodsb
+    22 0000000D 3C0A                                cmp al,10
+    23 0000000F 7410                                je .finish
+    24                                              
+    25 00000011 3C00                                cmp al,0
+    26 00000013 740C                                je .finish
+    27                                              
+    28 00000015 2C61                                sub al,'a'
+    29 00000017 0FB6C0                              movzx eax,al
+    30 0000001A 01C3                                add ebx,eax
+    31 0000001C 89D8                                mov eax,ebx
+    32 0000001E AA                                  stosb
+    33 0000001F EBEB                             jmp .parcurge
+    34                                              
+    35                                              
+    36                                          .finish:
+    37 00000021 B000                            mov al,0
+    38 00000023 AA                              stosb
+    39                                          
+    40 00000024 89EC                            mov esp,ebp
+    41 00000026 5D                              pop ebp
+    42 00000027 C3                              ret
+    43                                          

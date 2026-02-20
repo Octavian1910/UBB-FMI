@@ -1,0 +1,56 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _parsare
+     4                                  
+     5                                  segment data public data use32
+     6 00000000 0A000000                zece dd 10
+     7                                  segment code public code use32
+     8                                  
+     9                                  _parsare:
+    10 00000000 55                          push ebp
+    11 00000001 89F5                        mov ebp,esi
+    12                                      
+    13 00000003 8B7508                      mov esi,[ebp + 8]   ;char
+    14 00000006 8B7D0C                      mov edi,[ebp + 12]  ;v
+    15 00000009 31C9                        xor ecx,ecx
+    16                                      
+    17                                      parcurge:
+    18 0000000B AC                              lodsb
+    19 0000000C 3C0A                            cmp al,10
+    20 0000000E 741A                            je salveaza
+    21 00000010 3C2C                            cmp al,','
+    22 00000012 7416                            je salveaza
+    23                                          
+    24                                          ;e cifra
+    25 00000014 88C3                            mov bl,al
+    26 00000016 80EB30                          sub bl,'0'
+    27 00000019 0FB6DB                          movzx ebx,bl
+    28 0000001C 89D0                            mov eax,edx
+    29 0000001E F725[00000000]                  mul dword [zece]
+    30 00000024 01D8                            add eax,ebx
+    31 00000026 89C2                            mov edx,eax
+    32                                          
+    33 00000028 EBE1                         jmp parcurge
+    34                                       
+    35                                       
+    36                                       salveaza:
+    37 0000002A 88C3                                mov bl,al ;pt finish
+    38 0000002C 89D0                                mov eax,edx
+    39 0000002E AB                                  stosd
+    40 0000002F 31D2                                xor edx,edx
+    41 00000031 41                                  inc ecx
+    42                                              
+    43 00000032 80FB0A                              cmp bl,10
+    44 00000035 7402                                je finish
+    45 00000037 EBD2                         jmp parcurge
+    46                                       
+    47                                       
+    48                                              
+    49                                          
+    50                                          
+    51                                      finish:
+    52 00000039 89C8                        mov eax,ecx
+    53                                      
+    54 0000003B 89EE                        mov esi,ebp
+    55 0000003D 5D                          pop ebp
+    56 0000003E C3                          ret

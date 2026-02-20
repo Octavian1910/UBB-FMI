@@ -1,0 +1,53 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _parsare
+     4                                  
+     5                                  segment data public data use32
+     6 00000000 0A000000                zece dd 10
+     7                                  
+     8                                  segment code public code use32
+     9                                  
+    10                                  _parsare:
+    11 00000000 55                          push ebp
+    12 00000001 89E5                        mov ebp,esp
+    13 00000003 31C9                        xor ecx,ecx
+    14                                      
+    15 00000005 8B7508                      mov esi,[ebp+8]
+    16 00000008 8B7D10                      mov edi,[ebp+16]
+    17                                      parcurge:
+    18 0000000B AC                              lodsb
+    19 0000000C 3C0A                            cmp al,10
+    20 0000000E 7424                            je finish
+    21 00000010 3C00                            cmp al,0
+    22 00000012 7420                            je finish
+    23 00000014 3C2C                            cmp al,','
+    24 00000016 7416                            je salvare
+    25                                          
+    26                                          ;construire nr
+    27 00000018 88C3                            mov bl,al   ;salvam uc
+    28 0000001A 80EB30                          sub bl,'0'
+    29 0000001D 0FB6DB                          movzx ebx,bl
+    30 00000020 89D0                            mov eax,edx
+    31 00000022 F725[00000000]                  mul dword [zece] ;eax = eax*10
+    32 00000028 01D8                            add eax,ebx ;eax = eax*10 + uc
+    33 0000002A 89C2                            mov edx,eax     ;in edx tinem minte rezultatul
+    34                                          
+    35 0000002C EBDD                        jmp parcurge
+    36                                      
+    37                                      salvare:
+    38 0000002E 89D0                            mov eax,edx
+    39 00000030 AB                              stosd
+    40 00000031 41                              inc ecx
+    41 00000032 EBD7                            jmp parcurge
+    42                                      
+    43                                      finish: ;salvam si ultimul nr
+    44 00000034 89D0                            mov eax,edx
+    45 00000036 AB                              stosd
+    46 00000037 41                              inc ecx
+    47                                      
+    48 00000038 89C8                        mov eax,ecx ;len sir
+    49 0000003A 89EC                        mov esp,ebp
+    50 0000003C 5D                          pop ebp
+    51 0000003D C3                          ret
+    52                                  
+    53                                  

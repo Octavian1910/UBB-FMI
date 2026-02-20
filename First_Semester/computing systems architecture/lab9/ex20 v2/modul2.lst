@@ -1,0 +1,32 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _intoarce_si_dubleaza
+     4                                  
+     5                                  segment data public data use32
+     6 00000000 02000000                doi dd 2
+     7                                  
+     8                                  segment code public code use32
+     9                                  
+    10                                  _intoarce_si_dubleaza:
+    11 00000000 55                          push ebp
+    12 00000001 89E5                        mov ebp,esp
+    13                                  
+    14 00000003 8B7508                      mov esi,[ebp+8] ; v
+    15 00000006 8B7D0C                      mov edi,[ebp+12] ; rez
+    16 00000009 8B4D10                      mov ecx,[ebp+16] ;len
+    17                                      
+    18 0000000C 01CE                        add esi,ecx  ; mergem la finalul sirului
+    19 0000000E FD                          std          ;mergem de la dreapta la stanga
+    20                                      
+    21                                      parcurge:
+    22 0000000F AD                              lodsd
+    23 00000010 F725[00000000]                  mul dword [doi] ;eax = eax*2
+    24 00000016 AB                              stosd
+    25 00000017 E2F6                        loop parcurge   ;de ecx=len ori
+    26                                      
+    27                                  
+    28 00000019 89EC                        mov esp,ebp
+    29 0000001B 5D                          pop ebp
+    30 0000001C C3                          ret
+    31                                  
+    32                                  

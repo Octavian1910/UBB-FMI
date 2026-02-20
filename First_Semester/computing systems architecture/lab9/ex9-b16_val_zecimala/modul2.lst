@@ -1,0 +1,27 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _afisare
+     4                                  
+     5                                  extern _printf
+     6                                  
+     7                                  segment data public data use32
+     8 00000000 4E72203A2025782065-     format db "Nr : %x este  %u si %d \n",0
+     8 00000009 737465202025752073-
+     8 00000012 69202564205C6E00   
+     9                                  
+    10                                  segment code public code use32
+    11                                  
+    12                                  _afisare:
+    13 00000000 55                          push ebp
+    14 00000001 89E5                        mov ebp,esp
+    15 00000003 8B7508                      mov esi,[ebp + 8]
+    16                                      
+    17 00000006 56                          push esi
+    18 00000007 68[00000000]                push format
+    19 0000000C E8(00000000)                call _printf
+    20 00000011 83C408                      add esp,4*2
+    21                                  
+    22 00000014 89EC                        mov esp,ebp
+    23 00000016 5D                          pop ebp
+    24 00000017 C3                          ret    
+    25                                  

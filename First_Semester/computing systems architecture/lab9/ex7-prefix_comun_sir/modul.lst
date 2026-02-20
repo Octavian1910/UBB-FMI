@@ -1,0 +1,39 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _prefix
+     4                                  
+     5                                  segment data public data use32
+     6 00000000 00                          rezultat db "",0
+     7                                  
+     8                                  segment code public code use32
+     9                                  
+    10                                  _prefix:
+    11 00000000 55                          push ebp
+    12 00000001 89E5                        mov ebp,esp
+    13 00000003 8B7508                      mov esi,[ebp+8] ;sir1
+    14 00000006 8B7D0C                      mov edi,[ebp+12] ;sir2
+    15                                      
+    16 00000009 B900000000                  mov ecx,0
+    17                                      repeta:
+    18 0000000E 8A040E                          mov al,[esi+ecx]
+    19 00000011 8A1C0F                          mov bl,[edi+ecx]
+    20 00000014 3C00                            cmp al,0
+    21 00000016 7412                            je finalizare_sir
+    22 00000018 80FB00                          cmp bl,0
+    23 0000001B 740D                            je finalizare_sir
+    24                                          
+    25 0000001D 38D8                            cmp al,bl
+    26 0000001F 7509                            jne finalizare_sir
+    27 00000021 8881[00000000]                  mov [rezultat + ecx],al
+    28 00000027 41                              inc ecx
+    29 00000028 EBE4                         jmp repeta
+    30                                          
+    31                                          
+    32                                      finalizare_sir:
+    33 0000002A C681[01000000]00            mov byte [rezultat + ecx + 1],0
+    34 00000031 B8[00000000]                mov eax,rezultat
+    35 00000036 89EC                        mov esp,ebp
+    36 00000038 5D                          pop ebp
+    37 00000039 C3                          ret
+    38                                      
+    39                                      

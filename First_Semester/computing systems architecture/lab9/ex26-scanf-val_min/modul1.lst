@@ -1,0 +1,39 @@
+     1                                  bits 32
+     2                                  
+     3                                  
+     4                                  global _val_min
+     5                                  
+     6                                  segment data public data use32
+     7 00000000 00000000                lungime dd 0
+     8                                  
+     9                                  segment code public code use32
+    10                                  
+    11                                  _val_min:
+    12                                  
+    13 00000000 55                              push ebp
+    14 00000001 89E5                            mov ebp,esp
+    15                                          
+    16 00000003 8B7508                          mov esi,[ebp + 8] ;vector
+    17 00000006 8B4D0C                          mov ecx,[ebp + 12] ;len
+    18                                          
+    19 00000009 AD                              lodsd
+    20 0000000A 89C3                            mov ebx,eax ;ebx = primul nr
+    21 0000000C 83E901                          sub ecx,1
+    22                                          parcurge:
+    23 0000000F AD                                  lodsd
+    24 00000010 39C3                                cmp ebx,eax
+    25                                              jl nu_e_min
+    25          ******************       error: symbol `nu_e_min' undefined
+    26                                              
+    27 00000012 89C3                                mov ebx,eax
+    28                                              
+    29                                              nu_e_max:
+    30                                              
+    31 00000014 E2F9                           loop parcurge
+    32                                         
+    33                                         
+    34 00000016 89D8                            mov eax,ebx
+    35 00000018 89EC                            mov esp,ebp
+    36 0000001A 5D                              pop ebp
+    37 0000001B C3                              ret
+    38                                          

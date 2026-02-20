@@ -1,0 +1,92 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit, fopen   , fclose ,fprintf            ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    
+     9                                  import fopen msvcrt.dll
+    10                                  import fclose msvcrt.dll
+    11                                  import fprintf msvcrt.dll
+    12                                  
+    13                                   ; Se da numele unui fisier si un numar pe cuvant scris in memorie. Se considera numarul in reprezentarea fara semn. Sa se scrie cifrele zecimale ale acestui numar ca text in fisier, fiecare cifra pe o linie separat
+    14                                                     
+    15                                  
+    16                                   
+    17                                                     
+    18                                                            
+    19                                  ; our data is declared here (the variables needed by our program)
+    20                                  segment data use32 class=data
+    21                                      ; ...
+    22                                          
+    23 00000000 616E612E74787400            nume_fisier db "ana.txt",0
+    24 00000008 A01D                         numar dw 7584
+    25 0000000A 6100                         mod_acces db "a",0
+    26                                       
+    27 0000000C FFFFFFFF                     descriptor dd -1
+    28                                      
+    29 00000010 25630C00                    format db '%c' , 12 , 0
+    30                                      
+    31                                        
+    32                                  ; our code starts here
+    33                                  segment code use32 class=code
+    34                                      start:
+    35                                          ; ...
+    36                                           ;fopen(nume,mod)
+    37 00000000 68[0A000000]                    push mod_acces
+    38 00000005 68[00000000]                    push nume_fisier
+    39 0000000A FF15[00000000]                  call [fopen]
+    40 00000010 83C408                          add esp,4*2
+    41                                          
+    42 00000013 A3[0C000000]                    mov [descriptor] , eax
+    43 00000018 83F800                          cmp eax,0
+    44 0000001B 7459                            je finish
+    45                                          
+    46 0000001D 0FB705[08000000]                movzx eax,word [numar]
+    47                                          loop_numar : ;luam cifra cu cifra
+    48                                          
+    49 00000024 66833D[08000000]00                  cmp word [numar],0
+    50 0000002C 7439                                je sub_loop
+    51                                          
+    52                                          ;deimpartit
+    53 0000002E B800000000                          mov eax,0 ;curatam eax
+    54 00000033 BA00000000                          mov edx,0 ; partea high
+    55 00000038 66A1[08000000]                      mov ax,[numar] ;punem numar
+    56                                              
+    57                                              ;impartitor
+    58 0000003E B90A000000                          mov ecx,10 
+    59                                              
+    60 00000043 F7F1                                div ecx; eax = edx:eax / ecx edx = edx:eax % 10
+    61 00000045 83C230                              add edx,'0' ;transformam in caracter 
+    62                                              
+    63                                              
+    64                                              
+    65 00000048 50                                  push eax
+    66                                              
+    67                                              ;fprintf(descriptor,format,numar)
+    68 00000049 52                                  push edx
+    69 0000004A 68[10000000]                        push format
+    70 0000004F FF35[0C000000]                      push dword [descriptor]
+    71 00000055 FF15[00000000]                      call [fprintf]
+    72 0000005B 83C40C                              add esp,4*3
+    73                                              
+    74 0000005E 58                                  pop eax
+    75 0000005F 66A3[08000000]                      mov [numar],ax ; actualizam numarul la catul nou
+    76                                              
+    77 00000065 EBBD                            jmp loop_numar
+    78                                          
+    79                                          
+    80                                          
+    81                                          
+    82                                          
+    83                                          sub_loop:
+    84                                          ;fclose(descriptor)
+    85 00000067 FF35[0C000000]                  push dword [descriptor]
+    86 0000006D FF15[00000000]                  call [fclose]
+    87 00000073 83C404                          add esp, 4*1
+    88                                          
+    89                                          finish:
+    90                                          ; exit(0)
+    91 00000076 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    92 00000078 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

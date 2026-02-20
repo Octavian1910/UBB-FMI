@@ -1,0 +1,44 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _baza8
+     4                                  
+     5                                  segment data public data use32
+     6 00000000 0A000000                zece dd 10
+     7 00000004 08000000                opt dd 8
+     8                                  
+     9                                  
+    10                                  segment code public code use32
+    11                                  
+    12                                  
+    13                                  _baza8:
+    14                                  
+    15 00000000 55                          push ebp
+    16 00000001 89E5                        mov ebp,esp
+    17 00000003 B900000000                  mov ecx,0
+    18                                      
+    19 00000008 8B4508                      mov eax,[ebp + 8]
+    20                                      
+    21                                      impartire:
+    22 0000000B 83F800                          cmp eax,0
+    23 0000000E 740E                            je compunere_nr
+    24 00000010 31D2                            xor edx,edx
+    25 00000012 F735[04000000]                  div dword [opt] ; eax = cat ; edx = rest
+    26 00000018 52                              push edx
+    27 00000019 89C3                            mov ebx,eax  ; ebx = cat
+    28 0000001B 41                              inc ecx ;ct pt cifre bagate in stiva
+    29 0000001C EBED                         jmp impartire
+    30                                       
+    31                                       compunere_nr:
+    32 0000001E 5B                              pop ebx
+    33 0000001F F725[00000000]                  mul dword [zece] ; eax= eax*10
+    34 00000025 01D8                            add eax,ebx
+    35 00000027 E2F5                         loop compunere_nr
+    36                                       
+    37                                       
+    38 00000029 89EC                         mov esp,ebp
+    39 0000002B 5D                           pop ebp
+    40 0000002C C3                           ret
+    41                                  
+    42                                          
+    43                                          
+    44                                      

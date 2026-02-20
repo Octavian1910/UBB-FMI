@@ -1,0 +1,38 @@
+     1                                  bits 32 
+     2                                  
+     3                                  global _permutari
+     4                                  extern _printf
+     5                                  
+     6                                  segment data public data use32
+     7                                  
+     8 00000000 00000000                numar dd 0
+     9                                  
+    10                                  segment code public code use32
+    11                                  
+    12                                  _permutari:
+    13 00000000 55                          push ebp
+    14 00000001 89E5                        mov ebp,esp
+    15 00000003 31D2                        xor edx,edx
+    16                                   
+    17 00000005 8B4508                      mov eax,[ebp + 8] ;sir1
+    18 00000008 A3[00000000]                mov [numar],eax
+    19 0000000D B907000000                  mov ecx,7
+    20                                      parcurge:
+    21 00000012 D105[00000000]                  rol dword [numar],1
+    22 00000018 FF35[00000000]                  push dword [numar]
+    23 0000001E E8(00000000)                    call _printf
+    24 00000023 83C404                          add esp,4
+    25 00000026 E2EA                       loop parcurge
+    26                                          
+    27                                      finish:
+    28 00000028 89D0                        mov eax,edx
+    29 0000002A 89EC                        mov esp,ebp
+    30 0000002C 5D                          pop ebp
+    31 0000002D C3                          ret
+    32                                      
+    33                                      
+    34                                      
+    35                                      
+    36                                      
+    37                                      
+    38                                      

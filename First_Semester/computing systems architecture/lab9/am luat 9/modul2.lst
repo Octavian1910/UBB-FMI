@@ -1,0 +1,39 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _VERIFICA
+     4                                  
+     5                                  segment data public data use32
+     6                                  segment code public code use32
+     7                                  
+     8                                  _VERIFICA:
+     9 00000000 55                          push ebp
+    10 00000001 89E5                        mov ebp,esp
+    11                                      
+    12 00000003 8B7508                      mov esi,[ebp+8];sir
+    13 00000006 8B5D0C                      mov ebx,[ebp+12];caracter
+    14 00000009 31C0                        xor eax,eax  ; eax = 0 , 1 daca apare 0 altfel
+    15                                      parcurge:
+    16 0000000B AC                              lodsb
+    17 0000000C 3C0A                            cmp al,10  ;\n
+    18 0000000E 7412                            je finish
+    19 00000010 3C00                            cmp al,0   ;\0
+    20 00000012 740E                            je finish
+    21                                          
+    22 00000014 0FB6C0                          movzx eax,al
+    23 00000017 39D8                            cmp eax,ebx
+    24 00000019 7402                            je apare
+    25                                          
+    26 0000001B EBEE                        jmp parcurge
+    27                                      
+    28                                      apare:
+    29 0000001D B801000000                      mov eax,1
+    30                                      
+    31                                      finish:
+    32                                      
+    33                                      
+    34 00000022 89EC                        mov esp,ebp
+    35 00000024 5D                          pop ebp
+    36 00000025 C3                          ret
+    37                                      
+    38                                  
+    39                                  

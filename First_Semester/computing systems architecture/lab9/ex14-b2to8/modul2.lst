@@ -1,0 +1,48 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _conversie_baza_8
+     4                                  extern _printf
+     5                                  
+     6                                  segment data public data use32
+     7 00000000 00000000                opt dd 0
+     8 00000004 00<rept>                sir times 100 db 0
+     9 00000068 257300                  format db "%s",0
+    10                                  segment code public code use32
+    11                                  
+    12                                  _conversie_baza_8:
+    13 00000000 55                          push ebp
+    14 00000001 89E5                        mov ebp,esp
+    15                                      
+    16 00000003 8B4508                      mov eax,[ebp+8] ;nr
+    17 00000006 31C9                        xor ecx,ecx
+    18 00000008 BF[04000000]                mov edi,sir
+    19                                      
+    20                                      parcurge:
+    21 0000000D 83F800                          cmp eax,0
+    22 00000010 740C                            je afisare
+    23 00000012 31D2                            xor edx,edx
+    24 00000014 F735[00000000]                  div dword [opt]
+    25 0000001A 41                              inc ecx
+    26 0000001B 52                              push edx
+    27 0000001C EBEF                         jmp parcurge
+    28                                       
+    29                                  
+    30                                       
+    31                                       afisare:   
+    32 0000001E 58                              pop eax
+    33 0000001F 83C030                          add eax,'0'
+    34 00000022 AA                              stosb
+    35 00000023 E2F9                         loop afisare
+    36                                       
+    37 00000025 B000                         mov al,0
+    38 00000027 AA                           stosb
+    39                                       
+    40 00000028 68[04000000]                 push sir
+    41 0000002D 68[68000000]                 push format
+    42 00000032 E8(00000000)                 call _printf
+    43 00000037 83C408                       add esp,4*2
+    44                                     
+    45                                      
+    46 0000003A 89EC                        mov esp,ebp
+    47 0000003C 5D                          pop ebp
+    48 0000003D C3                          ret

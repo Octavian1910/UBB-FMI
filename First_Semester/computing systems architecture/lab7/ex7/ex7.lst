@@ -1,0 +1,137 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit,fopen ,printf ,fclose  ,fread         ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  import fopen msvcrt.dll
+    11                                  import printf msvcrt.dll
+    12                                  import fclose msvcrt.dll
+    13                                  import fread msvcrt.dll
+    14                                                            
+    15                                  ; our data is declared here (the variables needed by our program)
+    16                                  segment data use32 class=data
+    17                                      ; ...
+    18                                      ; Se da un fisier text. Sa se citeasca continutul fisierului, sa se determine litera mica (lowercase) cu cea mai mare frecventa si sa se afiseze acea litera, impreuna cu frecventa acesteia. Numele fisierului tex
+    19                                      
+    20 00000000 00<rept>                    vector times 26 db 0 
+    21                                      a equ 'a'
+    22                                      z equ 'z'
+    23 0000001A 696E7075742E747874-         nume_fisier db "input.txt",0
+    23 00000023 00                 
+    24 00000024 7200                        mod_acces db "r",0
+    25 00000026 FFFFFFFF                    descriptor dd -1
+    26                                      
+    27                                      len equ 100
+    28 0000002A 00000000                    len_sir dd 0
+    29                                      
+    30 0000002E 00<rept>                    text times (len + 1) db 0 
+    31                                      
+    32 00000093 00000000                    nr_maxim dd 0
+    33 00000097 00                          frecv_maxima db 0
+    34                                      
+    35 00000098 4C6974657261206573-         format db "Litera este %c aparand de %d ori", 0
+    35 000000A1 746520256320617061-
+    35 000000AA 72616E642064652025-
+    35 000000B3 64206F726900       
+    36                                      
+    37                                      
+    38                                  ; our code starts here
+    39                                  segment code use32 class=code
+    40                                      start:
+    41                                          ; ...
+    42                                          ;fopen(nume_fisier,mod_acces)
+    43 00000000 68[24000000]                    push mod_acces
+    44 00000005 68[1A000000]                    push nume_fisier
+    45 0000000A FF15[00000000]                  call [fopen]
+    46 00000010 83C408                          add esp,4*2
+    47                                          
+    48 00000013 A3[26000000]                    mov [descriptor],eax
+    49                                          
+    50 00000018 83F800                          cmp eax,0
+    51 0000001B 0F8498000000                    je finish
+    52                                          
+    53                                          ;fread(text,1,len,descriptor)
+    54 00000021 FF35[26000000]                  push dword [descriptor]
+    55 00000027 6A64                            push dword len
+    56 00000029 6A01                            push 1
+    57 0000002B 68[2E000000]                    push text
+    58 00000030 FF15[00000000]                  call [fread]
+    59 00000036 83C410                          add esp,4*4
+    60                                          
+    61                                          
+    62                                          
+    63                                          
+    64 00000039 83F800                          cmp eax,0
+    65 0000003C 747B                            je finish
+    66 0000003E A3[2A000000]                    mov [len_sir],eax
+    67                                          
+    68 00000043 BE00000000                      mov esi,0
+    69 00000048 8B0D[2A000000]                  mov ecx,dword [len_sir]
+    70                                          loop_text:
+    71 0000004E 8A86[2E000000]                      mov al,[text + esi] ; al = caracter curent
+    72                                              
+    73 00000054 3C61                                cmp al,'a'
+    74 00000056 7228                                jb nu_e_bun   ; < a
+    75                                              
+    76 00000058 3C7A                                cmp al,'z'
+    77 0000005A 7724                                ja nu_e_bun ; >z
+    78                                              
+    79 0000005C 2C61                                sub al,'a' ;
+    80                                              
+    81 0000005E 0FB6F8                              movzx edi,al
+    82                                              
+    83 00000061 FE87[00000000]                      inc byte [vector + edi] ;contorizare
+    84                                              
+    85                                              ;verificare maxim
+    86 00000067 8A87[00000000]                      mov al,[vector+edi]
+    87 0000006D 3A05[97000000]                      cmp al,[frecv_maxima]
+    88 00000073 760B                                jbe nu_e_bun  
+    89                                              
+    90                                              ;daca trb schimbat 
+    91 00000075 A2[97000000]                         mov [frecv_maxima],al
+    92 0000007A 893D[93000000]                       mov [nr_maxim], edi
+    93                                              
+    94                                              nu_e_bun :
+    95 00000080 46                                      inc esi 
+    96 00000081 E2CB                            loop loop_text  
+    97                                          
+    98 00000083 B861000000                      mov eax,'a'
+    99 00000088 0105[93000000]                  add [nr_maxim],eax ;convertim la litera
+   100                                          
+   101 0000008E 0FB605[97000000]                movzx eax,byte[frecv_maxima]
+   102                                          
+   103                                          ;printf(format,val1,val2)
+   104 00000095 50                              push eax
+   105 00000096 FF35[93000000]                  push dword [nr_maxim]
+   106 0000009C 68[98000000]                    push format
+   107 000000A1 FF15[00000000]                  call [printf]
+   108 000000A7 83C40C                          add  esp ,4*3
+   109                                          ;fclose(descriptor)
+   110                                          
+   111 000000AA FF35[26000000]                  push dword [descriptor]
+   112 000000B0 FF15[00000000]                  call [fclose]
+   113 000000B6 83C404                          add esp,4*1
+   114                                          
+   115                                          
+   116                                          
+   117                                          
+   118                                          
+   119                                                
+   120                                              
+   121                                              
+   122                                              
+   123                                              
+   124                                              
+   125                                              
+   126                                              
+   127                                              
+   128                                          
+   129                                          
+   130                                          finish:
+   131                                          ; exit(0)
+   132 000000B9 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+   133 000000BB FF15[00000000]                  call    [exit]       ; call exit to terminate the program

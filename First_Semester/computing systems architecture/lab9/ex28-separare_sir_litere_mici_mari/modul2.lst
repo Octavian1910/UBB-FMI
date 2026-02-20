@@ -1,0 +1,38 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _litere_mari
+     4                                  
+     5                                  segment data public data use32
+     6                                  
+     7                                  segment code public code use32
+     8                                  
+     9                                  _litere_mari:
+    10 00000000 55                          push ebp
+    11 00000001 89E5                        mov ebp,esp
+    12                                      
+    13 00000003 8B7508                      mov esi,[ebp+8] ; sir1
+    14 00000006 8B7D0C                      mov edi,[ebp+12] ; sir2
+    15                                      
+    16                                      .parcurge:
+    17 00000009 AC                              lodsb
+    18 0000000A 3C00                            cmp al,0
+    19 0000000C 740F                            je .finish
+    20                                          
+    21 0000000E 3C0A                            cmp al,10
+    22 00000010 740B                            je .finish
+    23                                          
+    24 00000012 3C41                            cmp al,'A'
+    25 00000014 7CF3                            jl .parcurge
+    26 00000016 3C5A                            cmp al,'Z'
+    27 00000018 7FEF                            jg .parcurge
+    28                                          
+    29 0000001A AA                              stosb
+    30 0000001B EBEC                         jmp .parcurge
+    31                                          
+    32                                       .finish:
+    33 0000001D B000                            mov al,0
+    34 0000001F AA                              stosb
+    35                                          
+    36 00000020 89EC                        mov esp,ebp
+    37 00000022 5D                          pop ebp
+    38 00000023 C3                          ret

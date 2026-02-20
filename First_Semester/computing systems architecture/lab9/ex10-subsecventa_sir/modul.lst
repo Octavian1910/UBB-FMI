@@ -1,0 +1,77 @@
+     1                                  bits 32
+     2                                  
+     3                                  
+     4                                  global _e_subsecventa
+     5                                  
+     6                                  extern _printf
+     7                                  
+     8                                  segment data public data use32
+     9                                  
+    10                                  
+    11                                  segment code public code use32
+    12                                  
+    13                                  _e_subsecventa:
+    14 00000000 55                          push ebp
+    15 00000001 89E5                        mov ebp,esp
+    16 00000003 8B7D08                      mov edi,[ebp + 8]   ;sir1
+    17 00000006 8B750C                      mov esi,[ebp + 12]  ;sir2
+    18                                      
+    19                                      parcurge:
+    20 00000009 AC                              lodsb
+    21 0000000A 3C00                            cmp al,0
+    22 0000000C 743A                            je stop
+    23 0000000E 3C0A                            cmp al,10
+    24 00000010 7436                            je stop
+    25                                          
+    26 00000012 3A07                            cmp al,[edi]    ; e prima litera
+    27 00000014 75F3                            jne parcurge
+    28 00000016 31C9                            xor ecx,ecx ;esi
+    29 00000018 7402                            je verifica
+    30 0000001A EBED                        jmp parcurge
+    31                                      
+    32                                      verifica:
+    33                                          ;pt sir 2
+    34 0000001C 83C101                          add ecx,1
+    35 0000001F 8A040E                          mov al,[esi + ecx] 
+    36 00000022 3C00                            cmp al,0
+    37 00000024 7422                            je stop
+    38 00000026 3C0A                            cmp al,10
+    39 00000028 741E                            je stop
+    40                                          
+    41                                          ;cmp sir2 cu sir 1
+    42 0000002A 3A040F                          cmp al,[edi + ecx]
+    43 0000002D 740A                            je skip
+    44                                          ;intra doar daca nu sunt bune
+    45 0000002F 31C9                            xor ecx,ecx
+    46                                          
+    47 00000031 803C0F0A                        cmp byte [edi+ecx],10
+    48 00000035 EB1E                            jmp e_bun
+    49                                          
+    50 00000037 EBD0                            jmp parcurge
+    51                                          
+    52                                          skip:
+    53 00000039 8A1C0F                          mov bl,[edi + ecx]
+    54                                          
+    55 0000003C 80FB00                          cmp bl,0
+    56 0000003F 7414                            je e_bun
+    57 00000041 80FB0A                          cmp bl,10
+    58 00000044 740F                            je e_bun    
+    59 00000046 EBD4                        jmp verifica
+    60                                      
+    61                                      stop:
+    62 00000048 803C0F00                        cmp byte [edi+ecx],0
+    63 0000004C 7407                            je e_bun
+    64                                      
+    65 0000004E B800000000                      mov eax,0
+    66 00000053 EB05                        jmp finish  
+    67                                        
+    68                                       e_bun:
+    69 00000055 B801000000                      mov eax,1
+    70                                       
+    71                                      
+    72                                   
+    73                                      finish:
+    74 0000005A 89EC                        mov esp,ebp
+    75 0000005C 5D                          pop ebp
+    76 0000005D C3                          ret   
+    77                                  

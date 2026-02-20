@@ -1,0 +1,40 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _baza2
+     4                                  extern _printf
+     5                                  segment data public data use32
+     6 00000000 00<rept>                rezultat times 100 db 0
+     7 00000064 0A000000                zece dd 10
+     8                                  
+     9                                  
+    10                                  segment code public code use32
+    11                                  
+    12                                  
+    13                                  _baza2:
+    14 00000000 55                          push ebp
+    15 00000001 89E5                        mov ebp,esp
+    16 00000003 FC                          cld
+    17                                      
+    18 00000004 BF[00000000]                mov edi,rezultat
+    19 00000009 8B4508                      mov eax,[ebp+8]
+    20 0000000C 31C9                        xor ecx,ecx ; contor cifre adaugate in stiva
+    21                                      pregatire_stiva:
+    22 0000000E 83F800                          cmp eax,0
+    23 00000011 740A                            je creare_sir
+    24 00000013 41                              inc ecx
+    25 00000014 F735[64000000]                  div dword [zece] ;eax = cat edx = rest
+    26 0000001A 52                              push edx
+    27 0000001B EBF1                        jmp pregatire_stiva
+    28                                      
+    29                                      creare_sir:
+    30 0000001D AC                              lodsb
+    31 0000001E 0430                            add al,'0'
+    32 00000020 AA                              stosb
+    33 00000021 E2FA                        loop  creare_sir
+    34                                      
+    35                                          
+    36 00000023 A1[00000000]                mov eax,[rezultat]
+    37                                       
+    38 00000028 89EC                         mov esp,ebp
+    39 0000002A 5D                           pop ebp
+    40 0000002B C3                           ret

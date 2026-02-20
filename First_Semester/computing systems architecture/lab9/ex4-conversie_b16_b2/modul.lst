@@ -1,0 +1,50 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _parsare
+     4                                  extern _printf
+     5                                  segment data public data use32
+     6                                  
+     7 00000000 0A000000                zece dd 10
+     8 00000004 00000000                lungime dd 0
+     9                                  
+    10                                  segment code public code use32
+    11                                  
+    12                                  
+    13                                  _parsare:
+    14 00000000 55                          push ebp
+    15 00000001 89E5                        mov ebp,esp
+    16                                      
+    17 00000003 8B7508                      mov esi,[ebp + 8]
+    18 00000006 8B7D0C                      mov edi,[ebp + 12]
+    19                                      
+    20                                      parcurgere:
+    21 00000009 AC                              lodsb
+    22 0000000A 3C00                            cmp al,0
+    23 0000000C 7425                            je finish
+    24 0000000E 3C20                            cmp al,' '
+    25 00000010 7414                            je salvare
+    26 00000012 88C1                            mov cl,al   ;cl = uc
+    27 00000014 89D0                            mov eax,edx ;edx are nr curent
+    28 00000016 F725[00000000]                  mul dword [zece] ;eax *10
+    29 0000001C 80E930                          sub cl,'0'  
+    30 0000001F 0FB6C9                          movzx ecx,cl
+    31 00000022 01C8                            add eax,ecx ;eax*10+uc
+    32 00000024 EBE3                        jmp parcurgere
+    33                                      
+    34                                      salvare:
+    35 00000026 8917                            mov [edi],edx
+    36 00000028 83C704                          add edi,4
+    37 0000002B FF05[04000000]                  inc dword [lungime]
+    38 00000031 EBD6                        jmp parcurgere
+    39                                          
+    40                                          
+    41                                      finish:
+    42 00000033 8917                            mov [edi],edx
+    43 00000035 83C704                          add edi,4
+    44 00000038 FF05[04000000]                  inc dword [lungime]
+    45 0000003E A1[04000000]                    mov eax,[lungime]
+    46                                          
+    47                                  
+    48 00000043 89EC                         mov esp,ebp
+    49 00000045 5D                           pop ebp
+    50 00000046 C3                           ret

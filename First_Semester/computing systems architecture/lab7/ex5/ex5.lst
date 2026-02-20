@@ -1,0 +1,107 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit ,fopen ,fclose,printf  ,fread              ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  import fopen msvcrt.dll
+    11                                  import fclose msvcrt.dll
+    12                                  import printf msvcrt.dll
+    13                                  import fread msvcrt.dll
+    14                                  ; our data is declared here (the variables needed by our program)
+    15                                  segment data use32 class=data
+    16                                      ; ...
+    17                                      ;Se da un fisier text. Sa se citeasca continutul fisierului, sa se contorizeze numarul de caractere speciale si sa ;se afiseze aceasta valoare. Numele fisierului text este definit in segmentul de date.
+    18                                  
+    19 00000000 696E7075742E747874-         nume_fisier db "input.txt" , 0
+    19 00000009 00                 
+    20 0000000A 7200                        mod_acces db "r",0
+    21 0000000C FFFFFFFF                    descriptor dd -1
+    22                                      len equ 100
+    23 00000010 00<rept>                    text times len db 0
+    24 00000074 00000000                    len_sir dd 0
+    25                                      
+    26 00000078 21402324255E262A28-         caractere_speciale db "!@#$%^&*()_+"
+    26 00000081 295F2B             
+    27                                      
+    28                                      
+    29 00000084 00000000                    rezultat dd 0
+    30 00000088 256400                      format db "%d",0
+    31                                      
+    32                                  ; our code starts here
+    33                                  segment code use32 class=code
+    34                                      start:
+    35                                          ; ...
+    36                                          ;deschidere fisier
+    37                                          ;fopen(nume_fisier,mod_acces)
+    38 00000000 68[0A000000]                    push mod_acces
+    39 00000005 68[00000000]                    push nume_fisier
+    40 0000000A FF15[00000000]                  call [fopen]
+    41 00000010 83C408                          add esp,4*2
+    42                                         
+    43                                          
+    44 00000013 A3[0C000000]                    mov [descriptor], eax
+    45 00000018 83F800                          cmp eax,0
+    46 0000001B 7473                            je finish
+    47                                          
+    48                                          ;fread(text,1,len,descriptor)
+    49 0000001D FF35[0C000000]                  push dword [descriptor]
+    50 00000023 6A64                            push len
+    51 00000025 6A01                            push 1
+    52 00000027 68[10000000]                    push text
+    53 0000002C FF15[00000000]                  call [fread]
+    54 00000032 83C410                          add esp,4*4
+    55                                          
+    56 00000035 A3[74000000]                    mov [len_sir],eax
+    57 0000003A 83F800                          cmp eax,0
+    58 0000003D 7451                            je finish
+    59                                          
+    60 0000003F BE00000000                      mov esi,0
+    61 00000044 8B0D[74000000]                  mov ecx,[len_sir]
+    62                                          parcurgere_sir :
+    63 0000004A 8A86[10000000]                      mov al,[text + esi]
+    64 00000050 BF00000000                          mov edi,0
+    65                                                  parcurgere_elem_speciale:
+    66 00000055 8A9F[78000000]                              mov bl,[caractere_speciale + edi]
+    67 0000005B 80FB00                                      cmp bl,0
+    68 0000005E 740D                                        je urm_elem_parcurgere_sir
+    69                                                      
+    70 00000060 38D8                                        cmp al,bl
+    71 00000062 7506                                        jne urm_elem
+    72                                                      
+    73                                                      ;daca sunt egale
+    74 00000064 FF05[84000000]                              inc dword [rezultat]
+    75                                                      
+    76                                                      urm_elem :
+    77 0000006A 47                                             inc edi
+    78 0000006B EBE8                                    jmp parcurgere_elem_speciale
+    79                                                
+    80                                               urm_elem_parcurgere_sir :
+    81 0000006D 46                                      inc esi 
+    82 0000006E E2DA                               loop parcurgere_sir
+    83                                             
+    84                                             ;printf (format,rezultat)
+    85 00000070 FF35[84000000]                     push dword [rezultat]
+    86 00000076 68[88000000]                       push format
+    87 0000007B FF15[00000000]                     call [printf]
+    88 00000081 83C708                             add edi,4*2
+    89                                             
+    90                                             
+    91                                              ;fclose(descriptor)
+    92 00000084 FF35[0C000000]                      push dword [descriptor]
+    93 0000008A FF15[00000000]                      call [fclose]
+    94                                             
+    95                                             
+    96                                                  
+    97                                              
+    98                                              
+    99                                          
+   100                                          
+   101                                      
+   102                                          finish:
+   103                                          ; exit(0)
+   104 00000090 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+   105 00000092 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

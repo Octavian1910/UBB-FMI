@@ -1,0 +1,39 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _pozitive
+     4                                  
+     5                                  segment data public data use32
+     6                                  
+     7                                  
+     8                                  segment code public code use32
+     9                                  
+    10                                  _intoarce_si_dubleaza:
+    11 00000000 55                          push ebp
+    12 00000001 89E5                        mov ebp,esp
+    13                                      
+    14 00000003 FC                          cld 
+    15                                      
+    16 00000004 8B7508                      mov esi,[ebp+8] ; v
+    17 00000007 8B7D0C                      mov edi,[ebp+12] ; rez
+    18 0000000A 8B4D10                      mov ecx,[ebp+16] ; len
+    19 0000000D 31C0                        xor eax,eax
+    20                                      
+    21                                      parcurge:
+    22 0000000F AD                              lodsd
+    23 00000010 3C00                            cmp al,0
+    24 00000012 7C02                            jl e_negativ ;greater and lower pt semn
+    25                                          
+    26                                          e_pozitiv:
+    27 00000014 40                                  inc eax
+    28 00000015 AB                                  stosd
+    29                                          e_negativ:
+    30 00000016 E2F7                         loop parcurge
+    31                                             
+    32                                          
+    33                                          
+    34                                      ;in eax este lungimea vectorului rezultat
+    35 00000018 89EC                        mov esp,ebp
+    36 0000001A 5D                          pop ebp
+    37 0000001B C3                          ret
+    38                                  
+    39                                  

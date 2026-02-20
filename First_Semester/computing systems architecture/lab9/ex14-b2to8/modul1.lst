@@ -1,0 +1,59 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _salvare
+     4                                  
+     5                                  segment data public data use32
+     6                                  segment code public code use32
+     7                                  
+     8                                  _salvare:
+     9 00000000 55                          push ebp
+    10 00000001 89E5                        mov ebp,esp
+    11                                      
+    12 00000003 8B7508                      mov esi,[ebp+8] ;sir
+    13 00000006 8B7D0C                      mov edi,[ebp+12]    ;v
+    14                                      
+    15 00000009 31D2                        xor edx,edx ;temp
+    16 0000000B 31C9                        xor ecx,ecx ;len
+    17                                      parcurge:
+    18 0000000D AC                              lodsb
+    19 0000000E 3C00                            cmp al,0
+    20 00000010 7422                            je finish
+    21                                          
+    22 00000012 3C0A                            cmp al,10
+    23 00000014 741E                            je finish
+    24                                          
+    25 00000016 3C20                            cmp al,' '
+    26 00000018 7412                            je salvare
+    27                                          
+    28                                          ;e cifra
+    29 0000001A 3C30                            cmp al,'0'
+    30 0000001C 7407                            je e_zero
+    31                                          
+    32                                          ;daca nu este 1
+    33 0000001E D1E2                            shl edx,1
+    34 00000020 83C201                          add edx,1
+    35 00000023 EBE8                            jmp parcurge
+    36                                          
+    37                                          e_zero:
+    38 00000025 D1E2                            shl edx,1
+    39 00000027 83C200                          add edx,0
+    40                                  
+    41 0000002A EBE1                        jmp parcurge
+    42                                          
+    43                                          
+    44                                      salvare:
+    45 0000002C 89D0                            mov eax,edx
+    46 0000002E AB                              stosd
+    47 0000002F 31D2                            xor edx,edx
+    48 00000031 41                              inc ecx
+    49 00000032 EBD9                        jmp parcurge
+    50                                          
+    51                                      finish:
+    52 00000034 89D0                            mov eax,edx
+    53 00000036 AB                              stosd
+    54 00000037 31D2                            xor edx,edx
+    55 00000039 41                              inc ecx
+    56 0000003A 89C8                        mov eax,ecx ;returnam ecx
+    57 0000003C 89EC                        mov esp,ebp
+    58 0000003E 5D                          pop ebp
+    59 0000003F C3                          ret

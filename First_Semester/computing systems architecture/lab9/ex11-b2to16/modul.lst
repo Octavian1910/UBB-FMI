@@ -1,0 +1,43 @@
+     1                                  bits 32
+     2                                  ;Se citeste de la tastatura un sir de mai multe numere in baza 2. Sa se afiseze aceste numere in baza 16.
+     3                                  global _baza2to16
+     4                                  
+     5                                  segment data public data use32
+     6                                  
+     7                                  
+     8                                  segment code public code use32
+     9                                  
+    10                                  _baza2to16:
+    11 00000000 55                          push ebp
+    12 00000001 89E5                        mov ebp,esp
+    13 00000003 8B7508                      mov esi,[ebp + 8]
+    14 00000006 31C0                        xor eax,eax
+    15 00000008 FC                          cld
+    16                                      parcurge:
+    17 00000009 AC                              lodsb
+    18 0000000A 3C00                            cmp al,0
+    19 0000000C 7416                            je terminare
+    20                                          
+    21 0000000E 3C5C                            cmp al,"\n"
+    21          ******************       warning: byte data exceeds bounds [-w+number-overflow]
+    22 00000010 7412                            je terminare
+    23                                          
+    24                                          
+    25 00000012 3C31                            cmp al,'1'
+    26 00000014 7407                            je pune_unu
+    27                                        
+    28                                          pune_zero:  ;altfel pune 0
+    29 00000016 D1E0                            shl eax,1
+    30 00000018 83C000                          add eax,0
+    31 0000001B EBEC                            jmp parcurge
+    32                                          
+    33                                          
+    34                                          pune_unu :
+    35 0000001D D1E0                            shl eax,1
+    36 0000001F 83C001                          add eax,1
+    37 00000022 EBE5                            jmp parcurge
+    38                                          
+    39                                      terminare:
+    40 00000024 89EC                        mov esp,ebp
+    41 00000026 5D                          pop ebp
+    42 00000027 C3                          ret     ;eax = in eax se afla numarul

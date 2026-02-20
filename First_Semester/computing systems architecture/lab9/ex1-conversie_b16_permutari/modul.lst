@@ -1,0 +1,48 @@
+     1                                  bits 32 
+     2                                  
+     3                                  global _creeare_numar
+     4                                  
+     5                                  segment data public data use32
+     6                                  
+     7 00000000 00000000                numar dd 0
+     8                                  
+     9                                  segment code public code use32
+    10                                      
+    11                                     
+    12                                  _creeare_numar:
+    13 00000000 55                          push ebp
+    14 00000001 89E5                        mov ebp,esp
+    15 00000003 31D2                        xor edx,edx
+    16                                   
+    17 00000005 8B7508                      mov esi,[ebp + 8] ;sir1
+    18 00000008 8B3D[00000000]              mov edi,[numar]
+    19                                      parcurge:
+    20 0000000E AC                              lodsb
+    21 0000000F 3C00                            cmp al,0
+    22                                          je finish
+    22          ******************       error: symbol `finish' undefined
+    23                                          
+    24 00000011 3C31                            cmp al,'1'
+    25 00000013 7409                            je pune_unu
+    26                                          
+    27                                          pune_zero:
+    28 00000015 D1E2                                shl edx,1
+    29 00000017 83C200                              add edx,0
+    30 0000001A EBF2                            jmp parcurge
+    31                                          
+    32                                          pune_unu:
+    33 0000001C D1E2                                shl edx,1
+    34 0000001E 83C201                              add edx,1
+    35 00000021 EBEB                            jmp parcurge
+    36                                          
+    37 00000023 89D0                        mov eax,edx
+    38 00000025 89EC                        mov esp,ebp
+    39 00000027 5D                          pop ebp
+    40 00000028 C3                          ret
+    41                                      
+    42                                      
+    43                                      
+    44                                      
+    45                                      
+    46                                      
+    47                                      

@@ -1,0 +1,24 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _sute
+     4                                  
+     5                                  segment data public data use32
+     6                                  
+     7 00000000 64000000                suta dd 100
+     8                                  
+     9                                  segment code public code use32
+    10                                  
+    11                                  _sute:
+    12 00000000 55                          push ebp
+    13 00000001 89E5                        mov ebp,esp
+    14                                      
+    15 00000003 8B4508                      mov eax,[ebp + 8]
+    16                                      
+    17 00000006 31D2                        xor edx,edx
+    18                                      div suta
+    18          ******************       error: invalid combination of opcode and operands
+    19                                      
+    20 00000008 89D0                        mov eax,edx
+    21 0000000A 89EC                        mov esp,ebp
+    22 0000000C 5D                          pop ebp
+    23 0000000D C3                          ret

@@ -1,0 +1,79 @@
+     1                                  bits 32
+     2                                  
+     3                                  
+     4                                  global _afisare_inversa
+     5                                  
+     6                                  segment data public data use32
+     7                                  
+     8 00000000 00000000                sir_cuvinte_inversate dd 0
+     9 00000004 256300                  format db "%c",0
+    10                                  
+    11                                  segment code public code use32
+    12                                  
+    13                                  _afisare_inversa:
+    14                                  
+    15 00000000 55                              push ebp
+    16 00000001 89E5                            mov ebp,esp
+    17                                          
+    18 00000003 FC                              cld
+    19 00000004 8B7508                          mov esi,[ebp + 8]
+    20 00000007 BF[00000000]                    mov edi,sir_cuvinte_inversate
+    21 0000000C 31C9                            xor ecx,ecx ; contor litere
+    22                                          
+    23                                          .parcurge:
+    24 0000000E AC                                  lodsb 
+    25                                              
+    26 0000000F 3C00                                cmp al,0
+    27 00000011 741E                                je .finish
+    28                                              
+    29 00000013 3C0A                                cmp al,10 
+    30 00000015 741A                                je .finish      
+    31                                              
+    32 00000017 3C20                                cmp al,' '
+    33 00000019 7402                                je .cuvant_invers
+    34                                              
+    35                                              
+    36 0000001B EBF1                            jmp .parcurge
+    37                                  
+    38                                          
+    39                                          .cuvant_invers:
+    40 0000001D FD                                  std
+    41 0000001E 56                                  push esi
+    42 0000001F 83EE01                              sub esi,1
+    43                                              
+    44                                              .loop_interior:
+    45                                              
+    46 00000022 AC                                      lodsb
+    47 00000023 8807                                    mov [edi],al
+    48 00000025 47                                      inc edi
+    49 00000026 E2FA                                loop .loop_interior
+    50 00000028 B020                                mov al,' '
+    51 0000002A 8807                                mov [edi],al
+    52 0000002C 47                                  inc edi
+    53 0000002D 5E                                  pop esi
+    54 0000002E FC                                  cld
+    55 0000002F EBDD                             jmp .parcurge
+    56                                  
+    57                                            
+    58                                          .finish:
+    59 00000031 FD                                  std
+    60 00000032 56                                  push esi
+    61 00000033 83EE01                              sub esi,1
+    62                                              
+    63                                              .loop_interior2:
+    64                                              
+    65 00000036 AC                                      lodsb
+    66 00000037 8807                                    mov [edi],al
+    67 00000039 47                                      inc edi
+    68 0000003A E2FA                                loop .loop_interior2
+    69 0000003C B000                                mov al,0
+    70 0000003E 8807                                mov [edi],al
+    71 00000040 47                                  inc edi
+    72 00000041 5E                                  pop esi
+    73 00000042 FC                                  cld
+    74                                            
+    75 00000043 C7450C[00000000]                mov dword [ebp+12],sir_cuvinte_inversate
+    76 0000004A 89EC                            mov esp,ebp
+    77 0000004C 5D                              pop ebp
+    78 0000004D C3                              ret
+    79                                          

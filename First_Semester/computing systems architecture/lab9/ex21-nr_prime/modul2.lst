@@ -1,0 +1,57 @@
+     1                                  bits 32
+     2                                  
+     3                                  
+     4                                  global _e_nr_prim
+     5                                  
+     6                                  segment data public data use32
+     7 00000000 00000000                lungime dd 0
+     8 00000004 00000000                numar dd 0
+     9 00000008 0200                    doi dw 2
+    10                                  
+    11                                  segment code public code use32
+    12                                  
+    13                                  _e_nr_prim:
+    14                                  
+    15 00000000 55                              push ebp
+    16 00000001 89E5                            mov ebp,esp
+    17                                          
+    18 00000003 8B4508                          mov eax,[ebp+8]
+    19 00000006 A3[04000000]                    mov [numar],eax
+    20                                          
+    21 0000000B 833D[04000000]01                cmp dword [numar],1
+    22 00000012 7E2C                            jle nu_e_prim
+    23                                          
+    24 00000014 833D[04000000]02                cmp dword [numar],2
+    25 0000001B 742A                            je e_prim
+    26                                          
+    27 0000001D 66F735[08000000]                div word [doi]  ; eax = cat edx = rest
+    28 00000024 83FA00                          cmp edx,0
+    29 00000027 7417                            je nu_e_prim  ; e nr par
+    30                                          
+    31 00000029 89C1                            mov ecx,eax   ; n/2
+    32                                          parcurge:
+    33 0000002B 83F901                              cmp ecx,1
+    34 0000002E 7E10                                jle nu_e_prim
+    35                                          
+    36 00000030 A1[04000000]                        mov eax,[numar]
+    37 00000035 31D2                                xor edx,edx
+    38 00000037 F7F1                                div ecx
+    39 00000039 83FA00                              cmp edx,0
+    40 0000003C 7402                                je nu_e_prim
+    41 0000003E EBEB                           jmp parcurge
+    42                                              
+    43                                         
+    44                                         nu_e_prim:
+    45 00000040 B800000000                          mov eax,0
+    46 00000045 EB05                                jmp finish
+    47                                              
+    48                                         e_prim:
+    49 00000047 B801000000                      mov eax,1
+    50                                          
+    51                                          
+    52                                          finish:
+    53                                          
+    54 0000004C 89EC                            mov esp,ebp
+    55 0000004E 5D                              pop ebp
+    56 0000004F C3                              ret
+    57                                          

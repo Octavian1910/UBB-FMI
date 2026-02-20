@@ -1,0 +1,57 @@
+     1                                  bits 32
+     2                                  
+     3                                  
+     4                                  global _nr_cuvinte
+     5                                  
+     6                                  segment data public data use32
+     7 00000000 00000000                lungime dd 0
+     8                                  
+     9                                  segment code public code use32
+    10                                  
+    11                                  _nr_cuvinte:
+    12                                  
+    13 00000000 55                              push ebp
+    14 00000001 89E5                            mov ebp,esp
+    15                                          
+    16 00000003 8B7508                          mov esi,[ebp + 8]  ; sir
+    17 00000006 8B7D0C                          mov edi,[ebp + 12] ;v
+    18 00000009 31C9                            xor ecx,ecx ; ct = 0
+    19                                          
+    20                                          .parcurge:
+    21 0000000B AC                                     lodsb
+    22 0000000C 3C20                                   cmp al,' '
+    23 0000000E 740B                                   je .salvare
+    24 00000010 3C00                                   cmp al,0
+    25 00000012 7419                                   je .finish
+    26                                                 
+    27 00000014 3C0A                                   cmp al,10
+    28 00000016 7415                                   je .finish
+    29                                                 
+    30 00000018 41                                     inc ecx
+    31                                                 
+    32 00000019 EBF0                            jmp .parcurge
+    33                                          
+    34                                          .salvare:
+    35 0000001B 83F900                              cmp ecx,0
+    36 0000001E 74EB                                je .parcurge
+    37 00000020 89C8                                mov eax,ecx
+    38 00000022 AB                                  stosd   ; incarca eax in edi  ; edi + 4
+    39 00000023 31C9                                xor ecx,ecx
+    40 00000025 FF05[00000000]                      inc dword [lungime]
+    41 0000002B EBDE                            jmp .parcurge
+    42                                          
+    43                                          
+    44                                          .finish:
+    45 0000002D 83F900                              cmp ecx,0
+    46 00000030 7409                                je .finish_final
+    47 00000032 89C8                                mov eax,ecx
+    48 00000034 AB                                  stosd   ; incarca eax in edi  ; edi + 4
+    49 00000035 FF05[00000000]                      inc dword [lungime]
+    50                                           
+    51                                         .finish_final:
+    52 0000003B A1[00000000]                        mov eax,[lungime]
+    53                                          
+    54 00000040 89EC                            mov esp,ebp
+    55 00000042 5D                              pop ebp
+    56 00000043 C3                              ret
+    57                                          

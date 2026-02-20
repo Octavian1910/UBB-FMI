@@ -1,0 +1,45 @@
+     1                                  bits 32
+     2                                  
+     3                                  
+     4                                  global _litere_mici
+     5                                  
+     6                                  segment data public data use32
+     7 00000000 00000000                lungime dd 0
+     8                                  
+     9                                  segment code public code use32
+    10                                  
+    11                                  _litere_mici:
+    12                                  
+    13 00000000 55                              push ebp
+    14 00000001 89E5                            mov ebp,esp
+    15                                          
+    16 00000003 8B7508                          mov esi,[ebp + 8]  ; sir1
+    17 00000006 8B7D0C                          mov edi,[ebp + 12] ; sir2
+    18                                          
+    19                                          .parcurge:
+    20 00000009 AC                                  lodsb
+    21 0000000A 3C00                                cmp al,0
+    22 0000000C 740F                                je .finish
+    23 0000000E 3C0A                                cmp al,10
+    24 00000010 740B                                je .finish
+    25                                              
+    26 00000012 3C61                                cmp al,'a'
+    27 00000014 7C05                                jl .nu_e_bun
+    28 00000016 3C7A                                cmp al,'z'
+    29 00000018 7F01                                jg .nu_e_bun
+    30                                              
+    31                                              ;ebun
+    32 0000001A AB                                  stosd
+    33                                              .nu_e_bun:
+    34                                                
+    35 0000001B EBEC                            jmp .parcurge
+    36                                          
+    37                                          .finish:
+    38 0000001D B000                            mov al,0
+    39 0000001F AB                              stosd
+    40                                          
+    41                                          
+    42 00000020 89EC                            mov esp,ebp
+    43 00000022 5D                              pop ebp
+    44 00000023 C3                              ret
+    45                                          

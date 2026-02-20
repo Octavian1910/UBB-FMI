@@ -1,0 +1,41 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _intercalare
+     4                                  
+     5                                  
+     6                                  segment data public data use32
+     7 00000000 00<rept>                rezultat times 100 db 0
+     8                                  
+     9                                  segment code public code use32
+    10                                  
+    11                                  
+    12                                  _intercalare:
+    13                                  
+    14 00000000 55                          push ebp
+    15 00000001 89E5                        mov ebp,esp
+    16                                      
+    17 00000003 8B5D08                      mov ebx,[ebp + 8]   ;sir1
+    18 00000006 8B550C                      mov edx,[ebp + 12]  ;sir2
+    19 00000009 8B7D10                      mov edi,[ebp + 16]  ;sir3
+    20 0000000C 31C9                        xor ecx,ecx
+    21                                      parcurge:
+    22 0000000E 3C00                            cmp al,0
+    23 00000010 740B                            je finish
+    24 00000012 8A040B                          mov al,[ebx+ecx];
+    25 00000015 AA                              stosb
+    26 00000016 8A040A                          mov al,[edx+ecx];
+    27 00000019 AA                              stosb
+    28 0000001A 41                              inc ecx
+    29 0000001B EBF1                        jmp parcurge
+    30                                      
+    31                                      finish:
+    32 0000001D B000                            mov al,0
+    33 0000001F AA                              stosb
+    34                                     
+    35 00000020 89EC                         mov esp,ebp
+    36 00000022 5D                           pop ebp
+    37 00000023 C3                           ret
+    38                                  
+    39                                          
+    40                                          
+    41                                      

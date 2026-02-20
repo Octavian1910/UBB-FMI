@@ -1,0 +1,38 @@
+     1                                  bits 32
+     2                                  
+     3                                  
+     4                                  global _val_max
+     5                                  
+     6                                  segment data public data use32
+     7 00000000 00000000                lungime dd 0
+     8                                  
+     9                                  segment code public code use32
+    10                                  
+    11                                  _inlocuire:
+    12                                  
+    13 00000000 55                              push ebp
+    14 00000001 89E5                            mov ebp,esp
+    15                                          
+    16 00000003 8B7508                          mov esi,[ebp + 8] ;vector
+    17 00000006 8B4D0C                          mov ecx,[ebp + 12] ;len
+    18                                          
+    19 00000009 AD                              lodsd
+    20 0000000A 89C3                            mov ebx,eax ;ebx = primul nr
+    21                                  
+    22                                          parcurge:
+    23 0000000C AD                                  lodsd
+    24 0000000D 39C3                                cmp ebx,eax
+    25 0000000F 7D02                                jnl nu_e_max
+    26                                              
+    27 00000011 89C3                                mov ebx,eax
+    28                                              
+    29                                              nu_e_max:
+    30                                              
+    31 00000013 E2F7                           loop parcurge
+    32                                         
+    33                                         
+    34 00000015 89D8                            mov eax,ebx
+    35 00000017 89EC                            mov esp,ebp
+    36 00000019 5D                              pop ebp
+    37 0000001A C3                              ret
+    38                                          

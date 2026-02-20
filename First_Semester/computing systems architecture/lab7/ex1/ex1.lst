@@ -1,0 +1,106 @@
+     1                                  bits 32
+     2                                  global start
+     3                                  
+     4                                  extern exit, fopen, fread, printf
+     5                                  import exit  msvcrt.dll
+     6                                  import fopen msvcrt.dll
+     7                                  import fread msvcrt.dll
+     8                                  
+     9                                  import printf msvcrt.dll 
+    10                                  
+    11                                  ; Se da un fisier text. Sa se citeasca continutul fisierului, sa se contorizeze numarul de vocale si sa se afiseze aceasta valoare. Numele fisierului text este definit in segmentul de date.
+    12                                  
+    13                                  segment data use32 class=data
+    14 00000000 696E7075742E747874-         nume_fisier db "input.txt",0
+    14 00000009 00                 
+    15 0000000A 7200                        mod_acces   db "r",0
+    16                                  
+    17 0000000C 00<rept>                    buffer      times 256 db 0   ; unde citim
+    18 0000010C 00000000                    file_ptr    dd 0             ; pointer FILE*
+    19                                      
+    20 00000110 6165696F754145494F-         vocale db "aeiouAEIOU",0
+    20 00000119 5500               
+    21                                      len_vocale equ $-vocale
+    22 0000011B 00000000                    lena dd 0
+    23                                      
+    24 0000011F 00000000                    rezultat dd 0
+    25 00000123 496E20736972207375-         format db "In sir sunt %d voccale "  , 0
+    25 0000012C 6E7420256420766F63-
+    25 00000135 63616C652000       
+    26                                  
+    27                                  segment code use32 class=code
+    28                                  start:
+    29                                  
+    30                                      ; -------------------------
+    31                                      ; DESCHIDEREA FIȘIERULUI
+    32                                      ; FILE * fopen(nume_fisier, mod_acces)
+    33                                      ; -------------------------
+    34 00000000 68[0A000000]                push dword mod_acces
+    35 00000005 68[00000000]                push dword nume_fisier
+    36 0000000A FF15[00000000]              call [fopen]
+    37 00000010 83C408                      add  esp, 8
+    38                                  
+    39 00000013 A3[0C010000]                mov [file_ptr], eax      ; FILE* returnat de fopen
+    40                                  
+    41 00000018 83F800                      cmp eax, 0               ; dacă fopen a eșuat
+    42 0000001B 7469                        je finish
+    43                                  
+    44                                  
+    45                                      ; -------------------------
+    46                                      ; CITIREA DIN FIȘIER
+    47                                      ; fread(buffer, 1, 256, file_ptr)
+    48                                      ; -------------------------
+    49 0000001D FF35[0C010000]              push dword [file_ptr]    ; stream
+    50 00000023 6800010000                  push dword 256           ; count
+    51 00000028 6A01                        push dword 1             ; size
+    52 0000002A 68[0C000000]                push dword buffer        ; pointer buffer
+    53 0000002F FF15[00000000]              call [fread]
+    54 00000035 83C410                      add esp, 16              ; curățăm stiva
+    55                                  
+    56 00000038 83F800                      cmp eax,0   ; in eax returneaza cate elemente sunt in buffer
+    57 0000003B 7449                        je finish
+    58                                      ; acum textul din fișier este în `buffer`
+    59                                      
+    60 0000003D A3[1B010000]                mov [lena],eax  ; lena= lungimea a
+    61                                      
+    62 00000042 8B0D[1B010000]              mov ecx,[lena]
+    63 00000048 BE00000000                  mov esi,0
+    64                                      
+    65                                      loop_buffer:
+    66 0000004D 8A86[0C000000]                  mov al,[buffer + esi]
+    67 00000053 BF00000000                      mov edi,0
+    68                                          verif_carac :
+    69 00000058 8A9F[10010000]                      mov bl,[vocale + edi]
+    70 0000005E 80FB00                              cmp bl,0
+    71 00000061 740F                                je iesire_verif_vocala ;daca a ajuns la 0 din vocale 
+    72                                              
+    73 00000063 38D8                                cmp al,bl  ;verifica vocala  curenta din buffer cu vocala curenta  din sirul de vocale
+    74 00000065 7402                                je contorizare_vocala
+    75                                              
+    76                                              ;daca nu a dat jmp la contorizare_vocala => urm vocala
+    77 00000067 EB06                                jmp final_sir_vocale
+    78                                              
+    79                                              contorizare_vocala :
+    80 00000069 FF05[1F010000]                          inc dword [rezultat]
+    81                                              
+    82                                              final_sir_vocale :
+    83 0000006F 47                                  inc edi
+    84 00000070 EBE6                             jmp verif_carac
+    85                                           
+    86                                           iesire_verif_vocala:
+    87 00000072 46                               inc esi
+    88                                           
+    89 00000073 E2D8                           loop loop_buffer
+    90                                            
+    91                                            
+    92                                         ;printf(format,rezultat)
+    93 00000075 FF35[1F010000]                 push dword [rezultat]
+    94 0000007B 68[23010000]                   push format
+    95 00000080 FF15[00000000]                 call [printf]
+    96                                                  
+    97                                              
+    98                                          
+    99                                  
+   100                                  finish:
+   101 00000086 6A00                        push dword 0
+   102 00000088 FF15[00000000]              call [exit]

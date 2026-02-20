@@ -1,0 +1,72 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _parsare
+     4                                  
+     5                                  extern _printf
+     6                                  
+     7                                  segment data public data use32
+     8 00000000 10000000                saispe dd 16
+     9                                  
+    10                                  segment code public code use32
+    11                                  
+    12                                  _parsare:
+    13 00000000 55                          push ebp
+    14 00000001 89E5                        mov ebp,esp
+    15                                      
+    16 00000003 8B7508                      mov esi,[ebp+8] ;sir
+    17 00000006 8B7D0C                      mov edi,[ebp+12] ;v
+    18 00000009 31D2                        xor edx,edx
+    19 0000000B 31C9                        xor ecx,ecx
+    20                                      
+    21                                      parcurge:
+    22 0000000D AC                              lodsb
+    23 0000000E 3C00                            cmp al,0
+    24 00000010 7425                            je salveaza
+    25 00000012 3C0A                            cmp al,10
+    26 00000014 7421                            je salveaza
+    27 00000016 3C20                            cmp al,' '
+    28 00000018 741D                            je salveaza
+    29                                          
+    30                                          ;poate e cifra
+    31 0000001A 3C39                            cmp al,'9'
+    32 0000001C 7704                            ja e_litera
+    33 0000001E 2C30                            sub al,'0'  ;convertim la cifra
+    34 00000020 EB04                            jmp pune_la_nr  ;pune cifra la nr
+    35                                  
+    36                                          e_litera:
+    37 00000022 2C61                            sub al,'a' ;scadem 'a' => un nr  [0-5]
+    38 00000024 040A                            add al,10 ; adunam 10 => un nr intre [10-15]
+    39                                          
+    40                                          pune_la_nr:
+    41 00000026 88D8                            mov al,bl
+    42 00000028 0FB6DB                          movzx ebx,bl  ; convertim cifra la dword
+    43 0000002B 89D0                            mov eax,edx
+    44 0000002D F725[00000000]                  mul dword [saispe]   ;eax = eax*16
+    45 00000033 01D8                            add eax,ebx   ; eax = eax * 16 + cifra
+    46 00000035 EBD6                            jmp parcurge
+    47                                          
+    48                                          salveaza:
+    49 00000037 88C3                                mov bl,al
+    50 00000039 89D0                                mov eax,edx
+    51 0000003B AB                                  stosd
+    52 0000003C 31D2                                xor edx,edx
+    53 0000003E 41                                  inc ecx
+    54                                              
+    55 0000003F 80FB00                              cmp bl,0
+    56 00000042 7409                                je finish
+    57 00000044 80FB0A                              cmp bl,10
+    58 00000047 7404                                je finish
+    59                                              
+    60 00000049 EBC2                            jmp parcurge
+    61                                          
+    62                                          
+    63 0000004B EBC0                        jmp parcurge
+    64                                      
+    65                                      finish:
+    66                                      
+    67 0000004D 8B7D10                      mov edi,[ebp+16]
+    68 00000050 890F                        mov [edi],ecx  ;punem lungimea sirului
+    69 00000052 89EC                        mov esp,ebp
+    70 00000054 5D                          pop ebp
+    71 00000055 C3                          ret   
+    72                                  

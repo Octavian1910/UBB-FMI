@@ -1,0 +1,49 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _concatenare
+     4                                  
+     5                                  segment data public data use32
+     6 00000000 00                          rezultat db "",0
+     7                                  
+     8                                  segment code public code use32
+     9                                  
+    10                                  _prefix:
+    11                                  
+    12 00000000 55                          push ebp
+    13 00000001 89E5                        mov ebp,esp
+    14                                      
+    15 00000003 8B7308                      mov esi,[ebx + 8]
+    16 00000006 BF[00000000]                mov edi,rezultat
+    17                                      sir_1:
+    18 0000000B AC                              lodsb
+    19 0000000C 3C00                            cmp al,0
+    20 0000000E EB07                            jmp terminare_sir1
+    21 00000010 3C0A                            cmp al,10
+    22 00000012 EB03                            jmp terminare_sir1
+    23 00000014 AA                              stosb
+    24 00000015 EBF4                        jmp sir_1
+    25                                      
+    26                                      
+    27                                      terminare_sir1:
+    28                                      
+    29 00000017 8B730C                      mov esi,[ebx + 12]
+    30                                      sir_2:
+    31 0000001A AC                              lodsb
+    32 0000001B 3C00                            cmp al,0
+    33 0000001D EB07                            jmp terminare_sir2
+    34 0000001F 3C0A                            cmp al,10
+    35 00000021 EB03                            jmp terminare_sir2
+    36 00000023 AA                              stosb
+    37 00000024 EBF4                        jmp sir_2
+    38                                      
+    39                                      terminare_sir2:
+    40 00000026 B000                        mov al,0
+    41 00000028 AA                          stosb
+    42 00000029 B8[00000000]                mov eax,rezultat
+    43                                      
+    44 0000002E 89EC                        mov esp,ebp
+    45 00000030 5D                          pop ebp
+    46                                      
+    47 00000031 C3                          ret
+    48                                      
+    49                                      

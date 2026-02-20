@@ -1,0 +1,83 @@
+     1                                  bits 32
+     2                                  
+     3                                  extern _citireSirC
+     4                                  extern _str3
+     5                                  
+     6                                  extern _printf
+     7                                  
+     8                                  global _asmConcat
+     9                                  
+    10                                  
+    11                                  segment data public data use32
+    12 00000000 00000000                    lenRez dd 0
+    13 00000004 00000000                    adresaSirRezultat dd 0
+    14 00000008 00000000                    adresaSirParam dd 0
+    15 0000000C 00000000                    adresaSirCitit dd 0
+    16 00000010 536972756C20322063-         mesaj db "Sirul 2 citit din modul asm",0
+    16 00000019 697469742064696E20-
+    16 00000022 6D6F64756C2061736D-
+    16 0000002B 00                 
+    17                                      
+    18                                      
+    19                                  segment code public code use32
+    20                                  
+    21                                  _asmConcat:
+    22 00000000 55                          push ebp
+    23 00000001 89E5                        mov ebp,esp
+    24                                      
+    25 00000003 83EC0C                      sub esp,4*3
+    26                                      
+    27 00000006 8B4508                      mov eax,[ebp+8] ;sir1
+    28 00000009 A3[08000000]                mov [adresaSirParam],eax
+    29                                      
+    30 0000000E 8B450C                      mov eax,[ebp+12] ;unde scriem rezultatul
+    31 00000011 A3[04000000]                mov [adresaSirRezultat],eax
+    32                                      
+    33                                      ;practic am alocat 12 octeti din care doar 11 o sa fie folositi
+    34 00000016 892D[0C000000]              mov [adresaSirCitit],ebp
+    35 0000001C 832D[0C000000]0C            sub dword [adresaSirCitit],4*3
+    36                                      
+    37                                      ;afisam mesaj pt citire
+    38 00000023 68[10000000]                push dword mesaj
+    39 00000028 E8(00000000)                call _printf
+    40 0000002D 83C404                      add esp,4*1
+    41                                      
+    42                                      ;citim
+    43 00000030 FF35[0C000000]              push dword [adresaSirCitit]
+    44 00000036 E8(00000000)                call _citireSirC
+    45 0000003B 83C404                      add esp,4*1
+    46                                      
+    47                                      ;concatenam
+    48                                      ;sir1 la rezultat
+    49 0000003E FC                          cld
+    50 0000003F 8B3D[04000000]              mov edi,[adresaSirRezultat]
+    51 00000045 8B35[08000000]              mov esi,[adresaSirParam]
+    52 0000004B B90A000000                  mov ecx,10
+    53 00000050 F3A4                        rep movsb
+    54                                      
+    55                                      ;concatenam
+    56                                      ;sir de la tastatura la rezultat
+    57 00000052 8305[00000000]0A            add dword [lenRez], 10
+    58 00000059 8B3D[04000000]              mov edi,[adresaSirRezultat]
+    59 0000005F 8B35[0C000000]              mov esi,[adresaSirCitit]
+    60 00000065 B90A000000                  mov ecx,10
+    61 0000006A F3A4                        rep movsb
+    62                                      
+    63                                      ;concatenam
+    64                                      ;sir definit global la rezultat
+    65 0000006C 8305[00000000]0A            add dword [lenRez],10
+    66 00000073 8B3D[04000000]              mov edi,[adresaSirRezultat]
+    67 00000079 8B35[0C000000]              mov esi,[adresaSirCitit]
+    68 0000007F B90A000000                  mov ecx,10
+    69 00000084 F3A4                        rep movsb
+    70 00000086 8305[00000000]0A            add dword [lenRez], 10
+    71                                      
+    72 0000008D 89EC                        mov esp,ebp
+    73 0000008F 5D                          pop ebp
+    74 00000090 C3                          ret
+    75                                      
+    76                                      
+    77                                      
+    78                                      
+    79                                      
+    80                                    

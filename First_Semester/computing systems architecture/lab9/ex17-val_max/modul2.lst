@@ -1,0 +1,37 @@
+     1                                  bits 32
+     2                                  
+     3                                  global _val_minima
+     4                                  
+     5                                  segment data public data use32
+     6                                  
+     7                                  segment code public code use32
+     8                                  
+     9                                  
+    10                                  _val_minima:
+    11                                  
+    12 00000000 55                          push ebp
+    13 00000001 89E5                        mov ebp,esp
+    14                                      
+    15 00000003 8B7508                      mov esi,[ebp+8] ; v
+    16 00000006 8B4D0C                      mov ecx,[ebp+12] ; len
+    17 00000009 AD                          lodsd
+    18 0000000A 89C2                        mov edx,eax ; in eax e primul element
+    19 0000000C 49                          dec ecx
+    20                                      .parcurge:
+    21                                          
+    22 0000000D AD                              lodsd
+    23 0000000E 39D0                            cmp eax,edx
+    24 00000010 7F02                            jg .nu_e_minim
+    25                                          ;daca e minim
+    26 00000012 89C2                            mov edx,eax
+    27                                          
+    28                                          .nu_e_minim:
+    29 00000014 E2F7                        loop .parcurge
+    30                                          
+    31                                          
+    32                                  
+    33 00000016 89D0                        mov eax,edx
+    34 00000018 89EC                        mov esp,ebp
+    35 0000001A 5D                          pop ebp
+    36 0000001B C3                          ret
+    37                                  
