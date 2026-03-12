@@ -10,6 +10,14 @@ RepoFarmacie* creeazaRepo()
     return v;
 }
 
+int get_lungime_repo(RepoFarmacie* v) {
+    return v->lungime;
+}
+
+int get_capacitate_repo(RepoFarmacie* v) {
+    return v->capacitate;
+}
+
 int actualizeaza_element_repo(RepoFarmacie* v,Medicament* m)
 {
     Medicament* elem = cauta_medicament_repo(v,get_cod(m));
@@ -43,6 +51,7 @@ void adauga_repo(RepoFarmacie* v,Medicament* m)
     else
     {
         set_cantitate(elem,get_cantitate(m));
+        distrugeMedicament(m);//daca exista deja atunci trb sters obiectul creat in service
     }
 }
 
@@ -84,3 +93,16 @@ int nr_medicamente_repo(RepoFarmacie* v)
 {
     return v->lungime;
 }
+
+
+Medicament** get_all_repo(RepoFarmacie* v)
+{
+    Medicament** lista = malloc(sizeof(Medicament*) * get_lungime_repo(v));
+    for (int i = 0 ; i < get_lungime_repo(v) ; ++i)
+    {
+        lista[i] = v->elemente[i];
+    }
+    return lista;
+}
+
+

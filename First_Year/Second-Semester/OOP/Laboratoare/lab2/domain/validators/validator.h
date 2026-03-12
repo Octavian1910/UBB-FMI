@@ -8,10 +8,23 @@ typedef struct {
 } ValidatorMedicament;
 
 /*
- * Valideaza un medicament.
- * Returneaza 0 dacă este valid.
- * Returnează un cod de eroare (ex: 1, 2, 3) dacă are date invalide.
- */
+ Valideaza un medicament
+
+ :param m: pointer la medicament
+
+ :return:
+ 0 daca medicamentul este valid
+ 1 daca codul este invalid
+ 2 daca numele este invalid
+ 3 daca concentratia este invalida
+ 4 daca cantitatea este invalida
+
+ :pre:
+ m != NULL
+
+ :post:
+ se verifica validitatea campurilor medicamentului si se returneaza o val potrivita
+*/
 int valideazaMedicament(Medicament* m);
 
 #endif

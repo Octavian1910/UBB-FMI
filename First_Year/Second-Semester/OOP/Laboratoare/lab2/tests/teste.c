@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+
 #include "../domain/medicament.h"
 #include "../domain/validators/validator.h"
 #include "../repository/repository.h"
@@ -65,13 +67,26 @@ void testRepositoryMedicamente()
 
     adauga_repo(repo_farmacie,m1);
     adauga_repo(repo_farmacie,m2);
-    assert(repo_farmacie->capacitate == 2);
+    assert(get_capacitate_repo(repo_farmacie) == 2);
     adauga_repo(repo_farmacie,m3);
-    assert(repo_farmacie->lungime == 3);
-    assert(repo_farmacie->capacitate == 4);
+    assert(get_lungime_repo(repo_farmacie) == 3);
+    assert(get_capacitate_repo(repo_farmacie) == 4);
 
     Medicament *aspirina = cauta_medicament_repo(repo_farmacie,3);
     assert(aspirina == m3);
+
+    Medicament** lista = get_all_repo(repo_farmacie);
+    Medicament** test = malloc(sizeof(Medicament*)*3);
+    for (int i = 0 ; i < 3 ; ++i)
+    {
+        test[i] = malloc(sizeof(Medicament));
+    }
+    test[0] = m1; test[1] = m2; test[2] = m3;
+    for (int i = 0 ; i < 3 ; ++i)
+        assert(test[i] == lista[i]);
+
+    free(test);
+    free(lista);
     distrugeRepo(repo_farmacie);
 }
 
@@ -128,6 +143,9 @@ void testServiceActualizareMedicament()
     assert(strcmp(get_nume(temp),"Octa") == 0);
     assert(get_concentratie(temp) == 100);
     distruge_service_farmacie(s);
+
+
+
 }
 
 void testStergeStocRepoMedicament()
@@ -164,6 +182,84 @@ void testStergeStocServiceMedicament()
     distruge_service_farmacie(s);
 }
 
+void testSorteazaServiceMedicamente()
+{
+    RepoFarmacie* repo = creeazaRepo();
+    ValidatorMedicament* val = NULL;
+    ServiceFarmacie* s = creeaza_service_farmacie(repo, val);
+
+    adaugaService(s, 1, "Zyx", 100, 50);
+    adaugaService(s, 2, "Abc", 200, 10);
+    adaugaService(s, 3, "Mno", 150, 30);
+
+    int nr = 0;
+    Medicament** lista;
+
+    // 1. Test Sortare după Nume - Crescător
+    lista = sortareMedicamente(s, 1, 1, &nr);
+    assert(nr == 3);
+    assert(strcmp(get_nume(lista[0]), "Abc") == 0);
+    assert(strcmp(get_nume(lista[1]), "Mno") == 0);
+    assert(strcmp(get_nume(lista[2]), "Zyx") == 0);
+    free(lista);
+
+    // 2. Test Sortare după Nume - Descrescător
+    lista = sortareMedicamente(s, 1, 0, &nr);
+    assert(strcmp(get_nume(lista[0]), "Zyx") == 0);
+    assert(strcmp(get_nume(lista[1]), "Mno") == 0);
+    assert(strcmp(get_nume(lista[2]), "Abc") == 0);
+    free(lista);
+
+    // 3. Test Sortare după Cantitate - Crescător
+    lista = sortareMedicamente(s, 2, 1, &nr);
+    assert(get_cantitate(lista[0]) == 10);
+    assert(get_cantitate(lista[1]) == 30);
+    assert(get_cantitate(lista[2]) == 50);
+    free(lista);
+
+    // 4. Test Sortare după Cantitate - Descrescător
+    lista = sortareMedicamente(s, 2, 0, &nr);
+    assert(get_cantitate(lista[0]) == 50);
+    assert(get_cantitate(lista[1]) == 30);
+    assert(get_cantitate(lista[2]) == 10);
+    free(lista);
+
+    distruge_service_farmacie(s);
+
+}
+
+
+void testFiltreazaServiceMedicamente()
+{
+    RepoFarmacie* repo = creeazaRepo();
+    ValidatorMedicament* val = NULL;
+    ServiceFarmacie* s = creeaza_service_farmacie(repo, val);
+
+    adaugaService(s, 1, "MemoPLus", 100, 50);
+    adaugaService(s, 2, "Murofen", 200, 10);
+    adaugaService(s, 3, "Paracetamol", 150, 30);
+
+    int nr = 0;
+    Medicament** lista;
+
+    // 1. Test mai mic decat o valoare data
+    char valoare[50] = "31";
+    lista = filtrareMedicamente(s,1,valoare,&nr);
+    assert(nr == 2);
+    assert(strcmp(get_nume(lista[0]), "Murofen") == 0);
+    assert(strcmp(get_nume(lista[1]), "Paracetamol") == 0);
+
+    // 2. Test filtrare dupa prima litera
+    strcpy(valoare,"m");
+    lista = filtrareMedicamente(s, 2,valoare,&nr);
+    assert(nr == 2);
+    assert(strcmp(get_nume(lista[0]), "MemoPLus") == 0);
+    assert(strcmp(get_nume(lista[1]), "Murofen") == 0);
+
+    distruge_service_farmacie(s);
+
+}
+
 void ruleazaToateTestele()
 {
     testCreeazaMedicament();
@@ -178,6 +274,8 @@ void ruleazaToateTestele()
     testServiceMedicamente();
     testServiceActualizareMedicament();
     testStergeStocServiceMedicament();
+    testSorteazaServiceMedicamente();
+    testFiltreazaServiceMedicamente();
 
     printf("Testele au fost rulate cu succes!\n");
 }
