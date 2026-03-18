@@ -1,0 +1,10 @@
+awk -F : '{print $5}' /etc/passwd | \
+ask -F- '{print $3,$4,$5} |
+sed -E "s/^ [^ ]+ // " | \
+sed -E "s/ + /\n/g" | \
+grep -E -v "^ + $|\.|^{,3}$" |\
+sort | \
+uniq -c | \
+sort -n -r +
+
+

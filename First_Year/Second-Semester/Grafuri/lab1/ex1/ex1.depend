@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1772571285 source:c:\users\octav\desktop\facultate\sem2\grafuri\lab1\ex1\main.cpp
+	<iostream>
+	<fstream>
+	<vector>
+

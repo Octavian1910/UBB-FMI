@@ -21,6 +21,7 @@ int e_prim(int numar)
     *pre : numar este un nr >= 0
     *post : 0 daca nu e prim , 1 daca e prim
     */
+
     if (numar < 2)
         return 0;
     if (numar == 2)

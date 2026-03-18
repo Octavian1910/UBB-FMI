@@ -172,6 +172,10 @@ UI* ruleazaUI(UI* ui)
                 int criteriu = citesteInt("1) Nume\n2) Cantitate\n");
                 int ordine = citesteInt("1) Crescator\n2) Descrescator\n");
 
+                if (ordine == 1)
+                    ordine = 1;
+                else ordine = 0;
+
                 int lungime = 0;
 
                 Medicament** rezultat = sortareMedicamente(ui->service, criteriu, ordine, &lungime);
@@ -199,7 +203,7 @@ UI* ruleazaUI(UI* ui)
             }
             case(6):
             {
-                int criteriu = citesteInt("Criteriu : ");
+                int criteriu = citesteInt("Criteriu:  1) mai mic decat un nr dat 2) care au prima litera ");
                 char valoare[50];
                 citesteString("Introdu nr/prima_litera",valoare);
                 int lungime = 0;

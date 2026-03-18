@@ -32,6 +32,8 @@ void testCreeazaMedicament() {
     set_cantitate(m,15);
     assert(15 == get_cantitate(m));
 
+    set_cod(m,100);
+    assert(get_cod(m) == 100);
     distrugeMedicament(m);
 }
 
@@ -99,6 +101,7 @@ void testServiceMedicamente()
     adaugaService(s,1, "Paracetamol", 500, 10);
     adaugaService(s,2, "Parasinus", 300, 5);
     adaugaService(s,3, "Aspirina", 250, 12);
+    assert( adaugaService(s,-50, "Aspirina", 250, 12) == 1);
     assert(nr_medicamente_service(s) == 3);
     adaugaService(s,1, "Paracetamol", 500, 150);
     assert(nr_medicamente_service(s) == 3);
@@ -139,9 +142,11 @@ void testServiceActualizareMedicament()
     adaugaService(s,3, "Aspirina", 250, 12);
     assert(nr_medicamente_service(s) == 3);
     actualizeazaService(s,1,"Octa",100);
+    assert(actualizeazaService(s,1,"Octa",100) == 0);
     Medicament* temp = cauta_medicament_repo(repo,1);
     assert(strcmp(get_nume(temp),"Octa") == 0);
     assert(get_concentratie(temp) == 100);
+    assert( actualizeazaService(s,-50, "Aspirina", 12) == 1);
     distruge_service_farmacie(s);
 
 
@@ -165,7 +170,12 @@ void testStergeStocRepoMedicament()
     sterge_repo(repo_farmacie,1);
     Medicament* elem = cauta_medicament_repo(repo_farmacie,1);
     assert(get_cantitate(elem) == 0);
+
+    assert(sterge_repo(repo_farmacie,150) == -1);
+
     distrugeRepo(repo_farmacie);
+
+
 }
 
 void testStergeStocServiceMedicament()
@@ -191,37 +201,42 @@ void testSorteazaServiceMedicamente()
     adaugaService(s, 1, "Zyx", 100, 50);
     adaugaService(s, 2, "Abc", 200, 10);
     adaugaService(s, 3, "Mno", 150, 30);
+    adaugaService(s, 4, "Mno", 400, 35);
 
     int nr = 0;
     Medicament** lista;
 
     // 1. Test Sortare după Nume - Crescător
     lista = sortareMedicamente(s, 1, 1, &nr);
-    assert(nr == 3);
+    assert(nr == 4);
     assert(strcmp(get_nume(lista[0]), "Abc") == 0);
     assert(strcmp(get_nume(lista[1]), "Mno") == 0);
-    assert(strcmp(get_nume(lista[2]), "Zyx") == 0);
+    assert(strcmp(get_nume(lista[2]), "Mno") == 0);
+    assert(strcmp(get_nume(lista[3]), "Zyx") == 0);
     free(lista);
 
     // 2. Test Sortare după Nume - Descrescător
     lista = sortareMedicamente(s, 1, 0, &nr);
     assert(strcmp(get_nume(lista[0]), "Zyx") == 0);
     assert(strcmp(get_nume(lista[1]), "Mno") == 0);
-    assert(strcmp(get_nume(lista[2]), "Abc") == 0);
+    assert(strcmp(get_nume(lista[2]), "Mno") == 0);
+    assert(strcmp(get_nume(lista[3]), "Abc") == 0);
     free(lista);
 
     // 3. Test Sortare după Cantitate - Crescător
     lista = sortareMedicamente(s, 2, 1, &nr);
     assert(get_cantitate(lista[0]) == 10);
     assert(get_cantitate(lista[1]) == 30);
-    assert(get_cantitate(lista[2]) == 50);
+    assert(get_cantitate(lista[2]) == 35);
+    assert(get_cantitate(lista[3]) == 50);
     free(lista);
 
     // 4. Test Sortare după Cantitate - Descrescător
     lista = sortareMedicamente(s, 2, 0, &nr);
     assert(get_cantitate(lista[0]) == 50);
-    assert(get_cantitate(lista[1]) == 30);
-    assert(get_cantitate(lista[2]) == 10);
+    assert(get_cantitate(lista[1]) == 35);
+    assert(get_cantitate(lista[2]) == 30);
+    assert(get_cantitate(lista[3]) == 10);
     free(lista);
 
     distruge_service_farmacie(s);

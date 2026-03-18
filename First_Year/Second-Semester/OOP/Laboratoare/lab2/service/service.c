@@ -1,7 +1,7 @@
 #include "service.h"
 #include <stdlib.h>
 #include <string.h>
-
+#include <ctype.h>
 ServiceFarmacie* creeaza_service_farmacie(RepoFarmacie *Repo,ValidatorMedicament* Validator)
 {
     ServiceFarmacie* s = malloc(sizeof(ServiceFarmacie));
@@ -81,7 +81,9 @@ int compara(Medicament* m1,Medicament* m2,int criteriu)
     }
     else
     {
-        return get_cantitate(m1) - get_cantitate(m2);
+        if (get_cantitate(m1) - get_cantitate(m2) >= 0)
+            return 1;
+        return -1;
     }
 
 
@@ -155,7 +157,7 @@ Medicament** filtrareMedicamente(ServiceFarmacie* s,int criteriu,char* valoare,i
         for (int i = 0 ; i < nr ; ++i)
         {
             char* nume = get_nume(lista[i]);
-            if ( nume[0] == valoare[0] || nume[0] == valoare[0] + 32 || nume[0] == valoare[0] - 32 )
+            if ( toupper(nume[0]) == toupper(valoare[0]))
             {
                 rezultat[ct++] = lista[i];
             }
