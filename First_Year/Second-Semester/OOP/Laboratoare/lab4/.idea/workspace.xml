@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
+  </component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeReloadState">
+    <option name="reloaded" value="true" />
+  </component>
+  <component name="CMakeRunConfigurationManager">
+    <generated>
+      <config projectName="lab4" targetName="Farmacie" />
+      <config projectName="lab4" targetName="lab4" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug-Coverage" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DCMAKE_CXX_FLAGS=--coverage -DCMAKE_C_FLAGS=--coverage" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ba2f6ef9-c093-41a4-9ed2-1612a118792d" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="CoverageOptionsProvider">
+    <option name="myAddOrReplace" value="0" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug-Coverage" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CMakeLists.txt" />
+      </list>
+    </option>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/domain/Pet.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/domain/Pet.h" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="3YodmYW7" />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2025" />
+    <option name="minorVersion" value="3.3" />
+    <option name="productBranch" value="Classic" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="3BisTUr8VjbQ340UDVj7KV3xoXI" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "C/C++ File.main.cpp.executor": "Run",
+    "CMake Application.lab4.executor": "Run",
+    "CMake Application.lab5.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.RadMigrateCodeStyle": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "RunOnceActivity.west.config.association.type.startup.service": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "last_opened_file_path": "C:/Users/octav/Desktop/Facultate/sem2/OOP/Laboratoare/lab4",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.first.attach.projects": "true",
+    "settings.editor.selected.configurable": "CMakeSettings",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\octav\Desktop\Facultate\sem2\OOP\Laboratoare\lab4" />
+      <recent name="C:\Users\octav\Desktop\Facultate\sem2\OOP\Laboratoare\lab4\Repository" />
+      <recent name="C:\Users\octav\Desktop\Facultate\sem2\OOP\Laboratoare\lab4\domain" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="lab4" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="lab4" RUN_TARGET_NAME="lab4" EXPLICIT_BUILD_TARGET_NAME="all">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ba2f6ef9-c093-41a4-9ed2-1612a118792d" name="Changes" comment="" />
+      <created>1774983232434</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774983232434</updated>
+      <workItem from="1774983233603" duration="1519000" />
+      <workItem from="1775034144289" duration="4772000" />
+      <workItem from="1775041400629" duration="10206000" />
+      <workItem from="1775064022912" duration="198000" />
+      <workItem from="1775064242765" duration="213000" />
+      <workItem from="1775065098336" duration="338000" />
+      <workItem from="1775065443541" duration="49000" />
+      <workItem from="1775065583134" duration="98000" />
+      <workItem from="1775065682717" duration="26000" />
+      <workItem from="1775065718270" duration="80000" />
+      <workItem from="1775065801814" duration="2000" />
+      <workItem from="1775065819627" duration="23000" />
+      <workItem from="1775065854802" duration="50000" />
+      <workItem from="1775065966562" duration="18000" />
+      <workItem from="1775065997796" duration="16000" />
+      <workItem from="1775066016015" duration="27000" />
+      <workItem from="1775066051279" duration="80000" />
+      <workItem from="1775066195744" duration="26000" />
+      <workItem from="1775066248516" duration="8000" />
+      <workItem from="1775066271335" duration="9000" />
+      <workItem from="1775066428392" duration="8000" />
+      <workItem from="1775066454857" duration="7182000" />
+      <workItem from="1775116199344" duration="13030000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VCPKGProject">
+    <isAutomaticCheckingOnLaunch value="false" />
+    <isAutomaticFoundErrors value="true" />
+    <isAutomaticReloadCMake value="true" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="../../../../Desktop/Facultate/sem2/OOP/Laboratoare/lab4/cmake-build-debug-coverage" NAME="lab4 Coverage Results" MODIFIED="1775063867374" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="gcov/llvm" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+    <SUITE FILE_PATH="../../../../Desktop/Facultate/sem2/OOP/Laboratoare/lab4/cmake-build-debug-coverage" NAME="lab4 Coverage Results" MODIFIED="1775144960875" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="gcov/llvm" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
+  </component>
+</project>
