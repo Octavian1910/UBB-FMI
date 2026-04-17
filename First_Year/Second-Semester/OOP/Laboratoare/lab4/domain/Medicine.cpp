@@ -1,5 +1,6 @@
 #include "Medicine.h"
 #include <string>
+#include <utility>
 using std::string;
 
 
@@ -32,7 +33,7 @@ string Medicine::get_ID() const
 //setere
 void Medicine::set_name(string new_name)
 {
-    name = new_name;
+    name = std::move(new_name);
 }
 
 void Medicine::set_price(int new_price)
@@ -42,11 +43,11 @@ void Medicine::set_price(int new_price)
 
 void Medicine::set_producer(string new_producer)
 {
-    producer = new_producer;
+    producer = std::move(new_producer);
 }
 
 void Medicine::set_active_substance(string new_active_substance)
 {
-    active_substance = new_active_substance;
+    active_substance = std::move(new_active_substance);
 }
 

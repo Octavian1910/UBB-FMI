@@ -21,7 +21,8 @@ void MedRepository::update(const Medicine &med)
     {
         if (current.get_ID() == med.get_ID())
         {
-            current = med;
+            current.set_active_substance(med.get_active_substance());
+            current.set_price(med.get_price());
             return;
         }
     }
@@ -61,5 +62,5 @@ const vector<Medicine> &MedRepository::getAll() const
 
 int MedRepository::size() const
 {
-    return medicines.size();
+    return static_cast<int>(medicines.size());
 }

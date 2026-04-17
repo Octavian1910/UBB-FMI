@@ -4,6 +4,13 @@ project(lab4 CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if (MSVC)
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall -Werror -Wextra)
+endif()
+
+
 add_executable(lab4
         main.cpp
         tests/tests.cpp

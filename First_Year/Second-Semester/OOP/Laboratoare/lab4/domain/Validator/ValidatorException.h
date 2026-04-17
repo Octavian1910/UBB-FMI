@@ -1,11 +1,11 @@
-//
-// Created by octav on 01.04.2026.
-//
+
 
 #ifndef LAB4_VALIDATOREXCEPTION_H
 #define LAB4_VALIDATOREXCEPTION_H
+#include <utility>
 
-class ValidatorException
+
+class ValidatorException : public std::exception
 {
 private:
     /*
@@ -18,7 +18,7 @@ public:
      * Creates exception
      * :param m: error message
      */
-    ValidatorException(string m):msg{m}{}
+    ValidatorException(string m):msg{std::move(m)}{}
 
     /*
      * Gets error message

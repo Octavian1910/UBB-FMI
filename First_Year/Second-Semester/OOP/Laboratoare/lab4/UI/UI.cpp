@@ -1,4 +1,3 @@
-
 #include "UI.h"
 #include "../Repository/RepositoryException.h"
 #include "../domain/Validator/ValidatorException.h"
@@ -22,14 +21,12 @@ void show_ui()
     cout << "8)EXIT\n";
 }
 
-
 template<typename T>
 T read_value(const string& msg)
 {
     T value;
     while (true)
     {
-
         cout << msg;
         if (cin >> value)
             return value;
@@ -37,11 +34,8 @@ T read_value(const string& msg)
         cout << "Invalid type!\n";
         cin.clear();
         cin.ignore(1000, '\n');
-
     }
-
 }
-
 
 void UI::startUI() const
 {
@@ -51,10 +45,10 @@ void UI::startUI() const
         show_ui();
         try
         {
-            int option = read_value<int>("\nOPTION : ");
-            switch (option)
+
+            switch (read_value<int>("\nOPTION : "))
             {
-                case 1: //1)ADD medicine
+                case 1:
                 {
                     auto name = read_value<string>("Name : ");
                     int price = read_value<int>("Price : ");
@@ -64,16 +58,21 @@ void UI::startUI() const
                     cout << "Medicine stored successfully!\n";
                     break;
                 }
-                case 2: //2)VIEW medicines
+
+                case 2:
                 {
                     const auto& respone = serv.getAll();
                     for (const auto& med:respone)
                     {
-                        cout<<"Name: " << med.get_name() << " Price: " << med.get_price() << " Producer: " << med.get_producer() << " Active Substance: " << med.get_active_substance() << "\n";
+                        cout<<"Name: " << med.get_name()
+                            << " Price: " << med.get_price()
+                            << " Producer: " << med.get_producer()
+                            << " Active Substance: " << med.get_active_substance() << "\n";
                     }
                     cout << "Medicines displayed successfully!\n";
                     break;
                 }
+
                 case 3:
                 {
                     auto name = read_value<string>("Name : ");
@@ -84,87 +83,102 @@ void UI::startUI() const
                     cout << "Medicine updated successfully!\n";
                     break;
                 }
-                case 4: //4)DELETE medicine
+
+                case 4:
                 {
                     auto name = read_value<string>("Name : ");
                     auto producer = read_value<string>("Producer : ");
-                    string ID = name + "|" + producer;
+                    string ID = name;
+                    ID += "|";
+                    ID += producer;
                     serv.remove(ID);
                     cout << "Medicine removed successfully!\n";
                     break;
                 }
-                case 5: //FIND MEDICINE
+
+                case 5:
                 {
                     auto name = read_value<string>("Name : ");
                     auto producer = read_value<string>("Producer : ");
-                    string ID = name+"|"+producer;
+                    string ID = name;
+                    ID += "|";
+                    ID += producer;
                     const Medicine& med = serv.find(ID);
-                    cout<<"Name: " << med.get_name() << " Price: " << med.get_price() << " Producer: " << med.get_producer() << " Active Substance: " << med.get_active_substance() << "\n";
+                    cout<<"Name: " << med.get_name()
+                        << " Price: " << med.get_price()
+                        << " Producer: " << med.get_producer()
+                        << " Active Substance: " << med.get_active_substance() << "\n";
                     break;
                 }
-                case 6: //filter by
+
+                case 6: // FILTER
                 {
-                  int temp_option = read_value<int>("1)Price 2)Active Substance : ");
+                    int temp_option = read_value<int>("1)Price 2)Active Substance : ");
+
                     if (temp_option == 1)
                     {
                         int price = read_value<int>("Price: ");
                         const auto& respone = serv.filterByPrice(price);
-                        for (const auto& med:respone)
-                        {
-                            cout<<"Name: " << med.get_name() << " Price: " << med.get_price() << " Producer: " << med.get_producer() << " Active Substance: " << med.get_active_substance() << "\n";
-                        }
-                        cout << "Medicines displayed with filter successfully!\n";
-                        break;
 
+                        for (const auto* med:respone)
+                        {
+                            cout<<"Name: " << med->get_name()
+                                << " Price: " << med->get_price()
+                                << " Producer: " << med->get_producer()
+                                << " Active Substance: " << med->get_active_substance() << "\n";
+                        }
                     }
                     else
                     {
-                        string substance = read_value<string>("Substance: ");
+                        auto substance = read_value<string>("Substance: ");
                         const auto& respone = serv.filterBySubstance(substance);
-                        for (const auto& med:respone)
+
+                        for (const auto* med:respone)
                         {
-                            cout<<"Name: " << med.get_name() << " Price: " << med.get_price() << " Producer: " << med.get_producer() << " Active Substance: " << med.get_active_substance() << "\n";
+                            cout<<"Name: " << med->get_name()
+                                << " Price: " << med->get_price()
+                                << " Producer: " << med->get_producer()
+                                << " Active Substance: " << med->get_active_substance() << "\n";
                         }
-                        cout << "Medicines displayed with filter successfully!\n";
-                        break;
                     }
+
+                    cout << "Medicines displayed with filter successfully!\n";
+                    break;
                 }
-                case 7:
+
+                case 7: // SORT
                 {
                     int temp_option = read_value<int>("1)Name 2)Producer 3)Active Substance : ");
                     bool ascending = read_value<bool>("0)Descending 1)Ascending : ");
-                    vector<Medicine> respone;
+
+                    vector<const Medicine*> respone;
+
                     switch (temp_option)
                     {
                         case 1:
-                        {
                             respone = serv.sortByName(ascending);
                             break;
-                        }
                         case 2:
-                        {
                             respone = serv.sortByProducer(ascending);
                             break;
-                        }
                         case 3:
-                        {
                             respone = serv.sortByActiveSubstance(ascending);
                             break;
-                        }
                         default:
-                        {
                             cout<<"The option is not valid!";
                             continue;
-                        }
                     }
-                    for (const auto& med:respone)
+
+                    for (const auto* med:respone)
                     {
-                        cout<<"Name: " << med.get_name() << " Price: " << med.get_price() << " Producer: " << med.get_producer() << " Active Substance: " << med.get_active_substance() << "\n";
+                        cout<<"Name: " << med->get_name()
+                            << " Price: " << med->get_price()
+                            << " Producer: " << med->get_producer()
+                            << " Active Substance: " << med->get_active_substance() << "\n";
                     }
+
                     cout << "Medicines displayed sorted successfully!\n";
                     break;
-
-
                 }
 
                 default:
@@ -183,6 +197,5 @@ void UI::startUI() const
         {
             cout << e.getMessage();
         }
-
     }
 }

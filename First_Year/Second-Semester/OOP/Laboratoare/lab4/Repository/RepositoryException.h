@@ -1,9 +1,10 @@
 #ifndef LAB4_REPOISTORYEXCEPTION_H
 #define LAB4_REPOISTORYEXCEPTION_H
 #include <string>
+#include <utility>
 using std::string;
 
-class RepositoryException
+class RepositoryException : public std::exception
 {
 private:
     /*
@@ -16,7 +17,7 @@ public:
      * Creates exception
      * :param m: error message
      */
-    RepositoryException(string m):msg{m}{}
+    RepositoryException(string m):msg{std::move(m)}{}
 
     /*
      * Gets error message

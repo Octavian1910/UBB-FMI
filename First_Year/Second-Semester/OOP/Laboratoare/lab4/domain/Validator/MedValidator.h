@@ -15,7 +15,7 @@ public:
      * :param med: medicine to validate
      * :throws: ValidatorException if invalid
      */
-    void validate(Medicine& med);
+    static void validate(const Medicine& med);
 };
 
 #endif //LAB4_VALIDATOR_H

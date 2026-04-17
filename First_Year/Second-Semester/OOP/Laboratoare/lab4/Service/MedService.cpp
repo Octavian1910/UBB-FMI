@@ -4,7 +4,7 @@
 void MedService::store(const string &name, int price, const string &producer, const string &substance) const
 {
     Medicine med{name,price,producer,substance};
-    validator.validate(med);
+    MedValidator::validate(med);
     repo.store(med);
 }
 
@@ -21,7 +21,7 @@ const vector<Medicine> &MedService::getAll() const
 void MedService::update(const string &name, int price, const string &producer, const string &substance) const
 {
     Medicine med{name,price,producer,substance};
-    validator.validate(med);
+    MedValidator::validate(med);
     repo.update(med);
 }
 
@@ -36,20 +36,18 @@ int MedService::size() const
 }
 
 
-vector<Medicine> MedService::filter(function<bool(const Medicine &)> f) const
+vector<const Medicine*> MedService::filter(const function<bool(const Medicine &)>& f) const
 {
-    vector<Medicine> result;
+    vector<const Medicine*> result;
 
-    for (const auto& med: repo.getAll())
+    for (const auto& med : repo.getAll())
     {
         if (f(med))
-        {
-            result.push_back(med);
-        }
+            result.push_back(&med);
     }
     return result;}
 
-vector<Medicine> MedService::filterByPrice(int price) const
+vector<const Medicine*> MedService::filterByPrice(int price) const
 {
     return filter([price](const Medicine& m)
     {
@@ -57,94 +55,88 @@ vector<Medicine> MedService::filterByPrice(int price) const
     });
 }
 
-vector<Medicine> MedService::filterBySubstance(const string &substance) const
+vector<const Medicine*> MedService::filterBySubstance(const string &substance) const
 {
     return filter([substance](const Medicine& m)
     {
-       return m.get_active_substance() == substance;
+        return m.get_active_substance() == substance;
     });
 }
 
-vector<Medicine> MedService::sort(function<bool(const Medicine &, const Medicine &)> cmp) const
+vector<const Medicine*> MedService::sort(function<bool(const Medicine&, const Medicine&)> cmp) const
 {
-    vector<Medicine> v = repo.getAll();
-    std::sort(v.begin(),v.end(),cmp);
+    vector<const Medicine*> v;
+
+    for (const auto& med : repo.getAll())
+    {
+        v.push_back(&med);
+    }
+
+    std::sort(v.begin(), v.end(), [&](const Medicine* m1, const Medicine* m2) {
+        return cmp(*m1, *m2);
+    });
+
     return v;}
 
-vector<Medicine> MedService::sortByName(bool ascending) const
+vector<const Medicine*> MedService::sortByName(bool ascending) const
 {
-    if (ascending == true)
+    if (ascending)
     {
         return sort([](const Medicine& m1, const Medicine& m2) {
-        if (m1.get_name() == m2.get_name())
-        {
-            return m1.get_price() < m2.get_price();
-        }
-        else return m1.get_name() < m2.get_name();
-    });
-    }
-    else
-    {
-        return sort([](const Medicine& m1, const Medicine& m2)
-        {
             if (m1.get_name() == m2.get_name())
-            {
+                return m1.get_price() < m2.get_price();
+            return m1.get_name() < m2.get_name();
+        });
+    }
+    else
+    {
+        return sort([](const Medicine& m1, const Medicine& m2) {
+            if (m1.get_name() == m2.get_name())
                 return m1.get_price() > m2.get_price();
-            }
-            else return m1.get_name() > m2.get_name();
+            return m1.get_name() > m2.get_name();
         });
     }
 }
 
-vector<Medicine> MedService::sortByProducer(bool ascending) const
+vector<const Medicine*> MedService::sortByProducer(bool ascending) const
 {
-    if (ascending == true)
+    if (ascending)
     {
         return sort([](const Medicine& m1, const Medicine& m2) {
-        if (m1.get_producer() == m2.get_producer())
-        {
-        return m1.get_price() < m2.get_price();
-        }
-        else return m1.get_producer() < m2.get_producer();
+            if (m1.get_producer() == m2.get_producer())
+                return m1.get_price() < m2.get_price();
+            return m1.get_producer() < m2.get_producer();
         });
     }
     else
     {
         return sort([](const Medicine& m1, const Medicine& m2) {
-       if (m1.get_producer() == m2.get_producer())
-       {
-       return m1.get_price() > m2.get_price();
-       }
-       else return m1.get_producer() > m2.get_producer();
-       });
+            if (m1.get_producer() == m2.get_producer())
+                return m1.get_price() > m2.get_price();
+            return m1.get_producer() > m2.get_producer();
+        });
     }
-
 }
 
 
-vector<Medicine> MedService::sortByActiveSubstance(bool ascending) const
+vector<const Medicine*> MedService::sortByActiveSubstance(bool ascending) const
 {
-    if (ascending == true)
+    if (ascending)
     {
         return sort([](const Medicine& m1, const Medicine& m2) {
-        if (m1.get_active_substance() == m2.get_active_substance())
-        {
-            return m1.get_price() < m2.get_price();
-        }
-        else return m1.get_active_substance() < m2.get_active_substance();
-    });
+            if (m1.get_active_substance() == m2.get_active_substance())
+                return m1.get_price() < m2.get_price();
+            return m1.get_active_substance() < m2.get_active_substance();
+        });
     }
     else
     {
         return sort([](const Medicine& m1, const Medicine& m2) {
-        if (m1.get_active_substance() == m2.get_active_substance())
-        {
-            return m1.get_price() > m2.get_price();
-        }
-        else return m1.get_active_substance() > m2.get_active_substance();
-    });
+            if (m1.get_active_substance() == m2.get_active_substance())
+                return m1.get_price() > m2.get_price();
+            return m1.get_active_substance() > m2.get_active_substance();
+        });
     }
-
 }
 
 

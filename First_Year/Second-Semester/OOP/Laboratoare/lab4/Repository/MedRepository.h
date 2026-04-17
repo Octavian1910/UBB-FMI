@@ -38,7 +38,7 @@ public:
      * Gets all medicines
      * :return: vector of medicines
      */
-    const vector<Medicine>& getAll() const;
+    [[nodiscard]] const vector<Medicine>& getAll() const;
 
     /*
      * Removes a medicine
@@ -60,13 +60,13 @@ public:
      * :return: reference to medicine
      * :throws: RepositoryException if not found
      */
-    const Medicine& find(const string& id) const;
+    [[nodiscard]] const Medicine& find(const string& id) const;
 
     /*
      * Gets number of medicines
      * :return: size
      */
-    int size() const;
+    [[nodiscard]] int size() const;
 };
 
 

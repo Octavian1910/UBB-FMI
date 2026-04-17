@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <cstdio>
 #include "../domain/Medicine.h"
@@ -94,7 +94,7 @@ void testRepository()
         repo.remove(id);
         assert(false);
     }
-    catch (RepositoryException& e)
+    catch (RepositoryException& )
     {
         assert(true);
     }
@@ -104,27 +104,27 @@ void testRepository()
     try
     {
         string id_temp="Random";
-        const auto& answer = repo.find(id_temp);
+        auto& med = repo.find(id_temp);
+        (void) med;
         assert(false);
     }
-    catch (RepositoryException& e)
+    catch (RepositoryException& )
     {
         assert(true);
     }
 
     //update
-    auto id2 = "Paracetamol|Terapia";
     Medicine m2_updated{"Paracetamol", 123, "Terapia", "Updated"};
     try
     {
         repo.update(m2_updated); //change price and ative substance
 
-        const auto& find1 = repo.find(id2);
+        const auto& find1 = repo.find("Paracetamol|Terapia");
 
         assert(find1.get_price() == 123);
         assert(find1.get_active_substance() == "Updated");
     }
-    catch (RepositoryException& e)
+    catch (RepositoryException& )
     {
          assert(false);
     }
@@ -135,7 +135,7 @@ void testRepository()
         repo.update(m_not_in_repo);
         assert(false);
     }
-    catch (RepositoryException& e)
+    catch (RepositoryException& )
     {
         assert(true);
     }
@@ -162,7 +162,8 @@ void testService()
     //find exceptie
     try
     {
-        service.find("random");
+        auto& med = service.find("random");
+        (void)med;
         assert(false);
     }
     catch (RepositoryException&)
@@ -217,28 +218,28 @@ void testService()
     const auto& rezz = service.getAll();
     assert(rezz.size() == 3);
 
-    //filter by price true/false branches
+    //filter by price
     auto rez1 = service.filterByPrice(50);
     bool gasit = false;
-    for (const auto& med : rez1)
+    for (const auto* med : rez1)
     {
-        if (med.get_price() <= 50)
+        if (med->get_price() <= 50)
             gasit = true;
     }
     assert(gasit == true);
 
     auto rez2 = service.filterByPrice(10);
-    assert(rez2.size() == 0);
+    assert(rez2.empty());
 
-    //filter by substance true/false
+    //filter by substance
     auto rez3 = service.filterBySubstance("Paracetamol");
     assert(rez3.size() == 1);
-    assert(rez3[0].get_name() == "Paracetamol");
+    assert(rez3[0]->get_name() == "Paracetamol");
 
     auto rez4 = service.filterBySubstance("Random");
-    assert(rez4.size() == 0);
+    assert(rez4.empty());
 
-    //filter generic (lambda direct)
+    //filter generic
     auto rez5 = service.filter([](const Medicine& med){
         return med.get_price() > 100;
     });
@@ -250,69 +251,74 @@ void testService()
 
     //sort by name asc
     auto s1 = service.sortByName(true);
-    for (int i = 0; i < s1.size() - 1; i++)
+    for (int i = 0; i < static_cast<int>(s1.size()) - 1; i++)
     {
-        if (s1[i].get_name() == s1[i+1].get_name())
-            assert(s1[i].get_price() <= s1[i+1].get_price());
+        if (s1[i]->get_name() == s1[i+1]->get_name())
+            assert(s1[i]->get_price() <= s1[i+1]->get_price());
         else
-            assert(s1[i].get_name() <= s1[i+1].get_name());
+            assert(s1[i]->get_name() <= s1[i+1]->get_name());
     }
 
     //sort by name desc
     auto s2 = service.sortByName(false);
-    for (int i = 0; i < s2.size() - 1; i++)
+    for (int i = 0; i < static_cast<int>(s2.size()) - 1; i++)
     {
-        if (s2[i].get_name() == s2[i+1].get_name())
-            assert(s2[i].get_price() >= s2[i+1].get_price());
+        if (s2[i]->get_name() == s2[i+1]->get_name())
+            assert(s2[i]->get_price() >= s2[i+1]->get_price());
         else
-            assert(s2[i].get_name() >= s2[i+1].get_name());
+            assert(s2[i]->get_name() >= s2[i+1]->get_name());
     }
 
     //sort by producer asc
     auto s3 = service.sortByProducer(true);
-    for (int i = 0; i < s3.size() - 1; i++)
+    for (int i = 0; i < static_cast<int>(s3.size()) - 1; i++)
     {
-        if (s3[i].get_producer() == s3[i+1].get_producer())
-            assert(s3[i].get_price() <= s3[i+1].get_price());
+        if (s3[i]->get_producer() == s3[i+1]->get_producer())
+            assert(s3[i]->get_price() <= s3[i+1]->get_price());
         else
-            assert(s3[i].get_producer() <= s3[i+1].get_producer());
+            assert(s3[i]->get_producer() <= s3[i+1]->get_producer());
     }
 
     //sort by producer desc
     auto s4 = service.sortByProducer(false);
-    for (int i = 0; i < s4.size() - 1; i++)
+    for (int i = 0; i < static_cast<int>(s4.size()) - 1; i++)
     {
-        if (s4[i].get_producer() == s4[i+1].get_producer())
-            assert(s4[i].get_price() >= s4[i+1].get_price());
+        if (s4[i]->get_producer() == s4[i+1]->get_producer())
+            assert(s4[i]->get_price() >= s4[i+1]->get_price());
         else
-            assert(s4[i].get_producer() >= s4[i+1].get_producer());
+            assert(s4[i]->get_producer() >= s4[i+1]->get_producer());
     }
 
     //sort by substance asc
     auto s5 = service.sortByActiveSubstance(true);
-    for (int i = 0; i < s5.size() - 1; i++)
+    for (int i = 0; i < static_cast<int>(s5.size()) - 1; i++)
     {
-        if (s5[i].get_active_substance() == s5[i+1].get_active_substance())
-            assert(s5[i].get_price() <= s5[i+1].get_price());
+        if (s5[i]->get_active_substance() == s5[i+1]->get_active_substance())
+            assert(s5[i]->get_price() <= s5[i+1]->get_price());
         else
-            assert(s5[i].get_active_substance() <= s5[i+1].get_active_substance());
+            assert(s5[i]->get_active_substance() <= s5[i+1]->get_active_substance());
     }
 
     //sort by substance desc
     auto s6 = service.sortByActiveSubstance(false);
-    for (int i = 0; i < s6.size() - 1; i++)
+    for (int i = 0; i < static_cast<int>(s6.size()) - 1; i++)
     {
-        if (s6[i].get_active_substance() == s6[i+1].get_active_substance())
-            assert(s6[i].get_price() >= s6[i+1].get_price());
+        if (s6[i]->get_active_substance() == s6[i+1]->get_active_substance())
+            assert(s6[i]->get_price() >= s6[i+1]->get_price());
         else
-            assert(s6[i].get_active_substance() >= s6[i+1].get_active_substance());
+            assert(s6[i]->get_active_substance() >= s6[i+1]->get_active_substance());
     }
 }
+
+
 
 void testAll()
 {
     testDomain();
+    printf("Domain\n");
     testRepository();
+    printf("Repo\n");
     testService();
+    printf("Service\n");
     printf("All test have passed!\n");
 }

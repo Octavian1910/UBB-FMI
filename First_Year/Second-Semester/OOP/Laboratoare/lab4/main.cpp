@@ -4,6 +4,7 @@
 
 int main()
 {
+    
     testAll();
     MedRepository med{};
     MedValidator validator{};

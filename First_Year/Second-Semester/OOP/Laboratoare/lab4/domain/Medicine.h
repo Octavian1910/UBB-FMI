@@ -1,7 +1,11 @@
 #ifndef LAB4_MEDICINE_H
 #define LAB4_MEDICINE_H
 #include <string>
+#include <iostream>
+#include <utility>
 using std::string;
+using std::cout;
+
 
 class Medicine
 {
@@ -25,37 +29,57 @@ public:
      * :param producer: producer name
      * :param active_substance: active substance
      */
-    Medicine(string name,int price,string producer,string active_substance):name{name},price{price},producer{producer},active_substance{active_substance}{};
+    Medicine(string name,int price,string producer,string active_substance):name{std::move(name)},price{price},producer{std::move(producer)},active_substance{std::move(active_substance)}{};
+
+
+    Medicine(const Medicine& ot)
+    : name{ot.name}, price{ot.price}, producer{ot.producer}, active_substance{ot.active_substance}
+    {
+        std::cout << "Copy constructor called!\n";
+    }
+
+    Medicine& operator=(const Medicine& ot)
+    {
+        std::cout << "Assignment operator called!\n";
+        if (this != &ot)
+        {
+            name = ot.name;
+            price = ot.price;
+            producer = ot.producer;
+            active_substance = ot.active_substance;
+        }
+        return *this;
+    }
 
     /*
      * Gets the name
      * :return: name
      */
-    string get_name() const;
+    [[nodiscard]] string get_name() const;
 
     /*
      * Gets the price
      * :return: price
      */
-    int get_price() const;
+    [[nodiscard]] int get_price() const;
 
     /*
      * Gets the producer
      * :return: producer
      */
-    string get_producer() const;
+    [[nodiscard]] string get_producer() const;
 
     /*
      * Gets the active substance
      * :return: substance
      */
-    string get_active_substance() const;
+    [[nodiscard]] string get_active_substance() const;
 
     /*
      * Gets the ID (name|producer)
      * :return: id
      */
-    string get_ID() const;
+    [[nodiscard]] string get_ID() const;
 
     /*
      * Sets new name

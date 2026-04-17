@@ -9,7 +9,7 @@
 #include "../domain/Medicine.h"
 #include "../domain/Validator/MedValidator.h"
 #include "../Repository/MedRepository.h"
-#include "../Repository/RepositoryException.h"
+
 using std::function;
 
 using std::vector;
@@ -53,7 +53,7 @@ public:
      * Gets all medicines
      * :return: vector of medicines
      */
-    const vector<Medicine>& getAll() const;
+    [[nodiscard]] const vector<Medicine>& getAll() const;
 
     /*
      * Removes a medicine
@@ -75,62 +75,24 @@ public:
      * :param id: medicine id
      * :return: reference to medicine
      */
-    const Medicine& find(const string& id) const;
+    [[nodiscard]] const Medicine& find(const string& id) const;
 
     /*
      * Gets number of medicines
      * :return: size
      */
-    int size() const;
+    [[nodiscard]] int size() const;
 
-    /*
-     * Filters medicines using a condition
-     * :param f: function that returns true or false
-     * :return: filtered list
-     */
-    vector<Medicine> filter(function<bool(const Medicine&)> f) const;
+    vector<const Medicine*> filter(const function<bool(const Medicine&)>& f) const;
 
-    /*
-     * Filters medicines by price
-     * :param price: maximum price
-     * :return: filtered list
-     */
-    vector<Medicine> filterByPrice(int price) const;
+    [[nodiscard]] vector<const Medicine*> filterByPrice(int price) const;
+    [[nodiscard]] vector<const Medicine*> filterBySubstance(const string& substance) const;
 
-    /*
-     * Filters medicines by active substance
-     * :param substance: substance to match
-     * :return: filtered list
-     */
-    vector<Medicine> filterBySubstance(const string& substance) const;
+    vector<const Medicine*> sort(function<bool(const Medicine&, const Medicine&)> cmp) const;
 
-    /*
-     * Sorts medicines using comparator
-     * :param cmp: compare function
-     * :return: sorted list
-     */
-    vector<Medicine> sort(function<bool(const Medicine&,const Medicine&)> cmp) const;
-
-    /*
-     * Sorts by name
-     * :param ascending: true for asc, false for desc
-     * :return: sorted list
-     */
-    vector<Medicine> sortByName(bool ascending) const;
-
-    /*
-     * Sorts by producer
-     * :param ascending: true for asc, false for desc
-     * :return: sorted list
-     */
-    vector<Medicine> sortByProducer(bool ascending) const;
-
-    /*
-     * Sorts by active substance
-     * :param ascending: true for asc, false for desc
-     * :return: sorted list
-     */
-    vector<Medicine> sortByActiveSubstance(bool ascending) const;
+    [[nodiscard]] vector<const Medicine*> sortByName(bool ascending) const;
+    [[nodiscard]] vector<const Medicine*> sortByProducer(bool ascending) const;
+    [[nodiscard]] vector<const Medicine*> sortByActiveSubstance(bool ascending) const;
 };
 
 
