@@ -80,6 +80,7 @@ Element CP::sterge() {
     }
     else //daca exista doar un elem in coada atunci prim = ultim = nullptr
     {
+        prim = nullptr;
         ultim = nullptr;
     }
 
@@ -99,4 +100,5 @@ CP::~CP() {
 	    sterge();
 	}
 };
+
 

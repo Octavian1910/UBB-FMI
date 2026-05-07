@@ -113,6 +113,16 @@ void TestMedService::testUpdate() {
 
     const auto& med = srv.find("A|P1");
     assert(med.get_price() == 50);
+
+    try
+    {
+        srv.update("123", 100, "P1", "S1");
+        assert(false);
+    }
+    catch (RepositoryException&)
+    {
+        assert(true);
+    }
 }
 
 void TestMedService::testRemove() {
@@ -121,9 +131,11 @@ void TestMedService::testRemove() {
     MedService srv{ repo, val };
 
     srv.store("A", 10, "P1", "S1");
-    srv.remove("A|P1");
+    srv.store("B", 10, "P2", "S1");
+    srv.store("C", 10, "P3", "S1");
+    srv.remove("B|P2");
 
-    assert(srv.getAll().getSize() == 0);
+    assert(srv.getAll().getSize() == 2);
 }
 
 void TestMedService::testFind() {
@@ -134,6 +146,16 @@ void TestMedService::testFind() {
     srv.store("A", 10, "P1", "S1");
     const auto& med = srv.find("A|P1");
     assert(med.get_name() == "A");
+
+    try
+    {
+        srv.find("A|P2");
+        assert(false);
+    }
+    catch (RepositoryException)
+    {
+        assert(true);
+    }
 }
 
 void TestMedService::testFilterPrice() {

@@ -36,7 +36,8 @@ void MedRepository::update(const Medicine& med) {
             return;
         }
     }
-    throw RepositoryException("Medicine doesn't exist and can't be updated!\n");}
+    throw RepositoryException("Medicine doesn't exist and can't be updated!\n");
+}
 
 
 

@@ -1,0 +1,50 @@
+fork - creeaza un proces , copie aproape perfecta a parintelui(procesului care l a creat)
+returns : pid_t (alias pt unsigned int) , poti pune int x = 
+#include <unistd.h>
+
+ex:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main()
+{
+
+  wait(NULL); //aceasta linie nu face nimic deoarce wait suspenda executia doar daca exista un FORK
+
+ //creez un proces copil
+ 
+  pid_t cid = fork();
+  if(pid == -1)
+  {
+    perror("fork()");
+	exit(EXIT_FAILURE);
+  }
+   
+  if( pid == 0) // in procesul copilului
+  {
+  
+  }
+  else //in procesul parinte
+  {
+	int status;
+	wait(&status); //wait suspenda exectuai parintelui
+	
+	
+  }
+  return 0;
+  
+}
+
+//daca renuntam la ramura else atunci trebuie sa pune exit(0) in copil sa l terminam
+
+Cate procese sunt creeate fara parinte?
+1-fork();
+2-fork();
+1-fork();
+//answer : 2pow3 - 1
+explicatie :
+Parintele -> C1 -> C2( ->C3) -> C3
+		  -> C2 -> C3
+          -> C3

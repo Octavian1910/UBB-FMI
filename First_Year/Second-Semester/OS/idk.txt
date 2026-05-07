@@ -8,3 +8,6 @@ uniq -c | \
 sort -n -r +
 
 
+command subtitusion
+paramtere substitusion
+aritmethic ....

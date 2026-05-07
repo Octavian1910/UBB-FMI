@@ -14,4 +14,5 @@ add_executable(pregatire_test_1
         #test3/ex1.cpp
         #test3/ex2.cpp
         #test3v2/ex2.cpp
-        test4/ex2.cpp)
+        #test4/ex2.cpp
+        lab3/ex1.cpp)
