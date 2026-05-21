@@ -1,0 +1,11 @@
+1,Dacia,Logan,67
+2,Dacia,MCV,3
+3,BMW,x6,4
+4,Audi,Q6,10
+5,Mercedes,CLS,15
+6,Mercedes,A Class,2
+7,VW,Golf 7,1
+8,Renault,Megane,22
+9,Dacia,Spring,6
+10,Audi,A4,3
+

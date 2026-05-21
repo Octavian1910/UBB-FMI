@@ -1,0 +1,11 @@
+1,sedan,Logan,67
+2,sedan,MCV,3
+3,SUV,x6,4
+4,cabriolet,Q6,10
+5,cabriolet,CLS,15
+6,SUV,A Class,2
+7,sedan,Golf 7,1
+8,SUV,Megane,22
+9,camioneta,Spring,6
+10,sedan,A4,3
+
