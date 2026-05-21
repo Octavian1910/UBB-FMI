@@ -1,23 +1,27 @@
-cmake_minimum_required(VERSION 3.16)
-project(untitled3 C)
+cmake_minimum_required(VERSION 3.26)
+
+project(lab2 C)
 
 set(CMAKE_C_STANDARD 11)
 
+add_executable(lab2
+        domain/medicament.c
+        tests/teste.c
+        main.c
+        tests/teste.h
+        repository/repository.c
+        service/service.c
+        service/service.h
+        domain/validators/validator.c
+        domain/validators/validator.h
+        UI/ui.c
+        UI/ui.h
+)
+
 if (MSVC)
-    add_compile_options(/W4)
+    target_compile_options(lab2 PRIVATE /W4 /WX)
 else()
-    add_compile_options(-Wall -Werror -Wextra)
+    target_compile_options(lab2 PRIVATE -Wall -Wextra -Werror)
 endif()
 
-add_executable(untitled3
-        domain/domain.c
-        teste/teste.c
-        main/main.c
-        service/service.c
-        repository/repository.c
-        repository/repository.h
-        lista/MyList.c
-        lista/MyList.h
-        ui/ui.c
-        ui/ui.h
-)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")

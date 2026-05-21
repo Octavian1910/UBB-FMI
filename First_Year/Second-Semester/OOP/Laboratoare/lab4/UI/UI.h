@@ -1,32 +1,52 @@
-//
-// Created by octav on 02.04.2026.
-//
+#ifndef UI_H_
+#define UI_H_
 
-#ifndef LAB4_UI_H
-#define LAB4_UI_H
-#include "../Service/MedService.h"
+#include "../service/service.h"
 
-class UI
+/*
+ Reprezinta interfata utilizatorului
+*/
+typedef struct
 {
-private:
-    /*
-     * service used by UI
-     */
-    MedService& serv;
-
-public:
-    /*
-     * Creates UI
-     * :param serv: service reference
-     */
-    UI(MedService& serv) : serv{serv}{}
-
-    /*
-     * Starts the application
-     */
-    void startUI() const;
-};
+    ServiceFarmacie* service;
+} UI;
 
 
+/*
+ Creeaza interfata utilizatorului
 
-#endif //LAB4_UI_H
+ :param s: pointer la service
+
+ :return: pointer la obiect UI alocat dinamic
+
+ :pre:
+ s != NULL
+
+ :post:
+ se aloca memorie pentru UI
+ UI contine pointer la service
+*/
+UI creeazaUI(ServiceFarmacie* s);
+
+
+
+
+
+/*
+ Ruleaza meniul aplicatiei
+
+ :param ui: pointer la UI
+
+ :return: pointer la UI
+
+ :pre:
+ ui != NULL
+
+ :post:
+ utilizatorul poate executa operatiile aplicatiei
+ aplicatia ruleaza pana la alegerea optiunii de iesire
+*/
+void ruleazaUI(UI* ui);
+
+
+#endif

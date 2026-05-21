@@ -6,6 +6,11 @@
 #include <QRadioButton>
 #include <QWidget>
 #include <QLineEdit>
+#include <QVBoxLayout>
+#include <map>
+#include <QTableWidget>
+
+class QVBoxLayout;
 
 class GUI : public QWidget
 {
@@ -19,7 +24,7 @@ private:
      * medList: medicine list widget
      * recipeList: recipe list widget
      */
-    QListWidget* medList;
+    QTableWidget* medList;
     QListWidget* recipeList;
 
     /*
@@ -98,6 +103,11 @@ private:
      * Initializes signals and slots
      */
     void initConnect();
+    void reloadProducerButtons();
+
+    QVBoxLayout* producerLay = new QVBoxLayout; //layerul cu butoane
+    std::map<string,QPushButton*> producerButtons; //tine minte butoanele
+
 
 public:
     /*

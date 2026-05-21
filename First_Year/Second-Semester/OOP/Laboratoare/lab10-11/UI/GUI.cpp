@@ -9,11 +9,15 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QLabel>
+#include <QHeaderView>
+#include <set>
+
 
 GUI::GUI(MedService &serv):serv{serv}
 {
     initGui();
     loadData(serv.getAll());
+    reloadProducerButtons();
     initConnect();
 }
 
@@ -30,8 +34,20 @@ void GUI::initGui()
     mainLay->addLayout(medListLay);
 
     //lista cu medicamente
-    medList = new QListWidget;
+    medList = new QTableWidget;
     medListLay->addWidget(medList);
+
+    medList->setColumnCount(4);
+
+    QStringList headers;
+    headers << "Name" << "Price" << "Producer" << "Substance";
+
+    medList->setHorizontalHeaderLabels(headers);
+
+    medList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch); // isi da rezize automat
+
+    medList->setEditTriggers(QAbstractItemView::NoEditTriggers); //blocheaza editarea manuala
+
 
     //search
     txtSearch = new QLineEdit;
@@ -125,6 +141,7 @@ void GUI::initGui()
     recipeList = new QListWidget;
     receipeListLay->addWidget(recipeList);
 
+    mainLay->addLayout(producerLay);
 
     resize(1420,500);
     setWindowTitle("Medicine GUI");
@@ -132,21 +149,41 @@ void GUI::initGui()
 
 void GUI::loadData(const vector<Medicine> &meds)
 {
-    medList->clear();
+    medList->setRowCount(meds.size());
+
+    int row = 0;
+
     for (const auto& med : meds)
     {
-        QString text = QString::fromStdString(med.get_name() + " | " + std::to_string(med.get_price()) + " | " + med.get_producer() + " | " + med.get_active_substance());
-        medList->addItem(text);
+        medList->setItem(row,0,new QTableWidgetItem(QString::fromStdString(med.get_name())));
+
+        medList->setItem(row,1,new QTableWidgetItem(QString::number(med.get_price())));
+
+        medList->setItem(row,2,new QTableWidgetItem(QString::fromStdString(med.get_producer())));
+
+        medList->setItem(row,3,new QTableWidgetItem(QString::fromStdString(med.get_active_substance())));
+
+        row++;
     }
 }
 
 void GUI::loadData2(const vector<const Medicine *>& meds)
 {
-    medList->clear();
+    medList->setRowCount(meds.size());
+
+    int row = 0;
+
     for (const auto& med : meds)
     {
-        QString text = QString::fromStdString(med->get_name() + " | " + std::to_string(med->get_price()) + " | " + med->get_producer() + " | " + med->get_active_substance());
-        medList->addItem(text);
+        medList->setItem(row,0,new QTableWidgetItem(QString::fromStdString(med->get_name())));
+
+        medList->setItem(row,1,new QTableWidgetItem(QString::number(med->get_price())));
+
+        medList->setItem(row,2,new QTableWidgetItem(QString::fromStdString(med->get_producer())));
+
+        medList->setItem(row,3,new QTableWidgetItem(QString::fromStdString(med->get_active_substance())));
+
+        row++;
     }
 }
 
@@ -159,6 +196,52 @@ void GUI::loadRecipe(const vector<const Medicine *> &meds)
         recipeList->addItem(text);
     }
 }
+
+void GUI::reloadProducerButtons()
+{
+    auto meds = serv.getAll();
+
+    std::map<string,int> producers;
+
+    for (const auto& med : meds)
+    {
+        producers[med.get_producer()]++;
+    }
+
+    for (auto& pair : producerButtons) //eliberam memoria
+    {
+        producerLay->removeWidget(pair.second);
+        delete pair.second;
+    }
+
+    producerButtons.clear(); //dam clear la map
+
+    for (const auto& pair : producers)
+    {
+        string producer = pair.first;
+        int count = pair.second;
+
+        auto* btn =
+            new QPushButton(
+                QString::fromStdString(producer)
+            );
+
+        producerButtons[producer] = btn;
+
+        producerLay->addWidget(btn);
+
+        QObject::connect(
+            btn,
+            &QPushButton::clicked,
+            [&,producer,count]()
+            {
+                QMessageBox::warning(this,"Producer info",QString::fromStdString(producer +" : " +std::to_string(count) +" medicines"
+                    )
+                );
+            });
+    }
+}
+
 
 void GUI::initConnect()
 {
@@ -175,6 +258,7 @@ void GUI::initConnect()
         {
             serv.store(name,price,producer,substance);
             loadData(serv.getAll());
+            reloadProducerButtons();
         }catch (RepositoryException& e)
         {
             QMessageBox::warning(this,"Error",QString::fromStdString(e.getMessage()));
@@ -195,6 +279,7 @@ void GUI::initConnect()
            {
                serv.remove(ID);
                loadData(serv.getAll());
+               reloadProducerButtons();
            }catch (RepositoryException& e)
            {
                QMessageBox::warning(this,"Error",QString::fromStdString(e.getMessage()));
@@ -234,6 +319,7 @@ void GUI::initConnect()
            {
                serv.undo();
                loadData(serv.getAll());
+               reloadProducerButtons();
            }
             catch (ServiceException& e)
             {
@@ -242,52 +328,39 @@ void GUI::initConnect()
         });
 
     //search
+    //search
     QObject::connect(
     txtSearch,
     &QLineEdit::returnPressed,
     [this]()
-{
-    string text =
-        txtSearch->text().toStdString();
-
-
-
-    if(text == "")
     {
-        loadData(serv.getAll());
+        string text = txtSearch->text().toStdString();
 
-        return;
-    }
+        if(text == "")
+        {
+            loadData(serv.getAll());
+            return;
+        }
 
+        try
+        {
+            Medicine med = serv.find(text);
 
+            medList->setRowCount(1);
 
-    try
-    {
-        Medicine med =
-            serv.find(text);
+            medList->setItem(0,0,new QTableWidgetItem(QString::fromStdString(med.get_name())));
 
-        medList->clear();
+            medList->setItem(0,1,new QTableWidgetItem(QString::number(med.get_price())));
 
-        QString item =
-            QString::fromStdString(
-                med.get_name() +
-                " | " +
-                std::to_string(med.get_price()) +
-                " | " +
-                med.get_producer() +
-                " | " +
-                med.get_active_substance()
-            );
+            medList->setItem(0,2,new QTableWidgetItem(QString::fromStdString(med.get_producer())));
 
-        medList->addItem(item);
-    }
-
-    catch(...)
-    {
-        medList->clear();
-    }
-});
-
+            medList->setItem(0,3,new QTableWidgetItem(QString::fromStdString(med.get_active_substance())));
+        }
+        catch(...)
+        {
+            medList->setRowCount(0);
+        }
+    });
 
     //sort Name
     QObject::connect(btnSortName,&QPushButton::clicked,

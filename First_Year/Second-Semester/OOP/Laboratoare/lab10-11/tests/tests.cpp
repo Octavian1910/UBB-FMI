@@ -167,7 +167,7 @@ void testService()
     {
         (void)service.find("Doesnt exist!");
         assert(false);
-    }catch (RepositoryException&)
+    }catch (RepositoryException& e)
     {
         assert(true);
     }
@@ -304,8 +304,10 @@ void testRecipe()
     {
         service.generateRecipe(100);
         assert(false);
-    }catch (ServiceException&)
+    }catch (ServiceException& e)
     {
+        //cout << e.getMessage();
+        assert(e.getMessage() == "Not enough medicines!\n");
         assert(true);
     }
 
@@ -351,7 +353,7 @@ void testUndo()
         MedRepository repo;
         ValidatorMedicine validator;
         MedService serv{repo,validator};
-        cout<< "ok";
+        //cout<< "ok";
         //add
         serv.store("Nurofen", 10, "Bayer", "Ibuprofen");
         assert(serv.size() == 1);
@@ -365,20 +367,20 @@ void testUndo()
         {
             assert(true);
         }
-        cout<< "ok1";
+        //cout<< "ok1";
         serv.store("Nurofen", 10, "Bayer", "Ibuprofen");
         serv.remove("Nurofen|Bayer");
         assert(serv.size() == 0);
         serv.undo();
         assert(serv.size() == 1);
-        cout<< "ok2";
+        //cout<< "ok2";
         serv.update("Nurofen", 88, "Bayer", "Updated");
         auto med = serv.find("Nurofen|Bayer");
         assert(med.get_price() == 88);
         serv.undo();
         med = serv.find("Nurofen|Bayer");
         assert(med.get_price() == 10);
-        cout<< "ok3";
+        //cout<< "ok3";
     }
     catch (RepositoryException& e)
     {

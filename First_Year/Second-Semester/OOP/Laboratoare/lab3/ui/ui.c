@@ -1,177 +1,253 @@
 #include "ui.h"
-#include "../service/service.h"
-
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
-void afiseaza_meniu() {
-    printf("===MENIU===\n");
-    printf("1. Adauga cheltuiala\n");
-    printf("2. Modifica cheltuiala\n");
-    printf("3. Afisare cheltuieli\n");
-    printf("4. Sterge cheltuiala\n");
-    printf("5. Ordoneaza dupa suma crescator\n");
-    printf("6. Ordoneaza dupa suma descrescator\n");
-    printf("7. Ordoneaza dupa tip crescator\n");
-    printf("8. Ordoneaza dupa tip descrescator\n");
-    printf("9. Filtreaza dupa suma\n");
-    printf("10. Filtreaza dupa zi\n");
-    printf("11. Filtreaza dupa tip\n");
-    printf("12. Filtreaza dupa interval de zile\n");
-    printf("13. Undo\n");
-    printf("14. Sterge dupa zi\n");
-    printf("0. Iesire\n");
+
+void clearInputBuffer()
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
 
-int optiune() {
-    printf("Alege optiunea: ");
-    int o;
-    scanf("%d",&o);
-    return o;
+int citesteInt(const char* mesaj)
+{
+    int x;
+    int r;
+
+    while (1)
+    {
+        printf("%s", mesaj);
+        r = scanf("%d", &x);
+
+        if (r == 1)
+        {
+            clearInputBuffer();
+            return x;
+        }
+
+        printf("Tip de date invalid! Introdu un numar!\n");
+        clearInputBuffer();
+    }
 }
 
-UI* creeaza_ui(ServiceCheltuieli* s) {
+void citesteString(const char* mesaj, char* s)
+{
+    printf("%s", mesaj);
+    scanf("%49s", s);
+    clearInputBuffer();
+}
+
+
+UI* creeazaUI(ServiceFarmacie* s)
+{
     UI* ui = malloc(sizeof(UI));
     ui->service = s;
     return ui;
 }
 
-void distruge_ui(UI* ui) {
-    distruge_service(ui->service);
+void distrugeUI(UI* ui)
+{
+    distruge_service_farmacie(ui->service);
     free(ui);
 }
 
-void afiseaza_lista(MyList* lista) {
-    for (int i = 0; i < size(lista); i++) {
-        Cheltuiala* c = (Cheltuiala*)get(lista, i);
-        printf("%d. ziua: %d, suma: %.2f, tipul: %s\n",
-               get_id(c), get_zi(c), get_suma(c), get_tip(c));
-    }
+void meniu()
+{
+    printf("\n--- GESTIUNE FARMACIE ---\n");
+    printf("1. Adaugare/Actualizare medicament\n");
+    printf("2. Actualizare (nume, concentratie)\n");
+    printf("3. Stergere stoc pentru un anumit medicament\n");
+    printf("4. Vizualizare medicamente\n");
+    printf("5. Vizualizare medicamente dupa stoc, ordonat\n");
+    printf("6. Filtrare medicamente\n");
+    printf("0. Iesire\n");
 }
 
-void start(UI* ui) {
-    while (1) {
-        afiseaza_meniu();
-        int opt = optiune();
+UI* ruleazaUI(UI* ui)
+{
+    while (1)
+    {
+        meniu();
 
-        if (opt == 0)
-            break;
+        int comanda = citesteInt("Comanda: ");
 
-        if (opt == 1) {
-            int id, zi;
-            float suma;
-            char tip[50];
+        switch (comanda)
+        {
+            case 1:
+            {
+                int cod, concentratie, cantitate;
+                char nume[50];
 
-            printf("Introduceti id-ul: "); scanf("%d",&id);
-            printf("Introduceti ziua: "); scanf("%d",&zi);
-            printf("Introduceti suma: "); scanf("%f",&suma);
-            printf("Introduceti tipul: "); scanf("%s",tip);
+                cod = citesteInt("Cod: ");
+                citesteString("Nume: ", nume);
+                concentratie = citesteInt("Concentratie: ");
+                cantitate = citesteInt("Cantitate: ");
 
-            int erori = adauga_service(ui->service,id,zi,suma,tip);
-            if (erori==1) printf("Exista deja o cheltuiala\n");
-            if (erori==2) printf("Zi invalida\n");
-            if (erori==3) printf("Suma invalida\n");
-            if (erori==0) printf("Succes\n");
-        }
+                int mesaj = adaugaService(ui->service, cod, nume, concentratie, cantitate);
 
-        else if (opt == 2) {
-            int id, zi;
-            float suma;
-            char tip[50];
+                if (mesaj == 0)
+                    printf("A fost adaugat/actualizat!\n");
+                else if (mesaj == 1)
+                    printf("Codul nu este pozitiv!\n");
+                else if (mesaj == 2)
+                    printf("Numele este vid!\n");
+                else if (mesaj == 3)
+                    printf("Concentratia este negativa!\n");
+                else if (mesaj == 4)
+                    printf("Cantitatea este negativa!\n");
 
-            printf("ID: "); scanf("%d",&id);
-            printf("Zi: "); scanf("%d",&zi);
-            printf("Suma: "); scanf("%f",&suma);
-            printf("Tip: "); scanf("%s",tip);
-
-            int erori = modifica_cheltuiala_service(ui->service,id,zi,suma,tip);
-            if (erori==1) printf("Nu exista\n");
-            if (erori==2) printf("Zi invalida\n");
-            if (erori==3) printf("Suma invalida\n");
-            if (erori==0) printf("Succes\n");
-        }
-
-        else if (opt == 3) {
-            MyList* lista = get_all_service(ui->service);
-
-            for (int i = 0; i < size(lista); i++) {
-                Cheltuiala* c = (Cheltuiala*)get(lista, i);
-                printf("%d. ziua: %d, suma: %.2f, tipul: %s\n",
-                       get_id(c), get_zi(c), get_suma(c), get_tip(c));
+                break;
             }
-        }
 
-        else if (opt == 4) {
-            int id;
-            printf("ID : \n"); scanf("%d",&id);
-            if (sterge_cheltuiala_service(ui->service,id)==-1)
-                printf("Nu exista\n");
-            else
-                printf("Sters\n");
-        }
+            case 2:
+            {
+                int cod, concentratie;
+                char nume[50];
 
+                cod = citesteInt("Cod: ");
+                citesteString("Nume: ", nume);
+                concentratie = citesteInt("Concentratie: ");
 
-        else if (opt >= 5 && opt <= 8) {
-            int criteriu = (opt <= 6) ? 1 : 2;
-            int ordine = (opt % 2 == 1) ? 1 : 2;
+                int mesaj = actualizeazaService(ui->service, cod, nume, concentratie);
 
-            MyList* lista = sorteaza_service(ui->service, criteriu, ordine);
-            afiseaza_lista(lista);
-            destroyList(lista, NULL);
-        }
+                if (mesaj == 0)
+                    printf("Actualizare realizata.\n");
+                else if (mesaj == -1)
+                    printf("Elementul nu exista!\n");
+                else if (mesaj == 1)
+                    printf("Cod invalid!\n");
+                else if (mesaj == 2)
+                    printf("Nume invalid!\n");
+                else if (mesaj == 3)
+                    printf("Concentratie invalida!\n");
 
+                break;
+            }
 
-        else if (opt == 9) {
-            float suma;
-            scanf("%f",&suma);
+            case 3:
+            {
+                int cod = citesteInt("Cod: ");
 
-            MyList* lista = filtrare_dupa_suma(ui->service, suma);
-            afiseaza_lista(lista);
-            destroyList(lista, NULL);
-        }
+                int mesaj = sterge_service(ui->service, cod);
 
-        else if (opt == 10) {
-            int zi;
-            scanf("%d",&zi);
+                if (mesaj == 0)
+                    printf("Stocul a fost sters!\n");
+                else
+                    printf("Medicamentul nu exista!\n");
 
-            MyList* lista = filtrare_dupa_zi(ui->service, zi);
-            afiseaza_lista(lista);
-            destroyList(lista, NULL);
-        }
+                break;
+            }
 
-        else if (opt == 11) {
-            char tip[50];
-            scanf("%s",tip);
+            case 4:
+            {
+                Medicament** rezultat = get_all_service(ui->service);
+                int lungime = nr_medicamente_service(ui->service);
 
-            MyList* lista = filtrare_dupa_tip(ui->service, tip);
-            afiseaza_lista(lista);
-            destroyList(lista, NULL);
-        }
+                if (lungime == 0)
+                {
+                    printf("Nu exista elemente!\n");
+                }
+                else
+                {
+                    printf("\nCod | Nume | Concentratie | Cantitate\n");
 
-        else if (opt == 12) {
-            int a,b;
-            scanf("%d %d",&a,&b);
+                    for (int i = 0; i < lungime; i++)
+                    {
+                        Medicament* curent = rezultat[i];
 
-            MyList* lista = filtrare_interval_zile(ui->service, a, b);
-            afiseaza_lista(lista);
-            destroyList(lista, NULL);
-        }
-        else if (opt == 13) {
-            if (undo(ui->service) == -1)
-                printf("Nu mai exista operatii de undo!\n");
-            else
-                printf("Undo realizat cu succes!\n");
-        }
-        else if (opt == 14) {
-            int zi;
-            printf("Zi :"); scanf("%d",&zi);
-            int nr_zile_sterse = sterge_dupa_zi(ui->service, zi);
-            printf("S-au sters %d cheltuieli.\n",nr_zile_sterse);
-        }
+                        printf("%d %s %d %d\n",
+                               get_cod(curent),
+                               get_nume(curent),
+                               get_concentratie(curent),
+                               get_cantitate(curent));
+                    }
+                }
 
-        else {
-            printf("Optiune invalida\n");
+                free(rezultat);
+                break;
+            }
+
+            case 5:
+            {
+                int criteriu = citesteInt("1) Nume\n2) Cantitate\n");
+                int ordine_citita = citesteInt("1) Crescator\n2) Descrescator\n");
+                int ordine = 0;
+                if (ordine_citita != 1)
+                {
+                    ordine = 0;
+                }
+
+                int lungime = 0;
+                Medicament** rezultat = NULL;
+
+                if (criteriu == 1)
+                {
+                    // Pasăm funcția comparaNume ca parametru
+                    rezultat = sortareMedicamente(ui->service, comparaNume, ordine, &lungime);
+                }
+                else
+                {
+                    // Pasăm funcția comparaCantitate ca parametru
+                    rezultat = sortareMedicamente(ui->service, comparaCantitate, ordine, &lungime);
+                }
+
+                printf("\n");
+                if (lungime == 0)
+                {
+                    printf("Nu exista elemente!\n");
+                }
+                else
+                {
+                    for (int i = 0; i < lungime; i++)
+                    {
+                        Medicament* curent = rezultat[i];
+                        // Afișăm detaliile folosind getterii din domain
+                        printf("Cod: %d | Nume: %s | Concentratie: %d | Cantitate: %d\n",
+                               get_cod(curent),
+                               get_nume(curent),
+                               get_concentratie(curent),
+                               get_cantitate(curent));
+                    }
+                }
+
+                // Eliberăm doar vectorul de pointeri alocat în service/repo, nu și medicamentele în sine
+                free(rezultat);
+                break;
+            }
+            case(6):
+            {
+                int criteriu = citesteInt("Criteriu:  1) mai mic decat un nr dat 2) care au prima litera ");
+                char valoare[50];
+                citesteString("Introdu nr/prima_litera",valoare);
+                int lungime = 0;
+                Medicament** rezultat = filtrareMedicamente(ui->service,criteriu,valoare,&lungime);
+                printf("\n");
+                if (lungime == 0)
+                {
+                    printf("Nu exista elemente!\n");
+                }
+                else
+                {
+                    for (int i = 0; i < lungime; i++)
+                    {
+                        Medicament* curent = rezultat[i];
+
+                        printf("%d %s %d %d\n",
+                               get_cod(curent),
+                               get_nume(curent),
+                               get_concentratie(curent),
+                               get_cantitate(curent));
+                    }
+                }
+                    free(rezultat);
+                break;
+            }
+
+            case 0:
+                return ui;
+
+            default:
+                printf("Comanda invalida!\n");
         }
     }
 }

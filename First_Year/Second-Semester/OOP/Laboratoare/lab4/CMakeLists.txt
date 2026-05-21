@@ -1,31 +1,19 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.27)
+project(Farmacie C)
 
-project(lab4 CXX)
+set(CMAKE_C_STANDARD 11)
 
-set(CMAKE_CXX_STANDARD 17)
+add_executable(Farmacie
+        main.c
 
-if (MSVC)
-    add_compile_options(/W4)
-else()
-    add_compile_options(-Wall -Werror -Wextra)
-endif()
+        domain/medicament.c
+        domain/validators/validator.c
 
+        repository/repository.c
+        service/service.c
 
-add_executable(lab4
-        main.cpp
-        tests/tests.cpp
-        domain/medicine.cpp
-        domain/medicine.h
-        Repository/MedRepository.cpp
-        Repository/MedRepository.h
-        Repository/RepositoryException.h
-        Service/MedService.cpp
-        Service/MedService.h
-        domain/Validator/MedValidator.cpp
-        domain/Validator/MedValidator.h
-        domain/Validator/ValidatorException.h
-        UI/UI.cpp
-        UI/UI.h
+        ui/ui.c
+
+        tests/teste.c
+        service/service.c
 )
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")

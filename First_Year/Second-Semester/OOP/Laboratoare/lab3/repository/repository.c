@@ -1,83 +1,108 @@
 #include "repository.h"
 #include <stdlib.h>
 
-// creare repo
-RepoCheltuieli* creeaza_repo() {
-    RepoCheltuieli* repo = malloc(sizeof(RepoCheltuieli));
-    repo->lista = createList();
-    return repo;
+RepoFarmacie* creeazaRepo()
+{
+    RepoFarmacie* v = malloc(sizeof(RepoFarmacie));
+    v-> capacitate = 2;
+    v-> lungime = 0;
+    v-> elemente = malloc(sizeof(Medicament*) * v->capacitate);
+    return v;
 }
 
-// adaugare
-void adauga_repo(const RepoCheltuieli* repo, ElemType el) {
-    add(repo->lista, el);
+int get_lungime_repo(const RepoFarmacie* v) {
+    return v->lungime;
 }
 
-// cautare
-ElemType cauta_cheltuiala_repo(const RepoCheltuieli* repo, int id) {
-    for (int i = 0; i < size(repo->lista); i++) {
-        Cheltuiala* c = get(repo->lista, i);
-        if (get_id(c) == id) {
-            return c;
+int get_capacitate_repo(const RepoFarmacie* v) {
+    return v->capacitate;
+}
+
+int actualizeaza_element_repo(const RepoFarmacie* v,Medicament* m)
+{
+    Medicament* elem = cauta_medicament_repo(v,get_cod(m));
+    if (elem == NULL)
+       return -1;
+
+    set_nume(elem,get_nume(m));
+    set_concentratie(elem,get_concentratie(m));
+    distrugeMedicament(m);
+    return 0;
+}
+
+void resize(RepoFarmacie* v)
+{
+    int noua_capcaitate = 2 * v->capacitate;
+    Medicament** elementeNoi = realloc(v->elemente,noua_capcaitate * sizeof(Medicament*));
+    v->elemente = elementeNoi;
+    v->capacitate = noua_capcaitate;
+}
+
+void adauga_repo(RepoFarmacie* v,Medicament* m)
+{
+    Medicament* elem = cauta_medicament_repo(v,get_cod(m));
+    if (elem == NULL)
+    {
+        if (v->lungime == v->capacitate)
+            resize(v);
+        v->elemente[v->lungime] = m;
+        v->lungime += 1;
+    }
+    else
+    {
+        set_cantitate(elem,get_cantitate(m));
+        distrugeMedicament(m);//daca exista deja atunci trb sters obiectul creat in service
+    }
+}
+
+Medicament* cauta_medicament_repo(const RepoFarmacie* v,int cod)
+{
+    for (int i = 0 ; i < v->lungime ; ++i)
+    {
+        if (v->elemente[i]->cod == cod)
+        {
+            return v->elemente[i];
         }
     }
     return NULL;
 }
 
-// modificare
-void modifica_cheltuiala_repo(const RepoCheltuieli* repo, ElemType el_nou) {
-    for (int i = 0; i < size(repo->lista); i++) {
-        Cheltuiala* c = get(repo->lista, i);
-        if (get_id(c) == get_id(el_nou)) {
-            distruge_cheltuiala(c);
-            set(repo->lista, i, el_nou);
-            return;
-        }
+void distrugeRepo(RepoFarmacie* v)
+{
+    for (int i = 0; i < v->lungime ; i++)
+    {
+        distrugeMedicament(v->elemente[i]);
     }
+    free(v->elemente);
+    free(v);
 }
 
-// stergere
-int sterge_cheltuiala_repo(const RepoCheltuieli* repo, int id) {
-    for (int i = 0; i < size(repo->lista); i++) {
-        Cheltuiala* c = get(repo->lista, i);
-        if (get_id(c) == id) {
-            distruge_cheltuiala(c);
-            removeAt(repo->lista, i);
-            return 0;
-        }
+int sterge_repo(const RepoFarmacie* repo,int cod)
+{
+    Medicament* elem = cauta_medicament_repo(repo,cod);
+    if (elem == NULL)
+    {
+        return -1;
     }
-    return -1;
+    set_cantitate(elem, 0);
+    return 0;
+
 }
 
-// lungime
-int get_lungime_repo(const RepoCheltuieli* repo) {
-    return size(repo->lista);
-}
-
-MyList* get_all(const RepoCheltuieli* repo) {
-    return repo->lista;
-}
-
-
-ElemType copyCheltuiala(ElemType c) {
-    Cheltuiala* ch = (Cheltuiala*)c;
-    return creeaza_cheltuiala(
-        get_id(ch),
-        get_zi(ch),
-        get_suma(ch),
-        get_tip(ch)
-    );
-}
-
-RepoCheltuieli* copiaza_repo(const RepoCheltuieli* repo) {
-    RepoCheltuieli* copie = malloc(sizeof(RepoCheltuieli));
-    copie->lista = deepCopyList(repo->lista, copyCheltuiala);
-    return copie;
+int nr_medicamente_repo(const RepoFarmacie* v)
+{
+    return v->lungime;
 }
 
 
-// distrugere
-void distruge_repo(RepoCheltuieli* repo) {
-    destroyList(repo->lista, distruge_cheltuiala);
-    free(repo);
+Medicament** get_all_repo(const RepoFarmacie* v)
+{
+    Medicament** lista = malloc(sizeof(Medicament*) * get_lungime_repo(v));
+    for (int i = 0 ; i < get_lungime_repo(v) ; ++i)
+    {
+        lista[i] = v->elemente[i];
+    }
+    return lista;
 }
+
+
