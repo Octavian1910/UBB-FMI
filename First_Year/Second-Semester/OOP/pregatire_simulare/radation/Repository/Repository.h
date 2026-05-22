@@ -15,6 +15,7 @@ private:
     vector<Radiation> elements;
     string file_path;
     void load_from_file(string file_path);
+    void save_to_file();
 public:
     Repository(string file_path);
     void add(const Radiation& rad);

@@ -4,6 +4,7 @@
 
 #include "Tests.h"
 #include <iostream>
+#include <fstream>
 #include <assert.h>
 
 #include "../Domain/Validator/Validator.h"
@@ -80,11 +81,31 @@ void test_service()
     assert(service.get_all().size() == 11);
 }
 
+void rewrite_file_text()
+{
+    string path = "C:\\Users\\octav\\Desktop\\Facultate\\sem2\\OOP\\pregatire_simulare\\radation\\cmake-build-debug\\test_frecventa.txt";
+    std::ofstream file(path);
+    file << "1,masurare radiatii laborator,45.5,alpha\n";
+    file << "2,control nivel radiatii,70,beta\n";
+    file << "3,verificare reactor,90.2,gamma\n";
+    file << "4,test camera izolare,30,delta\n";
+    file << "5,monitorizare zona A,15.7,theta\n";
+    file << "6,scanare echipament,55.3,alpha\n";
+    file << "7,detectie sursa radiatii,82.1,beta\n";
+    file << "8,masurare fundal natural,10,gamma\n";
+    file << "9,control siguranta,25.4,delta\n";
+    file << "10,verificare protectie,25.4,theta\n";
+
+}
+
 void Tests::test_all()
 {
+
     test_domain();
     test_validator_domain();
+    rewrite_file_text();
     test_repository();
+    rewrite_file_text();
     test_service();
  cout<<"All tests have passed!";
 }

@@ -63,4 +63,19 @@ void Repository::load_from_file(string file_path)
 void Repository::add(const Radiation &rad)
 {
     elements.push_back(rad);
+    save_to_file();
+}
+
+void Repository::save_to_file()
+{
+    std::ofstream file(file_path);
+    if (!file.is_open())
+    {
+        throw std::runtime_error("Nu se poate scrie in fisier!");
+    }
+
+    for (auto rad:elements)
+    {
+        file << rad.get_ID() << "," << rad.get_description() << "," << rad.get_frequency() << "," << rad.get_type_frequency() << "\n";
+    }
 }
