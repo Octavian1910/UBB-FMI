@@ -1,0 +1,59 @@
+subalgoritm sterge(d, c) este
+
+i ← d.d(c) // aplica functia hash pt cheia c
+
+j ← -1
+
+k ← 0
+câttimp (k < d.m și j = -1) execută //cauta daca pointeaza cineva catre hasul lui c; e folosita pt cazul in care e fix pe prima poz din lant
+    dacă d.urm[k] = i atunci
+        j ← k      //daca ajunge aici inseamna ca nu e primul element din lant si intra pe a 2 a bucla
+    altfel
+        k ← k + 1
+sf_câttimp
+
+câttimp i ≠ -1 și d.e[i].c ≠ c execută //mergem prin lantul cu cheia c doar daca cheia nu e fix primul element din lant
+    j ← i                              //daca nu e primul element atunci j il precede
+    i ← d.urm[i]
+sf_câttimp
+
+dacă i = -1 atunci //daca am ajuns la capatul lantului si nu am gasit cheia
+    cheia nu există
+altfel          //cheia exista fie este in lant fie este fix prima din lant
+
+    gata ← fals
+
+    repetă
+
+        p ← d.urm[i] //urmatorul element
+        pp ← i
+
+        câttimp p ≠ -1 și d.d(d.e[p].c) ≠ i execută  //cautam in acel lant un elem care sa aiba d(cheie) nu la locul ei
+            pp ← p
+            p ← d.urm[p]
+        sf_câttimp
+
+        dacă p = -1 atunci   //nu mai exista elem care pot umple gaura deci iesim
+            gata ← adevărat
+        altfel
+            d.e[i] ← d.e[p]   //mutam elem din acelasi lant peste si se muta "gaura"
+            j ← pp
+            i ← p
+        sf_dacă
+
+    până_când gata
+
+    dacă j ≠ -1 atunci //j=-1 doar daca e primul element deci nu vrem cazul asta
+        d.urm[j] ← d.urm[i]  //il scoatem pe i din lant
+    sf_dacă
+
+    d.e[i] ← NULL_TElement //goleste elementul
+    d.urm[i] ← -1
+
+    dacă d.primLiber > i atunci
+        d.primLiber ← i
+    sf_dacă
+
+sf_dacă
+
+sf_subalgoritm
