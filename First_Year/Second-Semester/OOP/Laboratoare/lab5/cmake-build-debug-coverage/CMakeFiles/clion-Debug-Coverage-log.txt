@@ -1,0 +1,1 @@
+CMakeLists.txt not found in C:\Users\octav\Desktop\Facultate\sem2\OOP\Laboratoare\lab5_it1 Select CMakeLists.txt

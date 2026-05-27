@@ -24,7 +24,7 @@ void testDomain()
 
 void testRepository()
 {
-    string file_path = "C:\\Users\\octav\\Desktop\\Facultate\\sem2\\OOP\\simulare_ex_masina\\tests_cars.txt";
+    string file_path = "C:\\Users\\octav\\Desktop\\Facultate\\sem2\\OOP\\pregatire_simulare\\simulare_ex_masina\\tests_cars.txt";
     Repository repo(file_path);
     std::vector<Car> result = repo.get_all();
     assert( result.size() == 10);
@@ -34,7 +34,7 @@ void testRepository()
 
 void testService()
 {
-    string file_path = "C:\\Users\\octav\\Desktop\\Facultate\\sem2\\OOP\\simulare_ex_masina\\tests_cars.txt";
+    string file_path = "C:\\Users\\octav\\Desktop\\Facultate\\sem2\\OOP\\pregatire_simulare\\simulare_ex_masina\\tests_cars.txt";
     Repository repo(file_path);
     Service serv(repo);
     std::vector<Car> result = serv.filter_by_brand("Dacia");

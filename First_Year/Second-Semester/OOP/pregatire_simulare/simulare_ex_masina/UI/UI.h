@@ -4,38 +4,36 @@
 
 #ifndef SIMULARE_EX_MASINA_UI_H
 #define SIMULARE_EX_MASINA_UI_H
-#include <QApplication>
-#include <QVBoxLayout>
-#include <QTableWidget>
+#include <QWidget>
+#include <vector>
 #include <QMessageBox>
-#include <QLineEdit>
 #include <QPushButton>
-#include <qcoreapplication.h>
+#include <QLineEdit>
+#include <QObject>
+#include <QTableWidget>
+#include <QVBoxLayout>
 #include "../Service/Service.h"
-#include "../domain/Car.h"
-
-class UI : public QWidget
+using std::vector;
+class UI:public QWidget
 {
     Q_OBJECT;
-
 private:
-    Service& serv;
-    std::vector<Car> displayed_cars;
+    Service& service;
+    vector<Car> displayed_cars;
 
     QTableWidget* cars_table = new QTableWidget;
     QLineEdit* filter_input = new QLineEdit;
 
     QPushButton* filter_button = new QPushButton("Filter");
-    QPushButton* sort_ascending_button = new QPushButton("Sort ascending");
-    QPushButton* sort_descending_button = new QPushButton("Sort descending");
+    QPushButton* sort_by_price_ascending_button = new QPushButton("Price ascending");
+    QPushButton* sort_by_price_descending_button = new QPushButton("Price descending");
     QPushButton* reset_button = new QPushButton("Reset");
 
 public:
     UI(Service& service);
-
-    void connect_buttons();
-    void load_data(std::vector<Car> to_display);
+    void load_data(vector<Car> items_to_load);
     int get_selected_index();
+    void connect_buttons();
 };
 
 

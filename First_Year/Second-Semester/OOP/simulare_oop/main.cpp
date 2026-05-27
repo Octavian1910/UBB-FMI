@@ -1,22 +1,23 @@
-#include <QApplication>
+
 
 #include "tests/Tests.h"
+#include <QApplication>
 #include <string>
-
 #include "Repository/Repository.h"
 #include "Service/Service.h"
 #include "UI/UI.h"
 using std::string;
 
+
 int main(int argc,char* argv[])
 {
-	Tests::runAll();
+    Tests::run_all();
 
     QApplication app(argc,argv);
 
-    std::string file_path = "C:\\Users\\octav\\Desktop\\Facultate\\sem2\\OOP\\pregatire_simulare\\simulare_ex_masina\\cars.txt";
+    string file = "postari.txt";
 
-    Repository repo(file_path);
+    Repository repo(file);
     Service serv{repo};
     UI ui{serv};
     ui.show();

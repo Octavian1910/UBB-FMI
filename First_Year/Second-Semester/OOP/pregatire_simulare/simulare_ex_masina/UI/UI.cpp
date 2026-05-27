@@ -4,33 +4,30 @@
 
 #include "UI.h"
 
-UI::UI(Service &service): serv{service}
+
+UI::UI(Service &service):service(service)
 {
-  auto* main_layout = new QVBoxLayout(this);
-  auto* buttons_layout = new QHBoxLayout;
-
     cars_table->setColumnCount(3);
-    cars_table->setHorizontalHeaderLabels({"Nume","Specie","Varsta"});
+    cars_table->setHorizontalHeaderLabels({"Nume", "Specie", "Varsta"});
 
-    filter_input->setPlaceholderText("Specie");
+    QVBoxLayout* mainLay = new QVBoxLayout(this);
+    QHBoxLayout* buttonsLayout = new QHBoxLayout;
+    mainLay->addWidget(cars_table);
+    mainLay->addWidget(filter_input);
+    mainLay->addLayout(buttonsLayout);
 
-    main_layout->addWidget(cars_table);
-    main_layout->addWidget(filter_input);
-    main_layout->addLayout(buttons_layout);
-
-    buttons_layout->addWidget(filter_button);
-    buttons_layout->addWidget(sort_ascending_button);
-    buttons_layout->addWidget(sort_descending_button);
-    buttons_layout->addWidget(reset_button);
+    buttonsLayout->addWidget(sort_by_price_ascending_button);
+    buttonsLayout->addWidget(sort_by_price_descending_button);
+    buttonsLayout->addWidget(reset_button);
+    buttonsLayout->addWidget(filter_button);
 
     connect_buttons();
-    load_data(serv.get_all());
+    load_data(service.get_all());
 }
 
 int UI::get_selected_index()
 {
     int index = cars_table->currentRow();
-
     if (index < 0)
         return -1;
 
@@ -43,22 +40,26 @@ void UI::connect_buttons()
     QObject::connect(filter_button,&QPushButton::clicked,
         [this]()
         {
-           string brand = filter_input->text().toStdString();
-            load_data(serv.filter_by_brand(brand));
+            string brand = filter_input->text().toStdString();
+           load_data(service.filter_by_brand(brand));
         });
 
-    QObject::connect(sort_ascending_button,&QPushButton::clicked,
+    QObject::connect(sort_by_price_ascending_button,&QPushButton::clicked,
         [this]()
         {
-            auto result = serv.sort_by_age(true);
-            load_data(result);
+           load_data(service.sort_by_age(true));
         });
 
-    QObject::connect(sort_descending_button,&QPushButton::clicked,
+    QObject::connect(sort_by_price_descending_button,&QPushButton::clicked,
         [this]()
         {
-            auto result = serv.sort_by_age(false);
-            load_data(result);
+           load_data(service.sort_by_age(false));
+        });
+
+    QObject::connect(reset_button,&QPushButton::clicked,
+        [this]()
+        {
+           load_data(service.get_all());
         });
 
     QObject::connect(cars_table,&QTableWidget::itemSelectionChanged,
@@ -70,27 +71,22 @@ void UI::connect_buttons()
                 return;
 
             if (displayed_cars[index].get_age() >= 10)
-               QMessageBox::warning(this,"Info","Masina este in varsta si necesita un control!");
+            {
+                QMessageBox::warning(this,"Info","etc");
+            }
         });
 
-
-    QObject::connect(reset_button, &QPushButton::clicked,
-    [this]()
-    {
-        filter_input->clear();
-        load_data(serv.get_all());
-    });
 }
 
 
-void UI::load_data(std::vector<Car> to_display)
+void UI::load_data(vector<Car> items_to_load)
 {
-    displayed_cars = to_display;
+    displayed_cars = items_to_load;
 
     cars_table->clearContents();
     cars_table->setRowCount(displayed_cars.size());
 
-    for (int i = 0; i < displayed_cars.size(); i++)
+    for (int i = 0 ; i < displayed_cars.size() ; ++i)
     {
         Car car = displayed_cars.at(i);
 
@@ -110,8 +106,9 @@ void UI::load_data(std::vector<Car> to_display)
         if (car.get_brand() == "camioneta")
             name_item->setBackground(Qt::white);
 
-        cars_table->setItem(i, 0, name_item);
-        cars_table->setItem(i, 1, specie_item);
-        cars_table->setItem(i, 2, age_item);
+
+        cars_table->setItem(i,0,name_item);
+        cars_table->setItem(i,1,specie_item);
+        cars_table->setItem(i,2,age_item);
     }
 }
