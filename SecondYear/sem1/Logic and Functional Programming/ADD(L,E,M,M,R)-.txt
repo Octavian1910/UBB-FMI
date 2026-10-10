@@ -1,0 +1,20 @@
+ADD(L,E,M,M,R):-
+R=[E|L]
+
+add(L,E,M,P,R):-
+L = [] , % L-input , verificare daca L e vida
+P < M,
+R=[].,%R - output , legare R la lista vida
+
+
+add(L,E,M,P,R):-
+L=[h|t], p1 IS p+1,
+ADD(T,E,M,P1,RezPartial),
+R=[H|RezPartial].
+
+
+addMain(L,E,M,R):-
+add(L,E,M,1,R).
+
+
+!!!NU APASTI ENTER apasati ; daca programul sta pe loc!!! ; cauta si alte solutii
