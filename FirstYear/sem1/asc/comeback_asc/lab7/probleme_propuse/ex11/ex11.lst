@@ -1,0 +1,50 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit  ,printf,scanf             ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  import printf msvcrt.dll
+    11                                  import scanf msvcrt.dll
+    12                                  ; our data is declared here (the variables needed by our program)
+    13                                  segment data use32 class=data
+    14                                      ; ...
+    15                                   ;Sa se citeasca de la tastatura un numar in baza 16 si sa se afiseze valoarea acelui numar in baza 10.
+    16                                   ;Exemplu: Se citeste: 1D; se afiseaza: 29
+    17                                  ; our code starts here
+    18                                  
+    19 00000000 4E756D6172756C2065-         mesaj1 db "Numarul este ",0
+    19 00000009 7374652000         
+    20 0000000E 4E756D6172756C2069-         mesaj2 db "Numarul in b10 este ",0
+    20 00000017 6E2062313020657374-
+    20 00000020 652000             
+    21 00000023 0000                        numar dw 0
+    22 00000025 257800                      format_baza16 db "%x",0
+    23 00000028 256400                      format_baza10 db "%d",0
+    24                                      
+    25                                  segment code use32 class=code
+    26                                      start:
+    27                                          ; ...
+    28                                          ;printf
+    29 00000000 68[00000000]                    push mesaj1
+    30 00000005 FF15[00000000]                  call [printf]
+    31 0000000B 83C404                          add esp,4*1
+    32                                          
+    33                                          ;scanf (%x ,&numar)
+    34 0000000E 68[23000000]                    push numar
+    35 00000013 68[25000000]                    push format_baza16
+    36 00000018 FF15[00000000]                  call [scanf]
+    37                                          
+    38                                          ;printf (%d, numar)
+    39 0000001E FF35[23000000]                  push dword [numar]
+    40 00000024 68[28000000]                    push format_baza10
+    41 00000029 FF15[00000000]                  call [printf]
+    42                                          
+    43                                          
+    44                                      
+    45                                          ; exit(0)
+    46 0000002F 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    47 00000031 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

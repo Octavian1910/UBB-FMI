@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quiz Matching — Siruri (marginit, monoton, Cauchy, serii)</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121a33;
+      --panel2:#0f1730;
+      --text:#e8ecff;
+      --muted:#b9c2ffcc;
+      --line:#ffffff26;
+      --accent:#7aa2ff;
+      --good:#3ddc97;
+      --bad:#ff5c7a;
+      --warn:#ffcc66;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(122,162,255,.25), transparent 60%),
+                  radial-gradient(900px 500px at 110% 20%, rgba(61,220,151,.18), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    header{
+      padding:22px 18px 12px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size:clamp(18px,2.4vw,28px);
+      letter-spacing:.2px;
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      line-height:1.35;
+      font-size:14px;
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:14px 18px 30px;
+    }
+
+    .toolbar{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      padding:12px;
+      box-shadow: var(--shadow);
+      margin-bottom:14px;
+    }
+    .leftTools, .rightTools{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      font-size:13px;
+    }
+    select{
+      background: transparent;
+      color:var(--text);
+      border: none;
+      outline:none;
+      font-size:13px;
+      padding:0 2px;
+    }
+    option{ color:#111; }
+
+    button{
+      cursor:pointer;
+      border:none;
+      border-radius: 999px;
+      padding:9px 12px;
+      font-weight:600;
+      font-size:13px;
+      color:var(--text);
+      background: rgba(122,162,255,.18);
+      border:1px solid rgba(122,162,255,.28);
+      transition: transform .05s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+    }
+    button:hover{ background: rgba(122,162,255,.26); border-color: rgba(122,162,255,.38); }
+    button:active{ transform: translateY(1px); }
+    button.ghost{
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+    }
+    button.danger{
+      background: rgba(255,92,122,.18);
+      border-color: rgba(255,92,122,.30);
+    }
+    button.good{
+      background: rgba(61,220,151,.16);
+      border-color: rgba(61,220,151,.28);
+    }
+
+    .score{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .score strong{ color:var(--text); }
+
+    .board{
+      position:relative;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      min-height: 520px;
+    }
+    @media (max-width: 900px){
+      .board{ grid-template-columns: 1fr; }
+    }
+
+    .col{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .colHead{
+      padding:12px 12px 10px;
+      background: rgba(0,0,0,.15);
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .colHead .title{
+      font-weight:800;
+      letter-spacing:.2px;
+    }
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .list{
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .card{
+      width:100%;
+      text-align:left;
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding:10px 10px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      line-height:1.25;
+      position:relative;
+    }
+    .card:hover{ border-color: rgba(255,255,255,.18); }
+    .tag{
+      flex:0 0 auto;
+      width:28px;
+      height:28px;
+      border-radius: 10px;
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      margin-top:1px;
+    }
+    .text{
+      flex:1 1 auto;
+      font-size:14px;
+      color: var(--text);
+    }
+    .muted{
+      color:var(--muted);
+    }
+
+    .card.selected{
+      outline: 2px solid rgba(122,162,255,.65);
+      border-color: rgba(122,162,255,.50);
+      background: rgba(122,162,255,.10);
+    }
+    .card.paired{
+      border-color: rgba(255,255,255,.22);
+    }
+    .card.correct{
+      border-color: rgba(61,220,151,.70);
+      background: rgba(61,220,151,.10);
+    }
+    .card.wrong{
+      border-color: rgba(255,92,122,.70);
+      background: rgba(255,92,122,.10);
+    }
+
+    .tiny{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    /* SVG lines */
+    #lines{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
+    }
+    .col{ position:relative; z-index:1; } /* lists above the svg */
+
+    footer{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      border:1px solid rgba(255,255,255,.18);
+      padding:1px 6px;
+      border-radius:8px;
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Quiz Matching — Siruri (marginit, monoton, Cauchy, serii)</h1>
+    <p class="sub">
+      Click pe un <b>termen</b> (stanga), apoi click pe <b>definitia</b> lui (dreapta) ca sa le unesti.
+      Poti reface oricand perechile. Cand esti gata, apasa <b>Verifica</b>.
+    </p>
+  </header>
+
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="leftTools">
+        <div class="pill">
+          Set:
+          <select id="setSelect" aria-label="Alege setul">
+            <option value="basic">Basic (10)</option>
+            <option value="full" selected>Full (16)</option>
+          </select>
+        </div>
+        <button class="ghost" id="shuffleBtn">Shuffle</button>
+        <button class="danger" id="resetBtn">Reset</button>
+      </div>
+
+      <div class="rightTools">
+        <div class="score" id="scoreBox">Scor: <strong>—</strong></div>
+        <button class="good" id="checkBtn">Verifica</button>
+        <button class="ghost" id="showBtn">Arata raspunsurile</button>
+      </div>
+    </div>
+
+    <div class="board" id="board">
+      <svg id="lines"></svg>
+
+      <section class="col">
+        <div class="colHead">
+          <div class="title">Termeni</div>
+          <div class="hint">pas 1: alege un termen</div>
+        </div>
+        <div class="list" id="terms"></div>
+      </section>
+
+      <section class="col">
+        <div class="colHead">
+          <div class="title">Definitii</div>
+          <div class="hint">pas 2: alege definitia</div>
+        </div>
+        <div class="list" id="defs"></div>
+      </section>
+    </div>
+
+    <footer>
+      Tips: (1) Daca ai gresit o legatura, apasa din nou pe carduri ca s-o schimbi.
+      (2) Dupa <b>Verifica</b>, perechile corecte se fac verzi, gresitele rosii.
+      (3) <span class="kbd">Shuffle</span> amesteca ordinea, ca sa nu inveti “pe pozitie”.
+    </footer>
+  </div>
+
+<script>
+(() => {
+  // ----------------------------
+  // DATA (bazat pe curs: marginit, monoton, Weierstrass, clestele, subsir, liminf/limsup, Cauchy, serii)
+  // ----------------------------
+  const SETS = {
+    basic: [
+      { id:"bounded_below", term:"Sir marginuit inferior", def:"Exista m in R astfel incat m ≤ x_n pentru orice n in N (multimea {x_n} e marginuita inferior)." },
+      { id:"bounded_above", term:"Sir marginuit superior", def:"Exista M in R astfel incat x_n ≤ M pentru orice n in N (multimea {x_n} e marginuita superior)." },
+      { id:"bounded",       term:"Sir marginuit", def:"Este marginuit inferior si superior; exista m, M in R astfel incat m ≤ x_n ≤ M pentru orice n in N." },
+      { id:"increasing",    term:"Sir crescator (de la un termen)", def:"Exista n0 in N astfel incat x_n ≤ x_{n+1} pentru orice n ≥ n0." },
+      { id:"decreasing",    term:"Sir descrescator (de la un termen)", def:"Exista n0 in N astfel incat x_n ≥ x_{n+1} pentru orice n ≥ n0." },
+      { id:"monotone",      term:"Sir monoton", def:"Este fie crescator, fie descrescator (eventual, de la un anumit termen)." },
+      { id:"weierstrass",   term:"Teorema Weierstrass (monoton + marginit)", def:"Daca un sir este monoton si marginit, atunci este convergent (are limita finita)." },
+      { id:"squeeze",       term:"Criteriul clestelui", def:"Daca x_n ≤ y_n ≤ z_n (de la un n0) si lim x_n = lim z_n = d in R, atunci lim y_n = d." },
+      { id:"subsequence",   term:"Subsir", def:"Sirul (x_{n_k}) obtinut din (x_n) printr-o succesiune strict crescatoare de indici n0<n1<n2<... (n_k in N)." },
+      { id:"cauchy",        term:"Sir fundamental (Cauchy)", def:"Pentru orice ε>0 exista n0 astfel incat pentru orice m,n ≥ n0: |x_m - x_n| < ε." },
+    ],
+    full: [
+      { id:"bounded_below", term:"Sir marginuit inferior", def:"Exista m in R astfel incat m ≤ x_n pentru orice n in N (multimea {x_n} e marginuita inferior)." },
+      { id:"bounded_above", term:"Sir marginuit superior", def:"Exista M in R astfel incat x_n ≤ M pentru orice n in N (multimea {x_n} e marginuita superior)." },
+      { id:"bounded",       term:"Sir marginuit", def:"Este marginuit inferior si superior; exista m, M in R astfel incat m ≤ x_n ≤ M pentru orice n in N." },
+      { id:"conv_implies_bounded", term:"Observatie: convergent ⇒ marginit", def:"Orice sir convergent este marginuit. Reciproca NU este in general adevarata." },
+
+      { id:"increasing",    term:"Sir crescator (de la un termen)", def:"Exista n0 in N astfel incat x_n ≤ x_{n+1} pentru orice n ≥ n0." },
+      { id:"decreasing",    term:"Sir descrescator (de la un termen)", def:"Exista n0 in N astfel incat x_n ≥ x_{n+1} pentru orice n ≥ n0." },
+      { id:"monotone",      term:"Sir monoton", def:"Este fie crescator, fie descrescator (eventual, de la un anumit termen)." },
+
+      { id:"weierstrass",   term:"Teorema Weierstrass (monoton + marginit)", def:"Daca un sir este monoton si marginit, atunci este convergent (are limita finita)." },
+      { id:"weierstrass_supinf", term:"Weierstrass: limita = sup/inf", def:"Daca e crescator si marginit superior, lim x_n = sup{x_n}. Daca e descrescator si marginit inferior, lim x_n = inf{x_n}." },
+
+      { id:"squeeze",       term:"Criteriul clestelui", def:"Daca x_n ≤ y_n ≤ z_n (de la un n0) si lim x_n = lim z_n = d in R, atunci lim y_n = d." },
+
+      { id:"subsequence",   term:"Subsir", def:"Sirul (x_{n_k}) obtinut din (x_n) printr-o succesiune strict crescatoare de indici n0<n1<n2<... (n_k in N)." },
+      { id:"limit_subseq_char", term:"Caracterizare: limita si subsiruri", def:"lim x_n = x (in R) ⇔ orice subsir al lui (x_n) are limita x." },
+
+      { id:"bw", term:"(Bolzano–Weierstrass) Sir marginit ⇒ are subsir convergent", def:"Orice sir marginit de numere reale admite un subsir convergent." },
+
+      { id:"limpoints", term:"Multimea punctelor-limita LIM(x_n)", def:"LIM(x_n) = { x in R | exista un subsir (x_{n_k}) cu lim x_{n_k} = x }." },
+      { id:"liminf", term:"limita inferioara (lim inf)", def:"liminf x_n = inf LIM(x_n) (infimul multimii punctelor-limita)." },
+      { id:"limsup", term:"limita superioara (lim sup)", def:"limsup x_n = sup LIM(x_n) (supremul multimii punctelor-limita)." },
+
+      { id:"cauchy", term:"Sir fundamental (Cauchy)", def:"Pentru orice ε>0 exista n0 astfel incat pentru orice m,n ≥ n0: |x_m - x_n| < ε." },
+      { id:"cauchy_iff_conv", term:"Criteriul Cauchy in R", def:"Un sir de numere reale este convergent ⇔ este fundamental (Cauchy)." },
+
+      { id:"series", term:"Serie de numere reale ∑ x_n", def:"Suma infinita x0 + x1 + x2 + ... asociata sirului (x_n); se noteaza ∑_{n=0}^∞ x_n." },
+      { id:"partial_sums", term:"Sume partiale s_n", def:"s_n = x0 + x1 + ... + x_n. Seria este convergenta daca sirul (s_n) este convergent, iar suma este lim s_n." },
+    ]
+  };
+
+  // ----------------------------
+  // HELPERS
+  // ----------------------------
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function letter(i){
+    return String.fromCharCode("A".charCodeAt(0) + i);
+  }
+
+  // ----------------------------
+  // STATE
+  // ----------------------------
+  const state = {
+    items: [],
+    termOrder: [],
+    defOrder: [],
+    selectedTerm: null,
+    selectedDef: null,
+    // maps termId -> defId and defId -> termId
+    pairT2D: new Map(),
+    pairD2T: new Map(),
+    checked: false,
+    showAnswers: false
+  };
+
+  // ----------------------------
+  // RENDER
+  // ----------------------------
+  const termsEl = $("#terms");
+  const defsEl  = $("#defs");
+  const linesEl = $("#lines");
+  const boardEl = $("#board");
+  const scoreBox = $("#scoreBox");
+
+  function clearSelection(){
+    state.selectedTerm = null;
+    state.selectedDef = null;
+    $$(".card.selected").forEach(el => el.classList.remove("selected"));
+  }
+
+  function resetPairs(){
+    state.pairT2D.clear();
+    state.pairD2T.clear();
+    state.checked = false;
+    state.showAnswers = false;
+    scoreBox.innerHTML = 'Scor: <strong>—</strong>';
+    $$(".card").forEach(el => {
+      el.classList.remove("paired","correct","wrong");
+      el.dataset.pairedTo = "";
+    });
+    drawLines();
+  }
+
+  function setMessageAfterCheck(score, total){
+    scoreBox.innerHTML = `Scor: <strong>${score}/${total}</strong>`;
+  }
+
+  function build(setName){
+    state.items = SETS[setName].slice();
+
+    // For matching, we keep term list and def list as separate shuffled orders
+    state.termOrder = shuffle(state.items);
+    state.defOrder  = shuffle(state.items);
+
+    // Render terms
+    termsEl.innerHTML = "";
+    state.termOrder.forEach((it, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "card term";
+      btn.type = "button";
+      btn.dataset.id = it.id;
+      btn.innerHTML = `
+        <div class="tag">${idx+1}</div>
+        <div class="text">
+          <div><b>${escapeHtml(it.term)}</b></div>
+          <div class="tiny muted">${state.showAnswers ? " (alege definitia corecta)" : ""}</div>
+        </div>
+      `;
+      btn.addEventListener("click", () => onTermClick(it.id));
+      termsEl.appendChild(btn);
+    });
+
+    // Render definitions
+    defsEl.innerHTML = "";
+    state.defOrder.forEach((it, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "card def";
+      btn.type = "button";
+      btn.dataset.id = it.id;
+      btn.innerHTML = `
+        <div class="tag">${letter(idx)}</div>
+        <div class="text">
+          <div>${escapeHtml(it.def)}</div>
+        </div>
+      `;
+      btn.addEventListener("click", () => onDefClick(it.id));
+      defsEl.appendChild(btn);
+    });
+
+    // Reset
+    clearSelection();
+    resetPairs();
+    requestAnimationFrame(drawLines);
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function getCard(type, id){
+    return $(`.card.${type}[data-id="${CSS.escape(id)}"]`);
+  }
+
+  // ----------------------------
+  // MATCHING LOGIC
+  // ----------------------------
+  function onTermClick(termId){
+    if(state.checked) {
+      // allow rematching even after check, but it resets check state
+      state.checked = false;
+      scoreBox.innerHTML = 'Scor: <strong>—</strong>';
+      $$(".card").forEach(el => el.classList.remove("correct","wrong"));
+    }
+
+    const termEl = getCard("term", termId);
+    if(!termEl) return;
+
+    // toggle selection
+    if(state.selectedTerm === termId){
+      termEl.classList.remove("selected");
+      state.selectedTerm = null;
+      return;
+    }
+    $$(".card.term.selected").forEach(el => el.classList.remove("selected"));
+    state.selectedTerm = termId;
+    termEl.classList.add("selected");
+
+    // If a def is already selected, pair immediately
+    if(state.selectedDef){
+      makePair(state.selectedTerm, state.selectedDef);
+      clearSelection();
+    }
+  }
+
+  function onDefClick(defId){
+    if(state.checked) {
+      state.checked = false;
+      scoreBox.innerHTML = 'Scor: <strong>—</strong>';
+      $$(".card").forEach(el => el.classList.remove("correct","wrong"));
+    }
+
+    const defEl = getCard("def", defId);
+    if(!defEl) return;
+
+    if(state.selectedDef === defId){
+      defEl.classList.remove("selected");
+      state.selectedDef = null;
+      return;
+    }
+    $$(".card.def.selected").forEach(el => el.classList.remove("selected"));
+    state.selectedDef = defId;
+    defEl.classList.add("selected");
+
+    if(state.selectedTerm){
+      makePair(state.selectedTerm, state.selectedDef);
+      clearSelection();
+    }
+  }
+
+  function makePair(termId, defId){
+    // If term already paired, free its old def
+    const oldDef = state.pairT2D.get(termId);
+    if(oldDef){
+      state.pairT2D.delete(termId);
+      state.pairD2T.delete(oldDef);
+      const oldDefEl = getCard("def", oldDef);
+      const termEl = getCard("term", termId);
+      if(oldDefEl){ oldDefEl.classList.remove("paired"); oldDefEl.dataset.pairedTo=""; }
+      if(termEl){ termEl.classList.remove("paired"); termEl.dataset.pairedTo=""; }
+    }
+
+    // If def already paired, free its old term
+    const oldTerm = state.pairD2T.get(defId);
+    if(oldTerm){
+      state.pairD2T.delete(defId);
+      state.pairT2D.delete(oldTerm);
+      const oldTermEl = getCard("term", oldTerm);
+      const defEl = getCard("def", defId);
+      if(oldTermEl){ oldTermEl.classList.remove("paired"); oldTermEl.dataset.pairedTo=""; }
+      if(defEl){ defEl.classList.remove("paired"); defEl.dataset.pairedTo=""; }
+    }
+
+    // Set new pair
+    state.pairT2D.set(termId, defId);
+    state.pairD2T.set(defId, termId);
+
+    const termEl = getCard("term", termId);
+    const defEl  = getCard("def", defId);
+    if(termEl){
+      termEl.classList.add("paired");
+      termEl.dataset.pairedTo = defId;
+    }
+    if(defEl){
+      defEl.classList.add("paired");
+      defEl.dataset.pairedTo = termId;
+    }
+
+    drawLines();
+  }
+
+  // ----------------------------
+  // LINES (SVG)
+  // ----------------------------
+  function drawLines(){
+    // Clear
+    linesEl.innerHTML = "";
+    const boardRect = boardEl.getBoundingClientRect();
+
+    // Resize svg to board
+    linesEl.setAttribute("width", boardRect.width);
+    linesEl.setAttribute("height", boardRect.height);
+    linesEl.setAttribute("viewBox", `0 0 ${boardRect.width} ${boardRect.height}`);
+
+    // One line per pair
+    for(const [termId, defId] of state.pairT2D.entries()){
+      const tEl = getCard("term", termId);
+      const dEl = getCard("def", defId);
+      if(!tEl || !dEl) continue;
+
+      const tr = tEl.getBoundingClientRect();
+      const dr = dEl.getBoundingClientRect();
+
+      // points relative to board
+      const x1 = (tr.right - boardRect.left) - 10;
+      const y1 = (tr.top - boardRect.top) + tr.height/2;
+
+      const x2 = (dr.left - boardRect.left) + 10;
+      const y2 = (dr.top - boardRect.top) + dr.height/2;
+
+      // curve
+      const dx = Math.max(60, Math.abs(x2 - x1) * 0.35);
+      const path = document.createElementNS("http://www.w3.org/2000/svg","path");
+      const d = `M ${x1} ${y1} C ${x1+dx} ${y1}, ${x2-dx} ${y2}, ${x2} ${y2}`;
+      path.setAttribute("d", d);
+
+      // color by correctness if checked
+      let stroke = "rgba(255,255,255,.22)";
+      if(state.checked){
+        stroke = (termId === defId) ? "rgba(61,220,151,.85)" : "rgba(255,92,122,.85)";
+      }
+
+      path.setAttribute("fill","none");
+      path.setAttribute("stroke", stroke);
+      path.setAttribute("stroke-width","3");
+      path.setAttribute("stroke-linecap","round");
+      linesEl.appendChild(path);
+    }
+  }
+
+  window.addEventListener("resize", () => drawLines(), {passive:true});
+  window.addEventListener("scroll", () => drawLines(), {passive:true});
+
+  // ----------------------------
+  // CHECK / SHOW ANSWERS
+  // ----------------------------
+  function checkAnswers(){
+    state.checked = true;
+
+    let score = 0;
+    const total = state.items.length;
+
+    // mark cards
+    state.items.forEach(it => {
+      const tEl = getCard("term", it.id);
+      const pairedDef = state.pairT2D.get(it.id);
+
+      if(tEl){
+        tEl.classList.remove("correct","wrong");
+        if(pairedDef === undefined){
+          // no pair -> leave neutral
+        } else if(pairedDef === it.id){
+          tEl.classList.add("correct");
+          score++;
+        } else {
+          tEl.classList.add("wrong");
+        }
+      }
+    });
+
+    // definitions also colored based on their paired term correctness
+    state.items.forEach(it => {
+      const dEl = getCard("def", it.id);
+      const pairedTerm = state.pairD2T.get(it.id);
+      if(dEl){
+        dEl.classList.remove("correct","wrong");
+        if(pairedTerm === undefined){
+          // neutral
+        } else if(pairedTerm === it.id){
+          dEl.classList.add("correct");
+        } else {
+          dEl.classList.add("wrong");
+        }
+      }
+    });
+
+    setMessageAfterCheck(score, total);
+    drawLines();
+  }
+
+  function showAnswers(){
+    // create perfect matching
+    resetPairs();
+    state.items.forEach(it => makePair(it.id, it.id));
+    state.checked = true;
+    // color everything correct
+    $$(".card").forEach(el => { el.classList.remove("wrong"); el.classList.add("correct"); });
+    setMessageAfterCheck(state.items.length, state.items.length);
+    drawLines();
+  }
+
+  // ----------------------------
+  // BUTTONS
+  // ----------------------------
+  $("#shuffleBtn").addEventListener("click", () => {
+    const setName = $("#setSelect").value;
+    build(setName); // rebuild = reshuffle
+  });
+
+  $("#resetBtn").addEventListener("click", () => {
+    clearSelection();
+    resetPairs();
+  });
+
+  $("#checkBtn").addEventListener("click", () => {
+    checkAnswers();
+  });
+
+  $("#showBtn").addEventListener("click", () => {
+    showAnswers();
+  });
+
+  $("#setSelect").addEventListener("change", (e) => {
+    build(e.target.value);
+  });
+
+  // ----------------------------
+  // START
+  // ----------------------------
+  build($("#setSelect").value);
+
+})();
+</script>
+</body>
+</html>

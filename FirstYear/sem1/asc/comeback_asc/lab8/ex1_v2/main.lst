@@ -1,0 +1,36 @@
+     1                                   ;Se da un numar a reprezentat pe 32 biti fara semn. Se cere sa se afiseze reprezentarea in baza 16 a lui a, precum si ;rezultatul permutarilor circulare ale cifrelor sale.
+     2                                  
+     3                                  bits 32 ; assembling for the 32 bits architecture
+     4                                  
+     5                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     6                                  global start        
+     7                                  
+     8                                  ; declare external functions needed by our program
+     9                                  extern exit,printf              ; tell nasm that exit exists even if we won't be defining it
+    10                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+    11                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    12                                  import printf msvcrt.dll
+    13                                  ; our data is declared here (the variables needed by our program)
+    14                                  segment data use32 class=data
+    15                                      ; ...
+    16 00000000 78563412                    a dd 0001_0010_0011_0100_0101_0110_0111_1000b
+    17 00000004 4E7220696E2062617A-         format_b16 db "Nr in baza 16 x = %x " ,10,13,0
+    17 0000000D 612031362078203D20-
+    17 00000016 2578200A0D00       
+    18                                      
+    19                                  
+    20                                  ; our code starts here
+    21                                  segment code use32 class=code
+    22                                      start:
+    23                                          ; ...
+    24                                          ;printf(format, & nr)
+    25 00000000 FF35[00000000]                  push dword [a]
+    26 00000006 68[04000000]                    push dword format_b16
+    27 0000000B FF15[00000000]                  call [printf]
+    28                                          
+    29                                          
+    30                                          
+    31                                      
+    32                                          ; exit(0)
+    33 00000011 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    34 00000013 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

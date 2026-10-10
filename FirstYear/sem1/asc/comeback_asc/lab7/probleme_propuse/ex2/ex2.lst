@@ -1,0 +1,91 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit,printf,scanf               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  import printf msvcrt.dll
+    11                                  import scanf msvcrt.dll
+    12                                  
+    13                                  ; our data is declared here (the variables needed by our program)
+    14                                  segment data use32 class=data
+    15                                      ; ...
+    16                                      ;Sa se citeasca de la tastatura doua numere a si b (in baza 10) si sa se calculeze a/b. Catul impartirii se ;va salva in memorie in variabila "rezultat" (definita in segmentul de date). Valorile se considera cu 
+    17                                  ; our code starts here
+    18 00000000 00000000                    a dd 0
+    19 00000004 00000000                    b dd 0
+    20 00000008 5072696D756C206E75-         mesaj1 db "Primul numar este egal cu ",0
+    20 00000011 6D6172206573746520-
+    20 0000001A 6567616C2063752000 
+    21 00000023 416C20646F696C6561-         mesaj2 db "Al doilea numar este egal cu ",0
+    21 0000002C 206E756D6172206573-
+    21 00000035 7465206567616C2063-
+    21 0000003E 752000             
+    22 00000041 52657A756C74617475-         mesaj3 db "Rezultatul impartirii a/b este %d ",0
+    22 0000004A 6C20696D7061727469-
+    22 00000053 72696920612F622065-
+    22 0000005C 7374652025642000   
+    23 00000064 256400                      format db "%d",0
+    24 00000067 00000000                    rezultat dd 0
+    25                                      
+    26                                  
+    27                                  
+    28                                  segment code use32 class=code
+    29                                      start:
+    30                                          ; ...
+    31                                          ;printf ("Primul nr este " )
+    32                                          
+    33 00000000 68[08000000]                    push dword mesaj1
+    34 00000005 FF15[00000000]                  call [printf]
+    35 0000000B 83C404                          add esp,4*1
+    36                                          
+    37                                          ;scandf (%d,a)
+    38 0000000E 68[00000000]                    push dword a
+    39 00000013 68[64000000]                    push format
+    40 00000018 FF15[00000000]                  call [scanf]
+    41 0000001E 83C408                          add esp,4*2
+    42                                          
+    43                                          ;printf ("Al doilea  nr este " )
+    44                                          
+    45 00000021 68[23000000]                    push dword mesaj2
+    46 00000026 FF15[00000000]                  call [printf]
+    47 0000002C 83C404                          add esp,4*1
+    48                                          
+    49                                          ;scandf (%d,b)
+    50 0000002F 68[04000000]                    push dword b
+    51 00000034 68[64000000]                    push dword format
+    52 00000039 FF15[00000000]                  call [scanf]
+    53 0000003F 83C408                          add esp,4*2
+    54                                          
+    55                                          ;daca b e 0 atunci trecem la finish
+    56 00000042 833D[04000000]00                cmp  dword [b],0
+    57 00000049 7425                            je finish
+    58                                          
+    59 0000004B A1[00000000]                    mov eax,[a]
+    60 00000050 99                              cdq ; edx:eax = a cu semn
+    61                                          
+    62 00000051 F73D[04000000]                  idiv dword [b] ; eax = edx:eax / b
+    63                                          
+    64 00000057 A3[67000000]                    mov [rezultat],eax ;mutam in rezultat = a/b
+    65                                          
+    66                                          ;printf(Rez este %d , rezultat)
+    67 0000005C FF35[67000000]                  push dword [rezultat]
+    68 00000062 68[41000000]                    push dword mesaj3
+    69 00000067 FF15[00000000]                  call [printf]
+    70 0000006D 83C408                          add esp,4*2
+    71                                          
+    72                                          
+    73                                          
+    74                                          
+    75                                          
+    76                                          
+    77                                          
+    78                                          
+    79                                          
+    80                                          finish :
+    81                                          ; exit(0)
+    82 00000070 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    83 00000072 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

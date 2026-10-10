@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+NUME=Ana
+NUME="Ana Maria"
+echo $NUME
+./exl.sh unu 2 trei 4
+   $0    $1  $2 $3  $4
+
+$# = 4 adica toate argumentele ; toate argumentele din linia de comanda sunt siruri de caractere
+
+
+$? exit code
+
+rm file_*.txt

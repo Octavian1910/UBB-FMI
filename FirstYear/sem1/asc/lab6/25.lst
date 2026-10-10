@@ -1,0 +1,56 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13                                      ; ...
+    14                                  
+    15 00000000 5C89E5                      s DB 01011100b, 10001001b, 11100101b 
+    16                                      lens equ $-s
+    17                                      
+    18 00000003 00<rept>                    raspuns times lens db 0
+    19                                   
+    20                                      ;d DB 10100111b, 10010001b, 00111010b
+    21                                      
+    22                                  ; our code starts here
+    23                                  segment code use32 class=code
+    24                                      start:
+    25                                          ; ...
+    26 00000000 B903000000                      mov ecx, lens     ; cate caractere avem
+    27 00000005 BE[02000000]                    mov esi, s + lens - 1 ;  ; sursa
+    28 0000000A BF[03000000]                    mov edi, raspuns        ; destinatia
+    29                                  
+    30                                          repeta:
+    31 0000000F 8A06                            mov al, [esi]
+    32 00000011 E808000000                      call oglindeste
+    33 00000016 881F                            mov [edi], bl
+    34                                  
+    35 00000018 4E                              dec esi               
+    36 00000019 47                              inc edi            
+    37 0000001A E2F3                            loop repeta
+    38 0000001C EB12                            jmp finish
+    39                                          oglindeste:
+    40 0000001E 51                                  push ecx
+    41 0000001F B300                                mov bl, 0    ; rezultatul      
+    42 00000021 B108                                mov cl, 8      ;tot cate 8 octeti      
+    43                                              bucla:
+    44 00000023 D0E3                                    shl bl, 1      ;facem loc pt noul bit
+    45 00000025 D0E8                                    shr al, 1      ;extragem bitul din dreapta in CF
+    46 00000027 80D300                                  adc bl, 0      ;adunam bitul pe pozitia alocata
+    47 0000002A FEC9                                    dec cl         ;scadem 1 octet
+    48 0000002C 75F5                                    jnz bucla
+    49 0000002E 59                                      pop ecx 
+    50 0000002F C3                                      ret
+    51                                             
+    52                                          finish:
+    53                                          ; exit(0)
+    54 00000030 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    55 00000032 FF15[00000000]                  call    [exit]       ; call exit to terminate the program
+    56                                          

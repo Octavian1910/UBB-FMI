@@ -1,0 +1,79 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit,printf,scanf               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  import printf msvcrt.dll
+    11                                  import scanf msvcrt.dll
+    12                                  ; our data is declared here (the variables needed by our program)
+    13                                  segment data use32 class=data
+    14                                      ; ...
+    15                                  ;Sa se citeasca de la tastatura doua numere a si b (in baza 10) si sa se calculeze: (a+b) / (a-b). Catul impartirii se va salva ;in memorie in variabila "rezultat" (definita in segmentul de date). Valorile se consid
+    16                                      
+    17 00000000 00000000                    a dd 0
+    18 00000004 00000000                    b dd 0
+    19 00000008 41203D2000                  mesaj1 db "A = ",0
+    20 0000000D 42203D2000                  mesaj2 db "B = ",0
+    21 00000012 256400                      mesaj3 db "%d",0
+    22 00000015 256400                      format db "%d",0
+    23                                      
+    24                                      
+    25 00000018 00000000                    rezultat dd 0
+    26                                  
+    27                                  ; our code starts here
+    28                                  segment code use32 class=code
+    29                                      start:
+    30                                          ; ...
+    31                                          
+    32                                          ;printf
+    33 00000000 68[08000000]                    push dword mesaj1
+    34 00000005 FF15[00000000]                  call [printf]
+    35 0000000B 83C404                          add esp,4*1
+    36                                          
+    37                                          ;scanf
+    38 0000000E 68[00000000]                    push dword a
+    39 00000013 68[15000000]                    push dword format
+    40 00000018 FF15[00000000]                  call [scanf]
+    41 0000001E 83C408                          add esp,4*2
+    42                                          
+    43                                          
+    44                                          ;printf
+    45 00000021 68[0D000000]                    push dword mesaj2
+    46 00000026 FF15[00000000]                  call [printf]
+    47 0000002C 83C404                          add esp,4*1
+    48                                          
+    49                                          ;scanf
+    50 0000002F 68[04000000]                    push dword b
+    51 00000034 68[15000000]                    push dword format
+    52 00000039 FF15[00000000]                  call [scanf]
+    53 0000003F 83C408                          add esp,4*2
+    54                                          
+    55                                          
+    56                                          
+    57                                          ;a+b
+    58 00000042 A1[00000000]                    mov eax,[a]
+    59 00000047 0305[04000000]                  add eax,[b]  ; eax = a+b
+    60                                          
+    61                                          ;a-b
+    62 0000004D 8B1D[00000000]                  mov ebx,[a]
+    63 00000053 2B1D[04000000]                  sub ebx,[b] ; ebx = a-b
+    64                                      
+    65                                          
+    66 00000059 99                              cdq ; edx:eax = a+b
+    67 0000005A F7FB                            idiv ebx ; eax = edx:eax / ebx = (a+b) / (a-b)
+    68 0000005C A3[18000000]                    mov [rezultat],eax
+    69                                          
+    70                                          ;afisare 
+    71 00000061 FF35[18000000]                  push dword [rezultat]
+    72 00000067 68[15000000]                    push format
+    73 0000006C FF15[00000000]                  call [printf]
+    74 00000072 83C408                          add esp , 4*2
+    75                                          
+    76                                          
+    77                                          ; exit(0)
+    78 00000075 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    79 00000077 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

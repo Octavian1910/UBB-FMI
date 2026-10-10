@@ -1,0 +1,118 @@
+LISTĂ PTHREAD / MUTEX / SEMAFOR / RWLOCK
+
+1. Vectori de thread-uri
+
+pthread_t tr[MAX_READ];
+pthread_t tw[MAX_WRITE];
+pthread_t tid[MAX_THR];
+
+
+2. Funcție de thread
+
+void* check(void* arg)
+{
+    int id = (int)(long)arg;
+
+    return NULL;
+}
+
+void* buy(void* arg)
+{
+    int id = (int)(long)arg;
+
+    return NULL;
+}
+
+void* do_work(void* arg)
+{
+    int id = *(int*)arg;
+    free(arg);
+
+    return NULL;
+}
+
+
+3. Creare thread
+
+pthread_create(&tr[i], NULL, check, (void*)(long)i);
+
+pthread_create(&tw[j], NULL, buy, (void*)(long)j);
+
+pthread_create(&tid[i], NULL, do_work, id);
+
+
+4. Așteptare thread
+
+pthread_join(tr[i], NULL);
+
+pthread_join(tw[i], NULL);
+
+pthread_join(tid[i], NULL);
+
+
+5. Mutex
+
+pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_lock(&mtx);
+
+pthread_mutex_unlock(&mtx);
+
+pthread_mutex_init(&mtx, NULL);
+
+pthread_mutex_destroy(&mtx); 
+
+
+6. Semafor
+
+sem_t sem;
+
+sem_init(&sem, 0, 1);
+
+sem_wait(&sem);
+
+sem_post(&sem);
+
+sem_destroy(&sem);
+
+
+7. Read-write lock
+
+pthread_rwlock_t rwl;
+
+pthread_rwlock_init(&rwl, NULL);
+
+pthread_rwlock_rdlock(&rwl);
+
+pthread_rwlock_wrlock(&rwl);
+
+pthread_rwlock_unlock(&rwl);
+
+pthread_rwlock_destroy(&rwl);
+
+
+8. malloc pentru id-uri
+
+int* id = malloc(sizeof(int));
+
+*id = i;
+
+free(arg);
+
+
+9. Include-uri utile
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <semaphore.h>
+
+
+10. Compilare
+
+gcc fisier.c -o program -pthread
+
+sau:
+
+gcc fisier.c -o program -lpthread

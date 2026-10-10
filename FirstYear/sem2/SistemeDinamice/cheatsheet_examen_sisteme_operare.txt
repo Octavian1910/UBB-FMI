@@ -1,0 +1,1518 @@
+CHEATSHEET EXAMEN SISTEME DE OPERARE
+Bazat pe ultimele 2 modele de examen
+Format simplu pentru Notepad
+
+
+============================================================
+0. REGULI GENERALE DE EXAMEN
+============================================================
+
+La comenzi UNIX:
+- grep cauta linii care respecta o expresie regulara.
+- sed transforma linii: inlocuire, stergere, permutare.
+- awk lucreaza pe campuri: $1, $2, ..., NF.
+- In shell:
+    0     = succes
+    non-0 = eroare
+
+La procese:
+- fork() creeaza un proces copil.
+- In parinte, fork() returneaza PID-ul copilului, adica > 0.
+- In copil, fork() returneaza 0.
+- Daca fork() esueaza, returneaza -1, dar in exercitii se presupune de obicei ca reuseste.
+- wait(NULL) asteapta un copil terminat.
+- Daca procesul nu are copii, wait(NULL) returneaza -1.
+
+La exec:
+- Daca exec reuseste, programul curent este inlocuit.
+- Codul de dupa exec NU se mai executa.
+- Daca exec esueaza, codul continua dupa exec.
+
+La thread-uri:
+- Variabilele globale sunt partajate intre thread-uri.
+- n++ NU este atomic.
+- Sectiunile critice trebuie protejate cu mutex / semafor / rwlock.
+
+
+============================================================
+1. EXPRESII REGULATE - REGEX
+============================================================
+
+Simboluri importante:
+
+.           orice caracter
+[abc]       a sau b sau c
+[a-z]       litera mica
+[A-Z]       litera mare
+[0-9]       cifra
+[^0-9]      orice NU este cifra
+^           inceput de linie
+$           sfarsit de linie
+*           de 0 sau mai multe ori
++           de 1 sau mai multe ori
+?           de 0 sau 1 ori
+{3}         exact 3 ori
+{3,}        cel putin 3 ori
+{2,5}       intre 2 si 5 ori
+(...)       grupare
+|           SAU logic
+
+Cifre:
+- cifre pare:   [02468]
+- cifre impare: [13579]
+
+Litere:
+- litera mica: [a-z]
+- litera mare: [A-Z]
+- litera orice: [A-Za-z]
+- vocale: [aeiou]
+- vocale case-insensitive: folosesti grep -i sau [aeiouAEIOU]
+
+
+------------------------------------------------------------
+Exemple tipice
+------------------------------------------------------------
+
+1) Exact 3 secvente: cifra para, litera mica, cifra impara, litera mare
+
+Regex:
+^([02468][a-z][13579][A-Z]){3}$
+
+Exemplu acceptat:
+8m3R6p1H4a3R
+
+
+2) Secventa "abc" repetata de cel putin 3 ori, indiferent litere mari/mici
+
+Regex:
+^(abc){3,}$
+
+Comanda grep:
+grep -E -i '^(abc){3,}$' a.txt
+
+-i = ignore case
+
+
+3) Linie de lungime impara
+
+Regex:
+^(..)*.$
+
+Explicatie:
+(..)* = perechi de caractere
+.     = inca un caracter
+=> 2k + 1 caractere
+
+
+4) Linie de lungime para
+
+Regex:
+^(..)*$
+
+
+5) Linie de lungime impara care incepe si se termina cu vocala
+
+Caz general, inclusiv linie de lungime 1:
+grep -E -i '^[aeiou]$|^[aeiou](..)*.[aeiou]$' a.txt
+
+Daca linia are cel putin 2 caractere:
+grep -E -i '^[aeiou](..)*.[aeiou]$' a.txt
+
+De ce?
+prima vocala + perechi + un caracter + ultima vocala
+1 + par + 1 + 1 = impar
+
+
+============================================================
+2. GREP
+============================================================
+
+Forma generala:
+grep -E 'REGEX' fisier
+
+Optiuni importante:
+-E      foloseste regex extins
+-i      ignora litere mari/mici
+-v      afiseaza liniile care NU respecta regex-ul
+-q      nu afiseaza nimic, doar seteaza codul de iesire
+-h      nu afiseaza numele fisierului cand cauti in mai multe fisiere
+
+
+------------------------------------------------------------
+Exemple tipice
+------------------------------------------------------------
+
+1) Linii care contin cuvinte care incep cu litera mare:
+grep -E '\<[A-Z][A-Za-z0-9]*\>' a.txt
+
+2) Linii de lungime impara:
+grep -E '^(..)*.$' a.txt
+
+3) Linii de lungime impara, incep si se termina cu vocala:
+grep -E -i '^[aeiou]$|^[aeiou](..)*.[aeiou]$' a.txt
+
+4) Linii goale:
+grep -E '^$' a.txt
+
+5) Linii ne-goale:
+grep -E '.' a.txt
+
+
+============================================================
+3. SED
+============================================================
+
+SED este folosit pentru transformarea textului.
+
+Forma principala:
+sed -E 's/REGEX/INLOCUIRE/' fisier
+
+Cu inlocuire globala pe linie:
+sed -E 's/REGEX/INLOCUIRE/g' fisier
+
+Grupuri:
+- In regex pui paranteze: (...)
+- In inlocuire folosesti:
+    \1 = primul grup
+    \2 = al doilea grup
+    \3 = al treilea grup etc.
+
+Poti folosi si alt separator:
+sed -E 's#REGEX#INLOCUIRE#' fisier
+
+
+------------------------------------------------------------
+Exemple tipice
+------------------------------------------------------------
+
+1) Inverseaza perechi de cifre vecine
+
+sed -E 's/([0-9])([0-9])/\2\1/g' b.txt
+
+Exemplu:
+12 -> 21
+
+
+2) Inverseaza perechi cifra impara + vocala
+
+sed -E 's/([13579])([aeiouAEIOU])/\2\1/g' b.txt
+
+Exemplu:
+3a -> a3
+
+
+3) Sterge doar a doua litera mica din al doilea cuvant
+
+Presupunere:
+- fiecare linie are cel putin 2 cuvinte
+- cuvintele au doar litere mari/mici
+- cuvintele sunt separate prin spatii
+
+Varianta 1:
+sed -E 's/^([A-Za-z]+ +[A-Z]*[a-z][A-Z]*)[a-z]/\1/' a.txt
+
+Varianta 2:
+sed -E 's#^([[:alpha:]]+ +[[:upper:]]*[[:lower:]][[:upper:]]*)[[:lower:]]#\1#' a.txt
+
+Idee:
+- pastrezi tot pana la a doua litera mica din al doilea cuvant
+- a doua litera mica este prinsa in afara grupului
+- o stergi prin inlocuire cu \1
+
+
+4) Interschimba al doilea cuvant cu penultimul cuvant
+
+Presupunere:
+- fiecare linie are cel putin 4 cuvinte
+- cuvintele au doar litere
+- separate prin spatii
+
+Varianta 1:
+sed -E 's/^([A-Za-z]+ +)([A-Za-z]+)( +.* +)([A-Za-z]+)( +[A-Za-z]+)$/\1\4\3\2\5/' a.txt
+
+Varianta 2:
+sed -E 's/^([[:alpha:]]+ +)([[:alpha:]]+)( +.* +)([[:alpha:]]+)( +[[:alpha:]]+)$/\1\4\3\2\5/' a.txt
+
+Grupe:
+\1 = primul cuvant + spatii
+\2 = al doilea cuvant
+\3 = mijlocul
+\4 = penultimul cuvant
+\5 = spatii + ultimul cuvant
+
+Inlocuire:
+\1\4\3\2\5
+
+
+============================================================
+4. AWK
+============================================================
+
+AWK lucreaza pe campuri.
+
+Variabile importante:
+$1      primul camp
+$2      al doilea camp
+$NF     ultimul camp
+$(NF-1) penultimul camp
+NF      numarul de campuri de pe linie
+
+Forma:
+awk 'conditie {actiune}' fisier
+
+
+------------------------------------------------------------
+Exemple tipice
+------------------------------------------------------------
+
+1) Afiseaza suma numerelor de pe fiecare linie:
+
+awk '{s=0; for(i=1;i<=NF;i++) s+=$i; print s}' c.txt
+
+
+2) Afiseaza suma primului camp de pe fiecare linie, doar daca este numeric si > 50
+
+Pentru numere intregi pozitive:
+awk '$1 ~ /^[0-9]+$/ && $1 > 50 {s += $1} END {print s}' a.txt
+
+Pentru numere intregi/zecimale, inclusiv negative:
+awk '$1 ~ /^-?[0-9]+(\.[0-9]+)?$/ && $1 > 50 {s += $1} END {print s}' a.txt
+
+
+3) Afiseaza produsul celui de-al doilea si penultimului camp daca NF >= 3
+
+awk 'NF >= 3 {print $2 * $(NF-1)}' a.txt
+
+Exemplu:
+10 3 7 4
+$2 = 3
+$(NF-1) = 7
+produs = 21
+
+
+============================================================
+5. SHELL - COMENZI CONDITIONALE
+============================================================
+
+In UNIX:
+0     = succes
+non-0 = eroare
+
+A && B
+=> B se executa doar daca A are succes.
+
+A || B
+=> B se executa doar daca A NU are succes.
+
+Cu $?:
+- $? este codul de iesire al ultimei comenzi.
+
+
+------------------------------------------------------------
+Exemple tipice
+------------------------------------------------------------
+
+1) B se executa doar daca A a avut succes:
+
+A && B
+
+
+2) B se executa doar daca A NU a avut succes:
+
+A || B
+
+sau:
+
+A
+if [ $? -ne 0 ]; then
+    B
+fi
+
+
+============================================================
+6. SHELL SCRIPT - FISIERE
+============================================================
+
+Teste utile:
+
+[ -e "$f" ]     fisierul/directorul exista
+[ -f "$f" ]     exista si este fisier normal
+[ -d "$f" ]     exista si este director
+[ -x "$f" ]     este executabil
+[ ! -e "$f" ]   NU exista
+[ -n "$s" ]     string nevid
+[ "$a" -ne "$b" ]   numere diferite
+
+
+------------------------------------------------------------
+Exemplul 1
+------------------------------------------------------------
+
+Citeste din a.txt perechi de nume de fisiere si redenumeste primul in al doilea doar daca:
+- primul exista
+- al doilea nu exista
+
+#!/bin/bash
+
+while read f1 f2; do
+    if [ -f "$f1" ] && [ ! -e "$f2" ]; then
+        mv -- "$f1" "$f2"
+    fi
+done < a.txt
+
+
+------------------------------------------------------------
+Exemplul 2
+------------------------------------------------------------
+
+Citeste din a.txt perechi de nume de fisiere si sterge al doilea daca primul exista.
+
+#!/bin/bash
+
+while read f1 f2; do
+    if [ -e "$f1" ]; then
+        rm -- "$f2"
+    fi
+done < a.txt
+
+Mai sigur:
+#!/bin/bash
+
+while read f1 f2; do
+    if [ -e "$f1" ] && [ -e "$f2" ]; then
+        rm -- "$f2"
+    fi
+done < a.txt
+
+
+============================================================
+7. FORK / WAIT / EXIT
+============================================================
+
+Reguli:
+- fork() creeaza copil.
+- In copil: fork() returneaza 0.
+- In parinte: fork() returneaza PID copil, deci > 0.
+- exit(0) termina procesul curent.
+- wait(NULL) asteapta un copil.
+- Daca nu exista copii, wait(NULL) returneaza -1.
+- Daca exista copil terminat, wait(NULL) returneaza PID-ul copilului, deci > 0.
+
+
+------------------------------------------------------------
+Tip 1
+------------------------------------------------------------
+
+while(wait(NULL) < 0)
+    if(fork() > 0) {
+        exit(0);
+    }
+
+Idee:
+- Procesul nu are copii.
+- wait(NULL) returneaza -1.
+- Conditia wait(NULL) < 0 este adevarata.
+- Se face fork().
+- Parintele iese.
+- Copilul continua bucla.
+- Copilul nu are copii, deci repeta acelasi lucru.
+
+Raspuns:
+creeaza procese la nesfarsit, pana cand sistemul nu mai permite fork-uri.
+
+
+------------------------------------------------------------
+Tip 2
+------------------------------------------------------------
+
+while(wait(NULL) > 0)
+    if(fork() == 0) {
+        exit(0);
+    }
+
+Idee:
+- Procesul initial nu are copii.
+- wait(NULL) returneaza -1.
+- Conditia wait(NULL) > 0 este falsa.
+- Nu intra in while.
+- Nu ajunge la fork().
+
+Raspuns:
+0 procese fiu.
+
+
+------------------------------------------------------------
+Tip 3: if(fork() || fork()) { fork(); }
+------------------------------------------------------------
+
+Reguli:
+- || are evaluare scurta.
+- Daca prima parte e true, a doua nu se mai evalueaza.
+- In parinte, fork() returneaza >0, deci true.
+- In copil, fork() returneaza 0, deci false.
+
+Cod:
+if (fork() || fork()) {
+    fork();
+}
+
+Raspuns:
+4 procese noi.
+
+Explicatie scurta:
+- primul fork creeaza C1.
+- Parintele are true si intra in if, unde mai creeaza C2.
+- C1 are false la primul fork, deci executa al doilea fork si creeaza C3.
+- C1 intra in if si creeaza C4.
+- C3 are false || false, deci nu intra in if.
+Total: C1, C2, C3, C4 = 4.
+
+
+============================================================
+8. EXEC
+============================================================
+
+Reguli:
+- exec inlocuieste programul curent.
+- Daca exec reuseste, codul de dupa exec NU se executa.
+- Daca exec esueaza, codul continua.
+- execvp cauta programul in PATH.
+
+Exemplu:
+./a ls -l /etc/passwd
+
+argv:
+argv[0] = ./a
+argv[1] = ls
+argv[2] = -l
+argv[3] = /etc/passwd
+argv[4] = NULL
+
+Apel corect:
+
+#include <unistd.h>
+#include <stdio.h>
+
+int main(int argc, char** argv) {
+    execvp(argv[1], argv + 1);
+    perror("execvp");
+    return 1;
+}
+
+De ce argv + 1?
+Pentru ca vrem sa executam:
+ls -l /etc/passwd
+
+Adica argumentele incep de la argv[1].
+
+
+------------------------------------------------------------
+Exemplu cu printf + exec
+------------------------------------------------------------
+
+printf("A\n");
+execl(...);
+printf("B\n");
+
+Output posibil:
+A
+
+sau:
+A
+B
+
+Explicatie:
+- A se afiseaza mereu.
+- Daca execl reuseste, B nu se mai executa.
+- Daca execl esueaza, B se executa.
+
+
+============================================================
+9. PIPE
+============================================================
+
+Pipe-ul are doua capete:
+p[0] = citire
+p[1] = scriere
+
+pipe(p);
+
+
+------------------------------------------------------------
+read din pipe
+------------------------------------------------------------
+
+Daca pipe-ul e gol:
+
+1) Exista writer deschis:
+read se blocheaza.
+
+2) Nu exista niciun writer deschis:
+read returneaza 0, adica EOF.
+
+3) Descriptorul de citire folosit de proces este inchis:
+read returneaza -1, eroare EBADF.
+
+
+Daca pipe-ul are mai putine date decat cerem, dar nu e gol:
+read citeste datele disponibile si returneaza cati bytes a citit.
+
+
+------------------------------------------------------------
+write in pipe
+------------------------------------------------------------
+
+Daca pipe-ul e plin:
+
+1) Exista reader deschis:
+write se blocheaza pana apare spatiu.
+
+2) Nu exista niciun reader deschis:
+procesul primeste SIGPIPE sau write returneaza -1 cu EPIPE.
+
+3) Descriptorul de scriere al procesului curent este inchis:
+write returneaza -1 cu EBADF.
+
+
+------------------------------------------------------------
+Exemplu care se blocheaza
+------------------------------------------------------------
+
+int p[2];
+char buf[10];
+int n;
+
+pipe(p);
+n = read(p[0], buf, 10);
+printf("%d\n", n);
+
+Se blocheaza, pentru ca:
+- pipe-ul este gol
+- capatul de scriere p[1] este inca deschis
+
+
+============================================================
+10. FIFO
+============================================================
+
+FIFO = pipe cu nume in filesystem.
+
+Open pentru citire:
+open("fifo", O_RDONLY)
+
+Daca nu exista writer:
+- in mod normal se blocheaza pana apare un writer.
+
+Open pentru scriere:
+open("fifo", O_WRONLY)
+
+Daca nu exista reader:
+- in mod normal se blocheaza pana apare un reader.
+
+Cu O_NONBLOCK:
+- comportamentul se schimba; poate returna imediat eroare sau succes, in functie de caz.
+- La examen, de obicei se cere cazul normal, fara O_NONBLOCK.
+
+
+============================================================
+11. POPEN
+============================================================
+
+popen porneste o comanda si iti da un FILE* pentru comunicare.
+
+Moduri:
+"r" = citesti output-ul comenzii
+"w" = scrii in input-ul comenzii
+
+
+------------------------------------------------------------
+Exemplu: trimite "Hello\nWorld\n" catre grep -E o
+------------------------------------------------------------
+
+#include <stdio.h>
+
+int main() {
+    FILE* f = popen("grep -E o", "w");
+
+    if(f == NULL) {
+        perror("popen");
+        return 1;
+    }
+
+    fprintf(f, "Hello\nWorld\n");
+
+    pclose(f);
+    return 0;
+}
+
+Output:
+Hello
+World
+
+Pentru ca ambele linii contin litera o.
+
+
+============================================================
+12. DUP / DUP2 - REDIRECTIONARE STDOUT
+============================================================
+
+Descriptor important:
+0 = stdin
+1 = stdout
+2 = stderr
+
+dup(fd):
+- face o copie a descriptorului fd.
+
+dup2(fd, target):
+- face target sa indice catre acelasi fisier/pipe ca fd.
+
+
+------------------------------------------------------------
+Redirectionare temporara stdout si restaurare
+------------------------------------------------------------
+
+int saved_stdout = dup(1);
+
+int fd = open("out.txt", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+dup2(fd, 1);
+close(fd);
+
+/* printf scrie in out.txt */
+printf("test\n");
+
+/* restaurare stdout */
+dup2(saved_stdout, 1);
+close(saved_stdout);
+
+/* printf scrie iar pe ecran */
+printf("gata\n");
+
+
+Retine:
+- intai salvezi stdout: dup(1)
+- redirectionezi: dup2(fd, 1)
+- restaurezi: dup2(saved_stdout, 1)
+
+
+============================================================
+13. OPEN / READ PE FISIER ABC
+============================================================
+
+Cod:
+f = open("abc", O_RDONLY);
+if(f >= 0) {
+    read(f, &c, 1);
+    close(f);
+}
+
+Cazuri:
+
+1) abc nu exista:
+open returneaza -1.
+Programul se termina repede.
+
+2) abc exista, dar nu ai permisiune de citire:
+open returneaza -1.
+Programul se termina repede.
+
+3) abc este fisier normal:
+open reuseste.
+read citeste 1 byte sau 0 daca fisierul e gol.
+Programul se termina repede.
+
+4) abc este FIFO:
+open pentru citire se blocheaza pana apare writer.
+Apoi read poate astepta date.
+
+5) abc este director:
+open poate reusi, dar read pe director de obicei esueaza.
+Programul se termina repede.
+
+6) abc este device special:
+/dev/null -> read returneaza 0 imediat
+/dev/zero -> read returneaza byte 0 imediat
+alte device-uri pot bloca
+
+
+============================================================
+14. THREAD-URI SI SECTIUNI CRITICE
+============================================================
+
+Variabile globale:
+- sunt partajate intre thread-uri.
+
+n++ nu este atomic:
+1. citeste n
+2. aduna 1
+3. scrie inapoi
+
+Daca doua thread-uri fac n++ simultan, se poate pierde o incrementare.
+
+
+------------------------------------------------------------
+Protejare cu mutex
+------------------------------------------------------------
+
+#include <pthread.h>
+
+int n = 0;
+pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+
+void* f(void* v) {
+    pthread_mutex_lock(&m);
+
+    if(n < 500) {
+        n++;
+    }
+
+    pthread_mutex_unlock(&m);
+    return NULL;
+}
+
+De protejat:
+- orice citire/scriere a unei variabile partajate care trebuie sa fie consistenta.
+- daca ai if(n < 500) n++, protejezi si if-ul, si n++.
+- nu protejezi doar n++, deoarece intre verificare si incrementare poate interveni alt thread.
+
+
+============================================================
+15. MUTEX
+============================================================
+
+Mutex = lock exclusiv.
+
+Functii:
+pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_lock(&m);
+pthread_mutex_unlock(&m);
+pthread_mutex_destroy(&m);
+
+Regula:
+- acelasi mutex trebuie folosit pentru aceeasi resursa partajata.
+- daca doua functii modifica acelasi n, dar folosesc mutex-uri diferite, NU este protejat corect.
+
+Exemplu gresit:
+pthread_mutex_t a, b;
+int n = 0;
+
+fa:
+lock(a)
+n++
+unlock(a)
+
+fb:
+lock(b)
+n++
+unlock(b)
+
+Gresit deoarece n este protejat cu doua mutex-uri diferite.
+Rezultatul poate fi 1 sau 2.
+
+
+============================================================
+16. SEMAFOARE
+============================================================
+
+Semafor = contor sincronizat.
+
+Functii:
+sem_t s;
+sem_init(&s, 0, valoare_initiala);
+sem_wait(&s);
+sem_post(&s);
+sem_destroy(&s);
+
+sem_wait:
+- daca s > 0, scade s si continua.
+- daca s == 0, blocheaza thread-ul.
+
+sem_post:
+- creste s.
+- poate trezi un thread blocat.
+
+
+------------------------------------------------------------
+Semafor binar
+------------------------------------------------------------
+
+Valori: 0 sau 1.
+Se poate folosi ca mutex simplificat.
+
+Initial:
+sem_init(&s, 0, 1);
+
+Sectiune critica:
+sem_wait(&s);
+/* cod critic */
+sem_post(&s);
+
+
+------------------------------------------------------------
+Maximum 3 persoane simultan
+------------------------------------------------------------
+
+sem_t sem;
+
+void* person(void* args) {
+    sem_wait(&sem);
+
+    printf("voting ...\n");
+
+    sem_post(&sem);
+    return NULL;
+}
+
+int main() {
+    pthread_t t[100];
+
+    sem_init(&sem, 0, 3);
+
+    for(int i=0; i<100; i++) {
+        pthread_create(&t[i], NULL, person, NULL);
+    }
+
+    for(int i=0; i<100; i++) {
+        pthread_join(t[i], NULL);
+    }
+
+    sem_destroy(&sem);
+    return 0;
+}
+
+3 = maximum 3 thread-uri in sectiunea dintre sem_wait si sem_post.
+
+
+------------------------------------------------------------
+Producer-consumer clasic cu buffer de capacitate N
+------------------------------------------------------------
+
+Se folosesc 3 semafoare:
+
+empty = N
+full = 0
+mutex = 1
+
+Producer:
+P(empty)
+P(mutex)
+    adauga in buffer
+V(mutex)
+V(full)
+
+Consumer:
+P(full)
+P(mutex)
+    scoate din buffer
+V(mutex)
+V(empty)
+
+
+============================================================
+17. MUTEX VS SEMAFOR
+============================================================
+
+Daca inlocuiesti mutex cu semafor:
+- merge doar daca semaforul este binar si initializat cu 1.
+- mutex_lock devine sem_wait.
+- mutex_unlock devine sem_post.
+
+Dar NU sunt identice:
+- mutexul are proprietar: thread-ul care blocheaza ar trebui sa deblocheze.
+- semaforul nu are proprietar strict.
+- sem_post poate fi chemat de alt thread.
+- daca faci sem_post prea des, valoarea poate deveni > 1.
+- semaforul poate permite N thread-uri simultan, nu doar 1.
+
+
+============================================================
+18. RWLOCK
+============================================================
+
+RWLock = read-write lock.
+
+Idee:
+- mai multi cititori pot intra simultan.
+- un singur scriitor poate intra.
+- cand scriitorul intra, nimeni altcineva nu intra.
+
+Functii:
+pthread_rwlock_t rw;
+pthread_rwlock_init(&rw, NULL);
+pthread_rwlock_rdlock(&rw);  // lock pentru citire
+pthread_rwlock_wrlock(&rw);  // lock exclusiv pentru scriere
+pthread_rwlock_unlock(&rw);
+pthread_rwlock_destroy(&rw);
+
+rdlock:
+- pentru citire.
+- permite mai multi cititori simultan.
+
+wrlock:
+- pentru scriere.
+- exclusiv, ca un mutex.
+
+Daca inlocuiesti toate mutex-urile cu rwlock-uri si toate mutex_lock cu rwlock_wrlock:
+- programul ramane logic corect, fiindca wrlock este exclusiv.
+- dar poate fi mai lent/inutil.
+- trebuie sa inlocuiesti si unlock cu pthread_rwlock_unlock.
+- nu beneficiezi de avantajul rwlock-ului daca folosesti doar wrlock.
+
+
+============================================================
+19. CONDITION VARIABLES
+============================================================
+
+pthread_cond_wait(&cond, &mutex)
+
+Ce face:
+1. primeste mutexul blocat.
+2. deblocheaza mutexul.
+3. pune thread-ul in asteptare pe conditie.
+4. cand este trezit, blocheaza mutexul din nou.
+5. apoi returneaza.
+
+Forma corecta:
+
+pthread_mutex_lock(&m);
+
+while(!conditie) {
+    pthread_cond_wait(&cond, &m);
+}
+
+/* aici conditia este adevarata si mutexul este blocat */
+
+pthread_mutex_unlock(&m);
+
+De ce while, nu if?
+- thread-ul se poate trezi fara ca conditia sa fie adevarata.
+- trebuie verificata din nou conditia.
+
+
+============================================================
+20. BARIERE
+============================================================
+
+Bariera asteapta pana ajung N thread-uri.
+
+pthread_barrier_t b;
+pthread_barrier_init(&b, NULL, N);
+pthread_barrier_wait(&b);
+pthread_barrier_destroy(&b);
+
+Daca mai putine de N thread-uri ajung la bariera:
+- se blocheaza pentru totdeauna.
+
+Daca exact N thread-uri ajung:
+- toate trec.
+
+Daca multiplu de N thread-uri ajung:
+- trec in grupuri de cate N.
+
+
+------------------------------------------------------------
+Model 1
+------------------------------------------------------------
+
+La fiecare iteratie:
+- 2 thread-uri f1 asteapta la b1
+- 1 thread f2 asteapta la b2
+
+Dupa T iteratii:
+f1 = 2T thread-uri
+f2 = T thread-uri
+
+Ca sa termine:
+N1 divide 2T
+N2 divide T
+
+Exemplu:
+T = 2
+N1 = 4
+N2 = 2
+
+
+------------------------------------------------------------
+Model 2
+------------------------------------------------------------
+
+La fiecare iteratie:
+- 1 thread f1 asteapta la b1
+- 1 thread f2 asteapta la b2
+- 1 thread f3 asteapta la b3
+
+Dupa T iteratii:
+f1 = T
+f2 = T
+f3 = T
+
+Ca sa termine:
+N1 divide T
+N2 divide T
+N3 divide T
+
+Daca se cer valori distincte strict pozitive:
+T = 6
+N1 = 1
+N2 = 2
+N3 = 3
+
+Verificare:
+1 divide 6
+2 divide 6
+3 divide 6
+
+
+============================================================
+21. DEADLOCK
+============================================================
+
+Deadlock = procese/thread-uri blocate unul dupa altul, fiecare asteptand o resursa tinuta de altul.
+
+Conditii necesare pentru deadlock:
+1. mutual exclusion
+2. hold and wait
+3. no preemption
+4. circular wait
+
+Ca programator, cea mai buna metoda:
+- impui o ordine globala fixa pentru lock-uri.
+
+Exemplu:
+Daca ai mutexurile m1, m2, m3:
+toate thread-urile trebuie sa le ia doar in ordinea:
+m1 -> m2 -> m3
+
+Niciodata:
+m2 -> m1
+
+Justificare:
+- deadlock-ul are nevoie de circular wait.
+- ordinea fixa elimina circular wait.
+
+Alte metode:
+- folosesti trylock.
+- daca nu poti lua toate lock-urile, eliberezi ce ai luat si incerci din nou.
+- nu tii lock-uri in timp ce faci operatii blocante.
+- reduci numarul de lock-uri tinute simultan.
+- tii sectiunile critice scurte.
+
+
+============================================================
+22. PLANIFICARE CPU
+============================================================
+
+FCFS / FIFO:
+- First Come First Served.
+- ruleaza procesele in ordinea sosirii.
+- nepreemptiv.
+- simplu, dar poate avea timp mediu mare de asteptare.
+
+SJF:
+- Shortest Job First.
+- ruleaza jobul cu durata totala cea mai mica.
+- de obicei nepreemptiv.
+- reduce timpul mediu de asteptare.
+- poate produce starvation pentru joburi lungi.
+
+STCF:
+- Shortest Time-to-Completion First.
+- varianta preemptiva a SJF.
+- ruleaza jobul cu timpul ramas cel mai mic.
+- daca vine un job nou cu timp mai mic ramas, il intrerupe pe cel curent.
+
+Diferenta SJF vs FIFO:
+- FIFO alege dupa ordinea sosirii.
+- SJF alege dupa durata.
+
+Diferenta SJF vs STCF:
+- SJF nu intrerupe jobul curent.
+- STCF poate intrerupe jobul curent.
+
+
+============================================================
+23. ALOCARE MEMORIE: NEXT FIT / WORST FIT
+============================================================
+
+Lista = zone libere.
+
+malloc(33) inseamna:
+- cauti o zona libera de cel putin 33.
+- scazi 33 din acea zona.
+
+
+------------------------------------------------------------
+Next Fit
+------------------------------------------------------------
+
+Next Fit:
+- cauta de unde a ramas ultima data.
+- nu reincepe mereu de la inceput.
+
+Exemplu:
+zone libere: 32, 44, 98
+doua apeluri malloc(33)
+
+Prima cerere:
+32 nu ajunge
+44 ajunge
+44 - 33 = 11
+
+Lista:
+32, 11, 98
+
+A doua cerere:
+continua dupa zona folosita
+gaseste 98
+98 - 33 = 65
+
+Lista finala:
+32, 11, 65
+
+
+------------------------------------------------------------
+Worst Fit
+------------------------------------------------------------
+
+Worst Fit:
+- alege mereu cea mai mare zona libera suficienta.
+
+Exemplu:
+zone libere: 32, 44, 98
+doua apeluri malloc(33)
+
+Prima cerere:
+alege 98
+98 - 33 = 65
+
+Lista:
+32, 44, 65
+
+A doua cerere:
+alege 65
+65 - 33 = 32
+
+Lista finala:
+32, 44, 32
+
+
+------------------------------------------------------------
+Teorie extra: First Fit / Best Fit
+------------------------------------------------------------
+
+First Fit:
+- alege prima zona suficient de mare.
+
+Best Fit:
+- alege cea mai mica zona care este suficient de mare.
+
+Worst Fit:
+- alege cea mai mare zona.
+
+Next Fit:
+- ca First Fit, dar continua cautarea de unde a ramas.
+
+
+============================================================
+24. HARD LINK VS SYMBOLIC LINK
+============================================================
+
+Hard link:
+- este inca un nume pentru acelasi inode.
+- pointeaza direct la inode.
+- nu poate trece peste alt filesystem/partitie.
+- de obicei nu se face catre directoare.
+- daca stergi fisierul original, hard link-ul ramane valid.
+- datele dispar doar cand ultimul hard link este sters.
+
+Comanda:
+ln a.txt b.txt
+
+Dupa:
+rm a.txt
+
+b.txt inca functioneaza.
+
+
+Symbolic link:
+- este un fisier special care contine o cale.
+- pointeaza catre numele/calea altui fisier.
+- poate trece peste alte partitii/filesystem-uri.
+- poate indica directoare.
+- daca fisierul tinta este sters, link-ul devine broken.
+
+Comanda:
+ln -s a.txt b.txt
+
+
+Raspuns scurt:
+Hard link = alt nume pentru acelasi inode.
+Symbolic link = fisier care contine calea catre alt fisier.
+
+
+============================================================
+25. I-NODE SI DIMENSIUNE MAXIMA FISIER
+============================================================
+
+Daca:
+B = dimensiunea unui bloc in bytes
+A = cate adrese incap intr-un bloc
+S = numar de linkuri directe
+
+i-node are:
+- S linkuri directe
+- 1 link de simpla indirectare
+- 1 link de tripla indirectare
+
+Atunci:
+directe: S blocuri
+simpla indirectare: A blocuri
+tripla indirectare: A^3 blocuri
+
+Dimensiune maxima:
+B * (S + A + A^3)
+
+Daca se intreaba doar cate blocuri de date prin tripla indirectare:
+A^3 sau N^3
+
+
+============================================================
+26. PAGINI / MEMORIE VIRTUALA
+============================================================
+
+Demand paging:
+- incarci pagina doar cand este ceruta.
+- daca pagina nu este in memorie, apare page fault.
+- sistemul o incarca atunci.
+
+Principiul localitatii:
+- temporal: ce ai folosit recent probabil vei folosi din nou.
+- spatial: ce este langa ce ai folosit probabil va fi folosit curand.
+
+LRU:
+- Least Recently Used.
+- victima este pagina folosita cel mai demult.
+- daca se foloseste matrice NxN, victima este linia cu suma minima.
+
+Adresare paginata-segmentata:
+adresa virtuala = segment + pagina + offset
+
+Pasii:
+1. segmentul alege intrarea din tabela de segmente.
+2. de acolo gasesti tabela de pagini a segmentului.
+3. pagina alege frame-ul fizic.
+4. offset-ul se adauga la frame.
+
+Adresa fizica:
+frame + offset
+
+
+============================================================
+27. CACHE
+============================================================
+
+Direct-mapped cache:
+- fiecare bloc poate merge intr-un singur loc.
+- simplu si rapid.
+- mai multe conflicte.
+
+Set-associative cache:
+- blocul poate merge intr-un set, in mai multe pozitii.
+- mai putine conflicte / miss-uri.
+- mai lent si mai scump decat direct-mapped.
+
+Formula set:
+set = pagina % numar_seturi
+
+Exemplu:
+2 seturi de 4 pagini:
+20 % 2 = 0
+9  % 2 = 1
+18 % 2 = 0
+27 % 2 = 1
+
+4 seturi de 2 pagini:
+20 % 4 = 0
+9  % 4 = 1
+18 % 4 = 2
+27 % 4 = 3
+
+
+============================================================
+28. RASPUNSURI SCURTE DE RETINUT
+============================================================
+
+B dupa A cu succes:
+A && B
+
+B dupa A fara succes:
+A || B
+
+Linie impara:
+grep -E '^(..)*.$' a.txt
+
+Secventa abc de cel putin 3 ori, case-insensitive:
+grep -E -i '^(abc){3,}$' a.txt
+
+Exact 3 secvente par-mica-impar-mare:
+^([02468][a-z][13579][A-Z]){3}$
+
+awk produs camp 2 si penultim:
+awk 'NF >= 3 {print $2 * $(NF-1)}' a.txt
+
+exec pentru ./a ls -l /etc/passwd:
+execvp(argv[1], argv + 1);
+
+read pipe gol:
+- writer exista -> blocheaza
+- writer nu exista -> 0 EOF
+
+write pipe plin:
+- reader exista -> blocheaza
+- reader nu exista -> SIGPIPE / EPIPE
+
+FIFO open citire fara writer:
+- blocheaza
+
+FIFO open scriere fara reader:
+- blocheaza
+
+pthread_cond_wait:
+- elibereaza mutexul
+- asteapta
+- la trezire blocheaza mutexul inapoi
+
+Maximum 3 thread-uri:
+sem_init(&sem, 0, 3);
+
+Bariera termina daca:
+numarul total de thread-uri care ajung la bariera este multiplu de N.
+
+Deadlock prevention:
+lock-uri luate mereu in aceeasi ordine.
+
+SJF vs STCF:
+SJF nepreemptiv, STCF preemptiv.
+
+Hard link:
+alt nume pentru acelasi inode.
+
+Symbolic link:
+fisier care contine o cale.
+
+
+============================================================
+29. TEMPLATE-URI RAPIDE
+============================================================
+
+------------------------------------------------------------
+Template mutex
+------------------------------------------------------------
+
+pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
+
+pthread_mutex_lock(&m);
+/* sectiune critica */
+pthread_mutex_unlock(&m);
+
+
+------------------------------------------------------------
+Template semafor maximum N simultan
+------------------------------------------------------------
+
+sem_t s;
+sem_init(&s, 0, N);
+
+sem_wait(&s);
+/* zona cu maximum N thread-uri */
+sem_post(&s);
+
+sem_destroy(&s);
+
+
+------------------------------------------------------------
+Template rwlock write
+------------------------------------------------------------
+
+pthread_rwlock_t rw;
+
+pthread_rwlock_init(&rw, NULL);
+
+pthread_rwlock_wrlock(&rw);
+/* scriere exclusiva */
+pthread_rwlock_unlock(&rw);
+
+pthread_rwlock_destroy(&rw);
+
+
+------------------------------------------------------------
+Template condition variable
+------------------------------------------------------------
+
+pthread_mutex_lock(&m);
+
+while(!conditie) {
+    pthread_cond_wait(&cond, &m);
+}
+
+pthread_mutex_unlock(&m);
+
+
+------------------------------------------------------------
+Template bariera
+------------------------------------------------------------
+
+pthread_barrier_t b;
+
+pthread_barrier_init(&b, NULL, N);
+
+pthread_barrier_wait(&b);
+
+pthread_barrier_destroy(&b);
+
+
+------------------------------------------------------------
+Template shell while read
+------------------------------------------------------------
+
+#!/bin/bash
+
+while read a b; do
+    # foloseste $a si $b
+done < a.txt
+
+
+------------------------------------------------------------
+Template popen write
+------------------------------------------------------------
+
+FILE* f = popen("comanda", "w");
+fprintf(f, "text\n");
+pclose(f);
+
+
+------------------------------------------------------------
+Template dup2 restore stdout
+------------------------------------------------------------
+
+int saved = dup(1);
+dup2(fd, 1);
+
+/* stdout redirectionat */
+
+dup2(saved, 1);
+close(saved);
+
+
+============================================================
+FINAL
+============================================================
+
+Pentru examen:
+1. La regex/grep/sed/awk: identifica structura liniei.
+2. La fork: deseneaza procesele si valorile returnate.
+3. La pipe/FIFO: intreaba mereu daca exista reader/writer.
+4. La thread-uri: identifica variabila partajata si protejeaz-o.
+5. La bariere: numara cate thread-uri ajung la fiecare bariera.
+6. La memorie: aplica direct algoritmul cerut.
+7. La link-uri: hard = inode, symbolic = cale.

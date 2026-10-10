@@ -1,0 +1,55 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13                                      ; ...
+    14                                      ; Scrieți un program în limbaj de asamblare care să rezolve expresia aritmetică, considerând domeniile de definiție ale variabilelor
+    15                                  ; a - doubleword; b, d - byte; c - word; e - qword
+    16                                  ; a + b / c - d * 2 - e
+    17                                  
+    18 00000000 7D000000                        	a dd 125
+    19 00000004 02                                  b db 2
+    20 00000005 0F00                                c dw 15
+    21 00000007 C800                                d dw 200
+    22 00000009 5000000000000000                    e dq 80
+    23                                  
+    24                                  ; our code starts here
+    25                                  segment code use32 class=code
+    26                                      start:
+    27                                          ; ...
+    28                                          
+    29                                          ; mov al,[b]
+    30                                          ; cbw ; ax = b cu semn
+    31                                          ; cwd ; dx : ax = b cu semn
+    32                                          
+    33                                          ; idiv word [c] ; ax = dx:ax / c = b / c
+    34                                              
+    35                                          ; mov bx,ax  ; mutam rezultatul in bx
+    36                                  
+    37 00000000 66B80200                        mov ax,2
+    38 00000004 66F72D[07000000]                imul word [d] ; ax = al * d = 2*d
+    39                                                         ; dx : ax
+    40                                          ; sub bx,ax ; bx = b/c - 2*d
+    41                                          ; mov ax , bx
+    42                                          ; cwde ; eax = b/c - 2*d
+    43                                          
+    44                                          ; mov ebx,[a]
+    45                                          
+    46                                          ; add ebx,eax ; ebx = a + b/c - 2*d
+    47                                          ; mov eax , ebx 
+    48                                          
+    49                                          ; cdq ; edx:eax = a + b/c - 2*d
+    50                                          
+    51                                          ; sub eax,dword [e]
+    52                                          ; sbb edx,dword [e+4]
+    53                                              
+    54 0000000B 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    55 0000000D FF15[00000000]                  call    [exit]       ; call exit to terminate the program

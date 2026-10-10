@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Modele Matematice</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:900px;margin:40px auto;padding:20px}
+.card{border:1px solid #ccc;padding:20px;border-radius:10px;margin:20px 0}
+button{padding:10px 15px;margin:5px}
+#result{font-weight:bold;font-size:20px}
+</style>
+</head>
+<body>
+<h1>Quiz – Modele Matematice (Ecuații Diferențiale)</h1>
+<p>Încearcă să identifici modelul după descriere sau ecuație.</p>
+
+<div class="card">
+<div id="q"></div>
+<div id="answers"></div>
+</div>
+
+<div id="result"></div>
+
+<script>
+const questions = [
+{
+q:"N' = -λN. Ce model este?",
+a:["Dezintegrare radioactivă","Răcirea corpurilor","Malthus","Pradă-prădător"],
+c:0
+},
+{
+q:"T' = -k(T-Tm). Ce model este?",
+a:["Mișcare verticală","Răcirea corpurilor","Reacție chimică","Datare"],
+c:1
+},
+{
+q:"P' = rP. Ce model este?",
+a:["Malthus (creștere exponențială)","Verhulst","Radioactiv","Pradă-prădător"],
+c:0
+},
+{
+q:"P' = rP(1-P/K). Ce model este?",
+a:["Malthus","Verhulst (logistic)","Răcire","Datare"],
+c:1
+},
+{
+q:"N(t)=N0e^(-λt) și se cere vârsta unui obiect. Ce aplicație este?",
+a:["Mișcare verticală","Datare","Răcire","Prădător-pradă"],
+c:1
+},
+{
+q:"x'=ax-bxy, y'=-cy+dxy. Ce model este?",
+a:["Pradă-prădător","Malthus","Radioactiv","Răcire"],
+c:0
+},
+{
+q:"Legea acțiunii maselor apare la:",
+a:["Radioactivitate","Reacții chimice","Răcire","Populații"],
+c:1
+},
+{
+q:"mv' = mg-kv. Ce model este?",
+a:["Mișcare pe verticală","Datare","Verhulst","Pradă-prădător"],
+c:0
+},
+{
+q:"Formula timpului de înjumătățire este:",
+a:["ln(2)·λ","ln(2)/λ","λ²","1/ln(2)"],
+c:1
+}
+];
+
+let i=0, score=0;
+
+function showQ(){
+ if(i>=questions.length){
+   document.getElementById("q").innerHTML="Quiz terminat!";
+   document.getElementById("answers").innerHTML="";
+   document.getElementById("result").innerHTML="Scor: "+score+" / "+questions.length;
+   return;
+ }
+ let qq=questions[i];
+ document.getElementById("q").innerHTML="<h2>"+qq.q+"</h2>";
+ let html="";
+ qq.a.forEach((ans,idx)=>{
+   html+=`<button onclick="check(${idx})">${ans}</button><br>`;
+ });
+ document.getElementById("answers").innerHTML=html;
+}
+
+function check(idx){
+ if(idx===questions[i].c) score++;
+ i++;
+ showQ();
+}
+
+showQ();
+</script>
+</body>
+</html>

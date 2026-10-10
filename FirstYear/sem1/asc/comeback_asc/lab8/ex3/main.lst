@@ -1,0 +1,41 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  
+     4                                  ; Se dau doua siruri continand caractere. Sa se calculeze si sa se afiseze rezultatul concatenarii tuturor caracterelor tip cifra zecimala din cel de-al doilea sir dupa cele din primul sir si invers, rezultatul conc
+     5                                  
+     6                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     7                                  global start        
+     8                                  
+     9                                  ; declare external functions needed by our program
+    10                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+    11                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+    12                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    13                                  
+    14                                  extern concatenari
+    15                                                            
+    16                                  ; our data is declared here (the variables needed by our program)
+    17                                  segment data use32 class=data
+    18                                      ; ...
+    19 00000000 616263643132333461-         sir1 db "abcd1234asd",0
+    19 00000009 736400             
+    20 0000000C 636462353637386173-         sir2 db "cdb5678asd9",0
+    20 00000015 643900             
+    21                                      
+    22                                  
+    23                                  ; our code starts here
+    24                                  segment code use32 class=code
+    25                                      start:
+    26                                          ;concaternari(sir1,sir2)
+    27 00000000 68[0C000000]                    push dword sir2
+    28 00000005 68[00000000]                    push dword sir1
+    29 0000000A E8(00000000)                    call concatenari ;ret 4*2
+    30                                          
+    31                                          ;concaternari(sir2,sir1)
+    32 0000000F 68[00000000]                    push dword sir1
+    33 00000014 68[0C000000]                    push dword sir2
+    34 00000019 E8(00000000)                    call concatenari ;ret 4*2
+    35                                          
+    36                                      
+    37                                          ; exit(0)
+    38 0000001E 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    39 00000020 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

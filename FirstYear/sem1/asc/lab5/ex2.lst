@@ -1,0 +1,60 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ;Se da un sir de caractere S. Sa se construiasca sirul D care sa contina toate caracterele speciale (!@#$%^&*) din sirul S
+     7                                  ;S: '+', '4', '2', 'a', '@', '3', '$', '*'
+     8                                  ;D: '@','$','*'
+     9                                  
+    10                                  ; declare external functions needed by our program
+    11                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+    12                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+    13                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    14                                  
+    15                                  ; our data is declared here (the variables needed by our program)
+    16                                  segment data use32 class=data
+    17                                      ; ...
+    18 00000000 2B3432614033242A            s db '+', '4', '2', 'a', '@', '3', '$', '*'
+    19                                      lens equ $-s
+    20 00000008 21402324255E262A            d db '!','@','#','$','%','^','&','*'
+    21                                      lend equ $-d
+    22 00000010 00<rept>                    r times lens db 0
+    23                                    
+    24                                  ; our code starts here
+    25                                  segment code use32 class=code
+    26                                      start:
+    27                                          ; ...
+    28 00000000 B908000000                      mov ecx,lens
+    29 00000005 BF00000000                      mov edi,0
+    30 0000000A BE[00000000]                    mov esi,s
+    31                                          
+    32 0000000F E326                            jecxz finish
+    33                                          pune_elem_bune:
+    34 00000011 8A06                                mov al,[esi]
+    35 00000013 89CB                                mov ebx,ecx
+    36 00000015 EB0B                                jmp verificare_lista
+    37                                              revenire_daca_e_bun:
+    38 00000017 8887[10000000]                      mov [r+edi],al
+    39                                              revenire_daca_nu_e_bun: 
+    40 0000001D 47                                  inc edi
+    41 0000001E 89D9                                mov ecx,ebx
+    42 00000020 E2EF                                loop pune_elem_bune
+    43                                              
+    44                                           
+    45                                           verificare_lista:
+    46 00000022 B908000000                          mov ecx,lens
+    47 00000027 BE[08000000]                        mov esi,d
+    48                                              parcurgere_lista:
+    49 0000002C 8A16                                    mov dl,[esi]
+    50 0000002E 46                                      inc esi
+    51 0000002F 38D0                                    cmp al,dl
+    52 00000031 74E4                                    jz revenire_daca_e_bun
+    53 00000033 E2F7                                    loop parcurgere_lista
+    54 00000035 EBE6                                 jmp revenire_daca_nu_e_bun
+    55                                               
+    56                                          
+    57                                          finish:
+    58                                          ; exit(0)
+    59 00000037 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    60 00000039 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

@@ -1,0 +1,110 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  ; our data is declared here (the variables needed by our program)
+    12                                  segment data use32 class=data
+    13                                      ; ...
+    14                                  
+    15                                  ; our code starts here
+    16                                  segment code use32 class=code
+    17                                      start:
+    18                                          ; ...
+    19                                             
+    20                                          ;AND DACA AI 1 SI 1 => 1
+    21                                          
+    22 00000000 21D8                            and eax , ebx
+    23                                          and eax , [a]
+    23          ******************       error: symbol `a' undefined
+    24                                          and [a] , eax
+    24          ******************       error: symbol `a' undefined
+    25 00000002 83E008                          and eax , 8
+    26                                          and [a] , 8
+    26          ******************       error: symbol `a' undefined
+    27                                          
+    28                                          ;OR  DACA AI 0 SAU 1 => 1
+    29                                          
+    30 00000005 09D8                            or eax,ebx
+    31                                          or eax,[a]
+    31          ******************       error: symbol `a' undefined
+    32                                          or [a],eax
+    32          ******************       error: symbol `a' undefined
+    33 00000007 83C808                          or eax,8
+    34                                          or [a],8
+    34          ******************       error: symbol `a' undefined
+    35                                          
+    36                                          ;XOR DACA DOAR 1 DIN CEI 2 E ADEVARAT
+    37                                          
+    38 0000000A 31D8                            xor eax,ebx
+    39                                          xor eax , [a]
+    39          ******************       error: symbol `a' undefined
+    40                                          xor [a] , eax
+    40          ******************       error: symbol `a' undefined
+    41 0000000C 83F008                          xor eax , 8
+    42                                          xor [a] , 8
+    42          ******************       error: symbol `a' undefined
+    43                                          
+    44 0000000F 31C0                            xor eax , eax ; zerorizeaza continutul lui edx
+    45                                          
+    46                                          ;Test Face and fara sa puna
+    47                                          
+    48 00000011 85D8                            test eax,ebx
+    49                                          test eax,[a]
+    49          ******************       error: symbol `a' undefined
+    50                                          test [a],eax
+    50          ******************       error: symbol `a' undefined
+    51 00000013 A908000000                      test eax , 8
+    52                                          test [a] , 8
+    52          ******************       error: symbol `a' undefined
+    53                                          
+    54                                          ;Not
+    55 00000018 F7D0                            not eax
+    56                                          not byte [a]
+    56          ******************       error: symbol `a' undefined
+    57                                          
+    58                                          ;shl ultimu bit se duce in CF
+    59 0000001A C1E008                          shl eax,8
+    60                                          shl byte [a],8
+    60          ******************       error: symbol `a' undefined
+    61 0000001D D3E0                            shl eax,cl
+    62                                          shl byte [a],8
+    62          ******************       error: symbol `a' undefined
+    63                                          
+    64                                          ;shr ultimu bit se duce in CF
+    65 0000001F C1E808                          shr eax,8
+    66                                          shr byte [a] , 8
+    66          ******************       error: symbol `a' undefined
+    67 00000022 D3E8                            shr eax,cl
+    68                                          shr byte [a], cl
+    68          ******************       error: symbol `a' undefined
+    69                                          
+    70                                          ;sal identic cu shl
+    71                                          
+    72                                          ;sar e shr dar pune in stanga bitul de semn
+    73                                          
+    74                                          ;rol 
+    75 00000024 C1C008                          rol eax,8
+    76                                          rol byte [a],10
+    76          ******************       error: symbol `a' undefined
+    77 00000027 D3C0                            rol eax,cl
+    78                                          rol byte [a],8
+    78          ******************       error: symbol `a' undefined
+    79                                          
+    80                                          
+    81                                          
+    82                                          
+    83                                          
+    84                                          
+    85                                          
+    86                                          
+    87                                          
+    88                                          
+    89                                          ; exit(0)
+    90 00000029 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    91 0000002B FF15[00000000]                  call    [exit]       ; call exit to terminate the program

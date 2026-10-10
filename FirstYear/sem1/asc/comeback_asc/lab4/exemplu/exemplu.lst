@@ -1,0 +1,70 @@
+     1                                  ; Se dau cuvintele A si B. Se cere cuvantul C format astfel:
+     2                                  ;- bitii 0-2 ai lui C coincid cu bitii 10-12 ai lui B
+     3                                  ;- bitii 3-6 ai lui C au valoarea 1
+     4                                  ;- bitii 7-10 ai lui C coincid cu bitii 1-4 ai lui A
+     5                                  ;- bitii 11-12 ai valoarea 0
+     6                                  ;- bitii 13-15 ai lui C concid cu inverul bitilor 9-11 ai lui B
+     7                                  
+     8                                  ; Vom obtine cuvantul C prin operatii succesive de "izolare". Numim operatia
+     9                                  ; de izolare a bitilor 10-12 ai lui B, pastrarea intacta a valorii acestor
+    10                                  ; biti, si initializarea cu 0 a celorlalti biti. Operatiunea de izolare se
+    11                                  ; realizeaza cu ajutorul operatorului and intre cuvantul B si masca
+    12                                  ; 0001110000000000. Odata bitii izolati, printr-o operatie de rotire se
+    13                                  ; deplaseaza grupul de biti doriti in pozitia dorita. Cuvantul final se
+    14                                  ; obtine prin aplicarea operatorului or intre rezultatele intermediare
+    15                                  ; obtinute in urma izolarii si rotirii.
+    16                                  ; Observatie: rangul bitilor se numara de la dreapta la stanga
+    17                                  
+    18                                  bits 32 ;asamblare si compilare pentru arhitectura de 32 biti
+    19                                  ; definim punctul de intrare in programul principal
+    20                                  global  start 
+    21                                  
+    22                                  extern  exit ; indicam asamblorului ca exit exista, chiar daca noi nu o vom defini
+    23                                  import  exit msvcrt.dll; exit este o functie care incheie procesul, este definita in msvcrt.dll
+    24                                          ; msvcrt.dll contine exit, printf si toate celelalte functii C-runtime importante
+    25                                  segment  data use32 class=data ; segmentul de date in care se vor defini variabilele 
+    26 00000000 5777                         a dw 0111011101010111b
+    27 00000002 BE9B                         b dw 1001101110111110b
+    28 00000004 0000                         c dw 0
+    29                                  segment  code use32 class=code ; segmentul de cod
+    30                                  start: 
+    31                                  
+    32 00000000 66BB0000                        mov bx,0 ; in bx tinem rezultatul
+    33                                          ;;- bitii 0-2 ai lui C coincid cu bitii 10-12 ai lui B
+    34                                                           
+    35 00000004 66B8001C                        mov ax,0001110000000000b
+    36 00000008 662305[02000000]                and ax,[b]
+    37 0000000F B10A                            mov cl,10
+    38 00000011 66D3E8                          shr ax,cl
+    39 00000014 6609C3                          or bx,ax
+    40                                          
+    41                                          ;- bitii 3-6 ai lui C au valoarea 1
+    42 00000017 6683CB78                        or bx,00000000001111000b
+    43                                          
+    44                                          ;- bitii 7-10 ai lui C coincid cu bitii 1-4 ai lui A
+    45                                          
+    46 0000001B 66A1[00000000]                  mov ax , [a]
+    47 00000021 6683E01E                        and ax, 00000000000011110b
+    48                                          
+    49 00000025 B106                            mov cl,6
+    50 00000027 66D3E0                          shl ax,cl
+    51 0000002A 6609C3                          or bx,ax
+    52                                          
+    53                                          ;- bitii 11-12 ai valoarea 0
+    54 0000002D 6681E3FFCF                      and bx,11100111111111111b
+    54          ******************       warning: word data exceeds bounds [-w+number-overflow]
+    55                                          
+    56                                          ;- bitii 13-15 ai lui C concid cu inverul bitilor 9-11 ai lui B
+    57                                          
+    58 00000032 66A1[02000000]                  mov ax,[b]
+    59 00000038 66F7D0                          not ax
+    60 0000003B 66250007                        and ax,000011100000000b
+    61 0000003F B102                            mov cl,2
+    62 00000041 66D3E8                          shr ax,cl
+    63 00000044 6609C3                          or bx,ax
+    64                                          
+    65                                          
+    66                                          
+    67                                  
+    68 00000047 6A00                         push dword 0 ;se pune pe stiva codul de retur al functiei exit
+    69 00000049 FF15[00000000]               call [exit] ;apelul functiei sistem exit pentru terminarea executiei programului	

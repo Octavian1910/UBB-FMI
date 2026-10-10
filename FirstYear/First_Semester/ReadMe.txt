@@ -1,1 +1,0 @@
-This is some of my work during semester 1. I included here what I considered to be the most important.

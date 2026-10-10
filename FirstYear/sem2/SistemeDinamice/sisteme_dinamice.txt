@@ -1,0 +1,458 @@
+========================================
+1. COMENZI DE BAZA
+========================================
+
+restart:
+- sterge tot ce era memorat in Maple.
+
+with(DEtools):
+- incarca pachetul pentru ecuatii diferentiale si DEplot.
+
+with(plots):
+- incarca pachetul pentru grafice.
+
+with(linalg):
+- incarca pachetul pentru matrici, jacobian, eigenvals.
+
+
+========================================
+2. DERIVATE IN MAPLE
+========================================
+
+diff(y(x), x)
+= y'(x)
+
+diff(y(x), x$2)
+= y''(x)
+
+diff(x(t), t)
+= x'(t)
+
+IMPORTANT:
+Daca functia este y(x), derivezi dupa x, nu dupa y.
+
+Corect:
+diff(y(x), x$2)
+
+Gresit:
+diff(y(x), y$2)
+
+
+========================================
+3. CONDITII INITIALE
+========================================
+
+y(0)=3
+= y(0) = 3
+
+D(y)(0)=3
+= y'(0) = 3
+
+(D@@2)(y)(0)=3
+= y''(0) = 3
+
+Alternativa cu diff:
+subs(x=0, diff(y(x),x))=3
+= y'(0)=3
+
+subs(x=0, diff(y(x),x$2))=3
+= y''(0)=3
+
+
+========================================
+4. dsolve
+========================================
+
+dsolve se foloseste pentru ECUATII DIFERENTIALE.
+
+Sintaxa fara conditii:
+dsolve(ecuatie, functie);
+
+Exemplu:
+ec := diff(y(x),x)=y(x):
+sol := dsolve(ec, y(x));
+
+Sintaxa cu conditii:
+dsolve({ecuatie, conditii}, functie);
+
+Exemplu:
+ec := diff(y(x),x)=y(x):
+cond := y(0)=1:
+sol := dsolve({ec, cond}, y(x));
+
+La test:
+ec1 := (k+x^2)*diff(y(x),x$2) = 2*x*diff(y(x),x):
+cond1 := y(0)=3, D(y)(0)=3:
+sol1 := dsolve({ec1, cond1}, y(x));
+
+
+========================================
+5. solve
+========================================
+
+solve se foloseste pentru ECUATII NORMALE, fara derivate.
+
+Sintaxa:
+solve(ecuatie, necunoscuta);
+
+Exemplu:
+solve(2*x+4=0, x);
+
+Sistem de ecuatii:
+solve({ec1, ec2}, {x,y});
+
+Exemplu:
+solve({x+y=3, x-y=1}, {x,y});
+
+Diferenta:
+- dsolve rezolva ecuatii diferentiale
+- solve rezolva ecuatii normale / parametri
+
+
+========================================
+6. rhs
+========================================
+
+rhs inseamna right hand side = partea dreapta.
+
+Daca Maple da:
+sol1 := y(x) = expresie
+
+atunci:
+partea_dreapta := rhs(sol1):
+
+ia doar expresia.
+
+Exemplu:
+sol1 = y(x)=3+x^2
+rhs(sol1) = 3+x^2
+
+
+========================================
+7. subs
+========================================
+
+subs inseamna substituie / inlocuieste.
+
+Sintaxa:
+subs(variabila=valoare, expresie);
+
+Exemplu:
+expr := x^2+3*x+5:
+subs(x=1, expr);
+Rezultat: 9
+
+Mai multe inlocuiri:
+subs({x=1, k=-1/5}, expresie);
+
+La test:
+subs(x=1, partea_dreapta)
+= pune x=1 in solutie
+
+subs(k=-1/5, partea_dreapta)
+= pune k=-1/5 in solutie
+
+
+========================================
+8. PUNCT A(1,1)
+========================================
+
+Daca graficul trece prin A(1,1), inseamna:
+y(1)=1
+
+In Maple:
+solve(1 = subs(x=1, partea_dreapta), k);
+
+Explicatie:
+subs(x=1, partea_dreapta) = y(1)
+1 = subs(...) = y(1)=1
+solve(..., k) = gaseste k
+
+
+========================================
+9. plot
+========================================
+
+plot se foloseste pentru graficul unei functii.
+
+Sintaxa:
+plot(functie, x=a..b);
+
+Exemplu:
+plot(x^2, x=-1..1);
+
+La test:
+sol_b := subs(k=-1/5, partea_dreapta):
+plot(sol_b, x=-1..1);
+
+Atentie:
+Daca fixezi k, functia nu devine neaparat constanta.
+Exemplu:
+k*x+2 cu k=3 devine 3*x+2, inca depinde de x.
+
+
+========================================
+10. ECUATIE AUTONOMA DE ORDIN 1
+========================================
+
+Forma:
+x'(t)=f(x)
+
+Puncte de echilibru:
+f(x)=0
+
+Stabilitate:
+f'(x0)<0  => stabil
+f'(x0)>0  => instabil
+
+In Maple:
+f := x -> -8*x^3 + 12*x^2 + 2*x - 3:
+pct_ech := solve(f(x)=0, x);
+
+D(f)(pct_ech[1]);
+D(f)(pct_ech[2]);
+D(f)(pct_ech[3]);
+
+D(f) = derivata functiei f.
+
+Semne:
+negativ -> stabil
+pozitiv -> instabil
+
+
+========================================
+11. DEplot
+========================================
+
+DEplot deseneaza solutii ale ecuatiei diferentiale.
+
+Sintaxa simpla:
+DEplot(ecuatie, functie, interval_t, conditii);
+
+Exemplu:
+ec3 := diff(x(t),t) = f(x(t)):
+
+DEplot(
+    ec3,
+    x(t),
+    t=0..0.3,
+    [[x(0)=-2], [x(0)=-1], [x(0)=0]]
+);
+
+Explicatie:
+ec3 = ecuatia
+x(t) = functia necunoscuta
+t=0..0.3 = intervalul de timp
+[[x(0)=-2], ...] = conditii initiale multiple
+
+
+========================================
+12. SISTEM AUTONOM
+========================================
+
+Forma:
+x' = f1(x,y)
+y' = f2(x,y)
+
+Puncte de echilibru:
+f1(x,y)=0
+f2(x,y)=0
+
+In Maple:
+f1 := (u,v) -> v:
+f2 := (u,v) -> 2*u^3 + u^2 - u:
+
+pct_ech := solve({f1(x,y)=0, f2(x,y)=0}, {x,y});
+
+Sintaxa:
+solve({ecuatie1, ecuatie2}, {necunoscuta1, necunoscuta2});
+
+
+========================================
+13. JACOBIAN
+========================================
+
+Pentru sistem, stabilitatea se face cu Jacobianul.
+
+Jacobianul este matricea derivatelor partiale:
+
+J =
+[ df1/dx   df1/dy ]
+[ df2/dx   df2/dy ]
+
+In Maple:
+J := jacobian([f1(x,y), f2(x,y)], [x,y]);
+
+Pentru sistemul:
+f1 = y
+f2 = 2x^3+x^2-x
+
+J =
+[ 0              1 ]
+[ 6x^2+2x-1     0 ]
+
+
+========================================
+14. INLOCUIREA PUNCTELOR IN JACOBIAN
+========================================
+
+Pentru fiecare punct de echilibru pui x si y in J.
+
+Varianta sigura in Maple:
+A1 := evalm(subs({x=0,y=0}, eval(J)));
+eigenvals(A1);
+
+A2 := evalm(subs({x=-1,y=0}, eval(J)));
+eigenvals(A2);
+
+A3 := evalm(subs({x=1/2,y=0}, eval(J)));
+eigenvals(A3);
+
+
+========================================
+15. eigenvals
+========================================
+
+eigenvals(A)
+= calculeaza valorile proprii ale matricei A.
+
+Matematic, valorile proprii se gasesc din:
+det(A - lambda*I)=0
+
+Reguli de stabilitate pentru test:
+
+- valori proprii cu semne diferite:
+  instabil
+
+- ambele valori proprii negative:
+  stabil asimptotic
+
+- apare I si -I:
+  stabil, dar nu asimptotic
+
+Exemplu:
+I, -I
+=> stabil, nu asimptotic
+
+sqrt(3), -sqrt(3)
+=> instabil
+
+sqrt(6)/2, -sqrt(6)/2
+=> instabil
+
+
+========================================
+16. EXERCITIUL 1 - MODEL COMPLET
+========================================
+
+restart:
+with(DEtools):
+with(plots):
+
+ec1 := (k+x^2)*diff(y(x),x$2) = 2*x*diff(y(x),x):
+
+cond1 := y(0)=3, D(y)(0)=3:
+
+sol1 := dsolve({ec1, cond1}, y(x));
+
+partea_dreapta := rhs(sol1):
+
+solve(1 = subs(x=1, partea_dreapta), k);
+
+sol_b := subs(k=-1/5, partea_dreapta):
+
+plot(sol_b, x=-1..1);
+
+
+========================================
+17. EXERCITIUL 2 - MODEL COMPLET
+========================================
+
+restart:
+
+ec2 := t*diff(x(t),t) + x(t) = exp(t):
+
+sol_gen := dsolve(ec2, x(t));
+
+cond := x(a)=b:
+
+sol_cauchy := dsolve({ec2, cond}, x(t));
+
+
+========================================
+18. EXERCITIUL 3 - MODEL COMPLET
+========================================
+
+restart:
+with(DEtools):
+with(plots):
+
+f := x -> -8*x^3 + 12*x^2 + 2*x - 3:
+
+pct_ech := solve(f(x)=0, x);
+
+D(f)(pct_ech[1]);
+D(f)(pct_ech[2]);
+D(f)(pct_ech[3]);
+
+ec3 := diff(x(t),t) = f(x(t)):
+
+DEplot(
+    ec3,
+    x(t),
+    t=0..0.3,
+    [[x(0)=-2], [x(0)=-1], [x(0)=0], [x(0)=1/2], [x(0)=1], [x(0)=3/2], [x(0)=2]]
+);
+
+
+========================================
+19. EXERCITIUL 4 - MODEL COMPLET
+========================================
+
+restart:
+with(linalg):
+
+f1 := (u,v) -> v:
+f2 := (u,v) -> 2*u^3 + u^2 - u:
+
+pct_ech := solve({f1(x,y)=0, f2(x,y)=0}, {x,y});
+
+J := jacobian([f1(x,y), f2(x,y)], [x,y]);
+
+A1 := evalm(subs({x=0,y=0}, eval(J)));
+eigenvals(A1);
+
+A2 := evalm(subs({x=-1,y=0}, eval(J)));
+eigenvals(A2);
+
+A3 := evalm(subs({x=1/2,y=0}, eval(J)));
+eigenvals(A3);
+
+Interpretare:
+(0,0) -> I, -I -> stabil, nu asimptotic
+(-1,0) -> sqrt(3), -sqrt(3) -> instabil
+(1/2,0) -> sqrt(6)/2, -sqrt(6)/2 -> instabil
+
+
+========================================
+20. REGULI RAPIDE DE TEST
+========================================
+
+1. Daca vezi diff -> dsolve.
+2. Daca vrei o valoare pentru k/x/y -> solve.
+3. Punct de echilibru la ecuatie simpla:
+   solve(f(x)=0,x)
+4. Stabilitate la ecuatie simpla:
+   D(f)(punct)
+   negativ stabil, pozitiv instabil.
+5. Punct de echilibru la sistem:
+   solve({f1=0,f2=0},{x,y})
+6. Stabilitate la sistem:
+   Jacobian -> subs punct -> eigenvals.
+7. Pentru A(1,1):
+   y(1)=1
+   solve(1=subs(x=1,partea_dreapta),k)
+8. Pentru grafic:
+   plot(functie, x=a..b)
+9. Pentru solutii de ecuatie diferentiala:
+   DEplot(ec, x(t), t=a..b, conditii)

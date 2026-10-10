@@ -1,0 +1,67 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit ,printf , scanf              ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  import printf msvcrt.dll
+    11                                  import scanf msvcrt.dll
+    12                                  
+    13                                  ; Se citesc de la tastatura trei numere a, m si n (a: word, 0 <= m, n <= 15, m > n). Sa se izoleze bitii de la m-n ai lui a si sa se afiseze numarul intreg reprezentat de acesti bitii in baza 10.
+    14                                  
+    15                                  
+    16                                  ; our data is declared here (the variables needed by our program)
+    17                                  segment data use32 class=data
+    18                                      ; ...
+    19 00000000 00000000                    a dd 0
+    20 00000004 00000000                    m dd 0
+    21 00000008 00000000                    n dd 0
+    22 0000000C 0000                        temp dw 0
+    23 0000000E 256420256420256400          format db "%d %d %d" ,0
+    24 00000017 256400                      format2 db "%d",0
+    25                                      
+    26                                  ; our code starts here
+    27                                  segment code use32 class=code
+    28                                      start:
+    29                                          ; ...
+    30                                          
+    31                                          ;scanf(format , a ,m , n)
+    32 00000000 68[08000000]                    push n
+    33 00000005 68[04000000]                    push m
+    34 0000000A 68[00000000]                    push a
+    35 0000000F 68[0E000000]                    push format
+    36 00000014 FF15[00000000]                  call [scanf]
+    37 0000001A 83C410                          add esp,4*4
+    38                                          
+    39                                          ;a = 00 00 h = 0000 0000 0000 0000
+    40                                          
+    41 0000001D 8B0D[04000000]                  mov ecx,[m]
+    42 00000023 2B0D[08000000]                  sub ecx,[n]
+    43 00000029 83C101                          add ecx,1
+    44                                          
+    45                                          punem_mn_de_1 :  ; punem m-n+1 de 1
+    46 0000002C 66D125[0C000000]                    shl word [temp] , 1
+    47 00000033 66830D[0C000000]01                  or word [temp],1
+    48                                          
+    49 0000003B E2EF                            loop punem_mn_de_1
+    50                                          
+    51                                          ;mutam la pozitiile corespunzatoare
+    52 0000003D 8A0D[08000000]                  mov cl,[n]
+    53 00000043 66D325[0C000000]                shl word [temp],cl
+    54                                          
+    55 0000004A A1[0C000000]                    mov eax,[temp]
+    56                                          
+    57 0000004F 2105[00000000]                  and  [a],eax
+    58                                          
+    59                                          ;afisare print(format,nr)
+    60 00000055 FF35[00000000]                  push dword [a]
+    61 0000005B 68[17000000]                    push format2
+    62 00000060 FF15[00000000]                  call [printf]
+    63                                              
+    64                                          
+    65                                          ; exit(0)
+    66 00000066 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    67 00000068 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

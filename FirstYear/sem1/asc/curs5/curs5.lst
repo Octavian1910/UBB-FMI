@@ -1,0 +1,29 @@
+     1                                  bits 32
+     2                                  global start        
+     3                                  extern exit               
+     4                                  import exit msvcrt.dll    
+     5                                  
+     6                                  segment data use32 class=data
+     7 00000000 8877665544332211BB-     sir dq 1122334455667788h, 1a2b3c4d5e6faabbh
+     7 00000009 AA6F5E4D3C2B1A     
+     8                                  lung_sir equ ($ - sir) / 8
+     9 00000010 0000000000000000-       r times lung_sir dq 0
+     9 00000010 <rept>             
+    10                                  
+    11                                  segment code use32 class=code
+    12                                  start:
+    13 00000000 FC                          cld
+    14 00000001 BE[00000000]                mov esi, sir
+    15 00000006 AC                          lodsb
+    16 00000007 66AD                        lodsw
+    17 00000009 AD                          lodsd
+    18 0000000A BF[10000000]                mov edi, r
+    19 0000000F B01A                        mov al, 1Ah
+    20 00000011 AA                          stosb
+    21 00000012 66B83412                    mov ax, 1234h
+    22 00000016 66AB                        stosw
+    23 00000018 B8CD907856                  mov eax, 567890cdh
+    24 0000001D AB                          stosd
+    25                                  
+    26 0000001E 6A00                        push dword 0
+    27 00000020 FF15[00000000]              call [exit]

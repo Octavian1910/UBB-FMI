@@ -1,0 +1,40 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  
+     4                                  ;Se da un sir de octeti S de lungime l. Sa se construiasca sirul D de lungime l-1 astfel incat elementele din D sa reprezinte ;produsul dintre fiecare 2 elemente consecutive S(i) si S(i+1) din S.
+     5                                  
+     6                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     7                                  global start        
+     8                                  
+     9                                  ; declare external functions needed by our program
+    10                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+    11                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+    12                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    13                                  
+    14                                  ; our data is declared here (the variables needed by our program)
+    15                                  segment data use32 class=data
+    16                                      ; ...
+    17 00000000 01020304                    s db 1, 2, 3, 4 ;va trebui sa obtinem d db 2, 6, 12
+    18                                      lens equ $-s
+    19 00000004 0000<rept>                  d times lens dw 0
+    20                                  ; our code starts here
+    21                                  segment code use32 class=code
+    22                                      start:
+    23                                          ; ...
+    24 00000000 B903000000                      mov ecx,lens - 1; ; cate elemente vom avea in d
+    25 00000005 BE[00000000]                    mov esi,s ;index s
+    26 0000000A BF00000000                      mov edi,0 ;index d
+    27                                          prodS:
+    28 0000000F 8A06                                mov al,[esi]  ;mutam in al offsetul locatiei elem curent din s
+    29 00000011 46                                  inc esi       ;trecem la urm elem
+    30 00000012 8A26                                mov ah,[esi]    ;il punem in ah
+    31 00000014 F6E4                                mul ah              ;ax = s[ind]*s[ind+1]
+    32 00000016 668987[04000000]                    mov [d + edi],ax            ;mutam in d rezultatul
+    33 0000001D 83C702                              add edi,2           ;trb sa crestem tot cu cate 2 octeti
+    34 00000020 E2ED                                loop prodS          ;scadem ecx
+    35                                              
+    36                                              
+    37                                      
+    38                                          ; exit(0)
+    39 00000022 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    40 00000024 FF15[00000000]                  call    [exit]       ; call exit to terminate the program

@@ -1,0 +1,46 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     3                                  global start        
+     4                                  ;a - byte, b - word, c - double word, d - qword - Interpretare cu semn
+     5                                  ;((a + a) + (b + b) + (c + c)) - d
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  ; our data is declared here (the variables needed by our program)
+    11                                  segment data use32 class=data
+    12 00000000 F6                          a db -10       
+    13 00000001 1900                        b dw 25        
+    14 00000003 64000000                    c dd 100       
+    15 00000007 3200000000000000            d dq 50
+    16 0000000F <res 00000008>              rezultat resq 1
+    17                                      
+    18                                  ; our code starts here
+    19                                  segment code use32 class=code
+    20                                      start:
+    21 00000000 A0[00000000]                    mov al, [a]         ; al = -10
+    22 00000005 6698                            cbw                 ; ax = -10
+    23 00000007 6601C0                          add ax, ax          ; ax = 2*a = -20
+    24 0000000A 98                              cwde                ; eax = -20
+    25                                          
+    26 0000000B 0FBF1D[01000000]                movsx ebx, word [b] ; ebx = 25 
+    27 00000012 01DB                            add ebx, ebx        ; ebx = 2*b = 50
+    28                                          
+    29 00000014 01D8                            add eax, ebx        ; eax = -20 + 50 = 30
+    30                                          
+    31 00000016 8B1D[03000000]                  mov ebx, [c]        ; ebx = 100
+    32 0000001C 01DB                            add ebx, ebx        ; ebx = 2*c = 200
+    33                                          
+    34 0000001E 01D8                            add eax, ebx        ; eax = 30 + 200 = 230
+    35                                          
+    36 00000020 99                              cdq                 ;EDX:EAX    
+    37                                          
+    38 00000021 2B05[07000000]                  sub eax, [d]        ; eax = 230 - 50 = 180 (partea low)
+    39 00000027 1B15[0B000000]                  sbb edx, [d+4]      ; edx = 0 - 0 - carry (partea high)
+    40                                          
+    41 0000002D A3[0F000000]                    mov [rezultat], eax      ;  partea low
+    42 00000032 8915[13000000]                  mov [rezultat+4], edx    ;  partea high
+    43                                          
+    44                                          ; exit(0)
+    45 00000038 6A00                            push dword 0
+    46 0000003A FF15[00000000]                  call [exit]

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pthread Practice Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#111827; color:#f9fafb; margin:0; padding:30px; }
+    .card { max-width:900px; margin:auto; background:#1f2937; padding:24px; border-radius:18px; box-shadow:0 10px 30px #0008; }
+    h1 { margin-top:0; }
+    .task { background:#374151; padding:18px; border-radius:14px; margin:18px 0; font-size:18px; }
+    input { width:100%; padding:14px; font-family:Consolas, monospace; font-size:17px; border-radius:10px; border:2px solid #4b5563; background:#0f172a; color:#f9fafb; box-sizing:border-box; }
+    button { margin-top:12px; padding:12px 18px; border:0; border-radius:10px; cursor:pointer; font-weight:bold; }
+    .check { background:#22c55e; }
+    .skip { background:#f59e0b; margin-left:8px; }
+    .hint { background:#3b82f6; margin-left:8px; }
+    .msg { margin-top:16px; font-size:18px; min-height:28px; }
+    .ok { color:#86efac; }
+    .bad { color:#fca5a5; }
+    .code { font-family:Consolas, monospace; background:#111827; padding:4px 8px; border-radius:6px; }
+    .stats { display:flex; gap:16px; flex-wrap:wrap; margin-top:14px; color:#d1d5db; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Joc: mutex / semaphore / rwlock / barieră / condiții</h1>
+    <p>Scrie exact linia importantă de sincronizare. Fără librării inutile.</p>
+
+    <div class="stats">
+      <div>Întrebarea: <span id="nr">1</span>/<span id="total"></span></div>
+      <div>Scor: <span id="score">0</span></div>
+    </div>
+
+    <div class="task" id="task"></div>
+    <input id="answer" autocomplete="off" spellcheck="false" placeholder="scrie codul aici..." />
+    <br />
+    <button class="check" onclick="checkAnswer()">Verifică</button>
+    <button class="hint" onclick="showHint()">Hint</button>
+    <button class="skip" onclick="nextQuestion(false)">Skip</button>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script>
+    const baseQuestions = [
+      // MUTEX - esențial
+      { task: "Declară un mutex global numit mtx inițializat default.", answers: ["pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;"], hint: "pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;", weight: 5 },
+      { task: "Declară un mutex global numit mtx, fără inițializare directă.", answers: ["pthread_mutex_t mtx;"], hint: "pthread_mutex_t mtx;", weight: 3 },
+      { task: "Inițializează mutexul mtx cu setări default.", answers: ["pthread_mutex_init(&mtx, NULL);"], hint: "pthread_mutex_init(&mtx, NULL);", weight: 4 },
+      { task: "Blochează mutexul mtx.", answers: ["pthread_mutex_lock(&mtx);"], hint: "pthread_mutex_lock(&mtx);", weight: 8 },
+      { task: "Deblochează mutexul mtx.", answers: ["pthread_mutex_unlock(&mtx);"], hint: "pthread_mutex_unlock(&mtx);", weight: 8 },
+      { task: "Distruge mutexul mtx.", answers: ["pthread_mutex_destroy(&mtx);"], hint: "pthread_mutex_destroy(&mtx);", weight: 3 },
+
+      // SEMAFOR - esențial și mai des
+      { task: "Declară un semafor global numit sem.", answers: ["sem_t sem;"], hint: "sem_t sem;", weight: 8 },
+      { task: "Inițializează semaforul sem cu valoarea 1.", answers: ["sem_init(&sem, 0, 1);"], hint: "sem_init(&sem, 0, 1);", weight: 12 },
+      { task: "Fă wait/lock pe semaforul sem.", answers: ["sem_wait(&sem);"], hint: "sem_wait(&sem);", weight: 14 },
+      { task: "Fă post/unlock pe semaforul sem.", answers: ["sem_post(&sem);"], hint: "sem_post(&sem);", weight: 14 },
+      { task: "Distruge semaforul sem.", answers: ["sem_destroy(&sem);"], hint: "sem_destroy(&sem);", weight: 6 },
+
+      // RWLOCK - esențial
+      { task: "Declară un read-write lock global numit rwl.", answers: ["pthread_rwlock_t rwl;"], hint: "pthread_rwlock_t rwl;", weight: 5 },
+      { task: "Inițializează read-write lock-ul rwl cu setări default.", answers: ["pthread_rwlock_init(&rwl, NULL);"], hint: "pthread_rwlock_init(&rwl, NULL);", weight: 5 },
+      { task: "Ia lock de citire pe rwl.", answers: ["pthread_rwlock_rdlock(&rwl);"], hint: "pthread_rwlock_rdlock(&rwl);", weight: 7 },
+      { task: "Ia lock de scriere pe rwl.", answers: ["pthread_rwlock_wrlock(&rwl);"], hint: "pthread_rwlock_wrlock(&rwl);", weight: 7 },
+      { task: "Deblochează rwl.", answers: ["pthread_rwlock_unlock(&rwl);"], hint: "pthread_rwlock_unlock(&rwl);", weight: 8 },
+      { task: "Distruge read-write lock-ul rwl.", answers: ["pthread_rwlock_destroy(&rwl);"], hint: "pthread_rwlock_destroy(&rwl);", weight: 4 },
+
+      // BARIERĂ - esențial
+      { task: "Declară o barieră globală numită barr.", answers: ["pthread_barrier_t barr;"], hint: "pthread_barrier_t barr;", weight: 7 },
+      { task: "Inițializează bariera barr pentru MAX_THR thread-uri.", answers: ["pthread_barrier_init(&barr, NULL, MAX_THR);"], hint: "pthread_barrier_init(&barr, NULL, MAX_THR);", weight: 10 },
+      { task: "Așteaptă la bariera barr.", answers: ["pthread_barrier_wait(&barr);"], hint: "pthread_barrier_wait(&barr);", weight: 12 },
+      { task: "Distruge bariera barr.", answers: ["pthread_barrier_destroy(&barr);"], hint: "pthread_barrier_destroy(&barr);", weight: 6 },
+
+      // CONDIȚII - doar important
+      { task: "Declară o variabilă de condiție vcc inițializată default.", answers: ["pthread_cond_t vcc = PTHREAD_COND_INITIALIZER;"], hint: "pthread_cond_t vcc = PTHREAD_COND_INITIALIZER;", weight: 6 },
+      { task: "Declară o variabilă de condiție vcp inițializată default.", answers: ["pthread_cond_t vcp = PTHREAD_COND_INITIALIZER;"], hint: "pthread_cond_t vcp = PTHREAD_COND_INITIALIZER;", weight: 6 },
+      { task: "Așteaptă pe condiția vcc folosind mutexul mtx.", answers: ["pthread_cond_wait(&vcc, &mtx);"], hint: "pthread_cond_wait(&vcc, &mtx);", weight: 9 },
+      { task: "Așteaptă pe condiția vcp folosind mutexul mtx.", answers: ["pthread_cond_wait(&vcp, &mtx);"], hint: "pthread_cond_wait(&vcp, &mtx);", weight: 9 },
+      { task: "Trimite signal pe condiția vcc.", answers: ["pthread_cond_signal(&vcc);"], hint: "pthread_cond_signal(&vcc);", weight: 8 },
+      { task: "Trimite signal pe condiția vcp.", answers: ["pthread_cond_signal(&vcp);"], hint: "pthread_cond_signal(&vcp);", weight: 8 },
+      { task: "Trimite broadcast pe condiția vcc.", answers: ["pthread_cond_broadcast(&vcc);"], hint: "pthread_cond_broadcast(&vcc);", weight: 4 },
+
+      // THREAD - foarte puțin, doar să nu uiți complet
+      { task: "Așteaptă terminarea thread-ului tid[i].", answers: ["pthread_join(tid[i], NULL);"], hint: "pthread_join(tid[i], NULL);", weight: 1 }
+    ];
+
+    function buildRandomQuestions(rounds = 60) {
+      const pool = [];
+      baseQuestions.forEach(q => {
+        for (let i = 0; i < q.weight; i++) pool.push(q);
+      });
+
+      const result = [];
+      for (let i = 0; i < rounds; i++) {
+        result.push(pool[Math.floor(Math.random() * pool.length)]);
+      }
+      return result;
+    }
+
+    const questions = buildRandomQuestions(40);
+
+    let index = 0;
+    let score = 0;
+
+    document.getElementById("total").textContent = questions.length;
+
+    function normalize(s) {
+      return s.trim().replace(/\s+/g, " ").replace(/\s*([(){}\[\];,&=*])\s*/g, "$1");
+    }
+
+    function loadQuestion() {
+      document.getElementById("nr").textContent = index + 1;
+      document.getElementById("task").textContent = questions[index].task;
+      document.getElementById("answer").value = "";
+      document.getElementById("msg").textContent = "";
+      document.getElementById("answer").focus();
+    }
+
+    function checkAnswer() {
+      const user = normalize(document.getElementById("answer").value);
+      const ok = questions[index].answers.some(a => normalize(a) === user);
+      const msg = document.getElementById("msg");
+
+      if (ok) {
+        score++;
+        document.getElementById("score").textContent = score;
+        msg.innerHTML = '<span class="ok">Corect.</span>';
+        setTimeout(() => nextQuestion(true), 500);
+      } else {
+        msg.innerHTML = '<span class="bad">Greșit. Mai încearcă.</span>';
+      }
+    }
+
+    function showHint() {
+      document.getElementById("msg").innerHTML = 'Hint: <span class="code">' + questions[index].hint + '</span>';
+    }
+
+    function nextQuestion() {
+      index++;
+      if (index >= questions.length) {
+        document.querySelector(".card").innerHTML = `<h1>Gata!</h1><p>Scor final: <b>${score}/${questions.length}</b></p><button onclick="location.reload()">Reia jocul</button>`;
+      } else {
+        loadQuestion();
+      }
+    }
+
+    document.getElementById("answer").addEventListener("keydown", e => {
+      if (e.key === "Enter") checkAnswer();
+    });
+
+    loadQuestion();
+  </script>
+</body>
+</html>

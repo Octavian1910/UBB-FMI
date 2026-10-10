@@ -1,0 +1,47 @@
+     1                                  ; programul calculeaza factorialul unui numar si afiseaza in consola rezultatul
+     2                                  ; procedura factorial este definita in segmentul de cod si primeste pe stiva ca  si parametru un numar
+     3                                  bits 32 ; assembling for the 32 bits architecture
+     4                                  
+     5                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     6                                  global start        
+     7                                  
+     8                                  ; declare external functions needed by our program
+     9                                  extern exit,printf               ; tell nasm that exit exists even if we won't be defining it
+    10                                  import exit msvcrt.dll   
+    11                                  import printf msvcrt.dll   
+    12                                  
+    13                                  ; our data is declared here (the variables needed by our program)
+    14                                  segment data use32 class=data
+    15                                      ; ...
+    16 00000000 666163746F7269616C-         format db "factorial = %d" , 10 , 13 , 0
+    16 00000009 203D2025640A0D00   
+    17                                  
+    18                                  ; our code starts here
+    19                                  segment code use32 class=code
+    20                                      ;definim procedura factorial
+    21                                      factorial:
+    22 00000000 B801000000                      mov eax,1
+    23 00000005 8B4C2404                        mov ecx,[esp + 4]
+    24                                          
+    25                                          .repeta
+    25          ******************       warning: label alone on a line without a colon might be in error [-w+orphan-labels]
+    26 00000009 F7E1                                mul ecx ; edx:eax = eax*ecx
+    27 0000000B E2FC                            loop .repeta
+    28 0000000D C3                          ret
+    29                                              
+    30                                  
+    31                                      start:
+    32 0000000E 6A07                            push dword 7 ; facem 7!
+    33 00000010 E8EBFFFFFF                      call factorial ; rezultatul vine in eax
+    34                                          
+    35                                          ;afisam printf(format,nr)
+    36 00000015 50                              push eax
+    37 00000016 68[00000000]                    push dword format
+    38 0000001B FF15[00000000]                  call [printf]
+    39 00000021 83C408                          add esp,4*2
+    40                                          
+    41 00000024 6A00                            push 0
+    42 00000026 FF15[00000000]                  call [exit]
+    43                                          
+    44                                          
+    45                                  

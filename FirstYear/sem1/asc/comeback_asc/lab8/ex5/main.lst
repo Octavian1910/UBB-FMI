@@ -1,0 +1,55 @@
+     1                                  bits 32
+     2                                  global start
+     3                                  
+     4                                  import printf msvcrt.dll
+     5                                  import exit msvcrt.dll
+     6                                  import scanf msvcrt.dll
+     7                                  extern printf, exit,scanf
+     8                                  
+     9                                  extern factorial
+    10                                  
+    11                                  segment data use32 class=data
+    12                                      ; ...
+    13 00000000 00000000                    a dd 0
+    14 00000004 00000000                    b dd 0
+    15 00000008 00000000                    c dd 0
+    16 0000000C 61203D203F2062203D-         cerinta db "a = ? b = ?  c = ?",10, 13, 0
+    16 00000015 203F202063203D203F-
+    16 0000001E 0A0D00             
+    17 00000021 256420256420256400          format db "%d %d %d",0
+    18 0000002A 612B622D63203D2025-         rezultat db "a+b-c = %d",10, 13, 0
+    18 00000033 640A0D00           
+    19                                  
+    20                                  segment code use32 public code
+    21                                  start:
+    22                                          ; ...
+    23                                          ;afisam printf(format)
+    24 00000000 68[0C000000]                    push dword cerinta
+    25 00000005 FF15[00000000]                  call [printf]
+    26 0000000B 83C404                          add esp,4*1
+    27                                          
+    28                                          ;citim         scanf(format,a,b,c)
+    29 0000000E 68[08000000]                    push dword c
+    30 00000013 68[04000000]                    push dword b
+    31 00000018 68[00000000]                    push dword a
+    32 0000001D 68[21000000]                    push format
+    33 00000022 FF15[00000000]                  call [scanf]
+    34 00000028 83C410                          add esp,4*4
+    35                                          
+    36                                          ;apelam operatia 
+    37 0000002B FF35[08000000]                  push dword [c]
+    38 00000031 FF35[04000000]                  push dword [b]
+    39 00000037 FF35[00000000]                  push dword [a]
+    40                                          call operatie ;ret 4*3
+    40          ******************       error: symbol `operatie' undefined
+    41                                          
+    42                                          ;afisare rezultat
+    43 0000003D 50                              push eax
+    44 0000003E 68[2A000000]                    push rezultat
+    45 00000043 FF15[00000000]                  call [printf] 
+    46 00000049 83C408                          add esp,4*2
+    47                                          
+    48                                          
+    49                                          ; exit(0)
+    50 0000004C 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    51 0000004E FF15[00000000]                  call    [exit]       ; call exit to terminate the program

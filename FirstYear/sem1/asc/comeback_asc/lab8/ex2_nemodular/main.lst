@@ -1,0 +1,107 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit,gets,printf               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  
+    11                                  import gets msvcrt.dll
+    12                                  import printf msvcrt.dll
+    13                                                            
+    14                                  ; our data is declared here (the variables needed by our program)
+    15                                  segment data use32 class=data
+    16                                      ; ...
+    17 00000000 <res 00000064>              buffer resb 100
+    18 00000064 <res 00000190>              rezultat resd 100
+    19 000001F4 25642000                    format db "%d ",0
+    20                                      
+    21                                  
+    22                                  ; our code starts here
+    23                                  segment code use32 class=code
+    24                                      start:
+    25                                          ; ...
+    26 00000000 68[00000000]                    push buffer
+    27 00000005 FF15[00000000]                  call [gets]
+    28 0000000B 83C404                          add esp,4
+    29                                          
+    30 0000000E BE[00000000]                    mov esi,buffer
+    31 00000013 BF[64000000]                    mov edi,rezultat
+    32                                          
+    33                                          ;ebx - folosit pt semn
+    34                                          ;eax - folosit pt a incarca caracterul curent
+    35                                          ;edx - nr curent
+    36                                          ;ecx - contor de numere
+    37 00000018 31C9                            xor ecx,ecx
+    38                                          
+    39                                          parsare:
+    40                                              ;skip_spatii
+    41                                              skip_spatii:
+    42 0000001A AC                                      lodsb
+    43 0000001B 3C00                                    cmp al,0
+    44 0000001D 7441                                    je terminare_parsare
+    45 0000001F 3C20                                    cmp al,' '
+    46 00000021 74F7                                    je skip_spatii
+    47                                                  
+    48                                              ;verificare_semn
+    49 00000023 31DB                                xor ebx,ebx
+    50 00000025 BB01000000                          mov ebx,1
+    51                                              
+    52 0000002A 3C2D                                cmp al,'-'
+    53 0000002C 7506                                jne e_pozitiv
+    54 0000002E BBFFFFFFFF                          mov ebx,-1
+    55 00000033 AC                                  lodsb  ; daca e negativ trecem de minus
+    56                                              
+    57                                              e_pozitiv:
+    58                                              ;incepem conversia
+    59 00000034 31D2                                xor edx,edx  ; edx = 0 ca sa salvam numarul curent
+    60                                              convert_digit:
+    61 00000036 3C30                                    cmp al,'0'
+    62 00000038 7219                                    jb terminare_numar
+    63 0000003A 3C39                                    cmp al,'9'
+    64 0000003C 7715                                    ja terminare_numar
+    65                                                  
+    66 0000003E 2C30                                    sub al,'0' ;convertim la cifra
+    67 00000040 50                                      push eax
+    68 00000041 B80A000000                              mov eax,10
+    69 00000046 F7E2                                    mul edx 
+    70 00000048 89C2                                    mov edx,eax
+    71 0000004A 58                                      pop eax
+    72 0000004B 0FB6C0                                  movzx eax,al
+    73 0000004E 01C2                                    add edx,eax  ; o punem
+    74 00000050 AC                                      lodsb
+    75 00000051 EBE3                                    jmp convert_digit
+    76                                                  
+    77                                              terminare_numar:
+    78                                              ;ii aplicam semnul
+    79 00000053 0FAFD3                              imul edx,ebx
+    80                                              
+    81                                              stocare_numar:
+    82 00000056 41                                  inc ecx
+    83 00000057 8917                                mov [edi],edx
+    84 00000059 83C704                              add edi,4
+    85 0000005C 3C00                                cmp al,0
+    86 0000005E 75BA                                jne parsare     ;daca e diferit de caracterul nul mergem mai departe
+    87                                             
+    88                                             terminare_parsare:
+    89                                              
+    90                                  
+    91 00000060 BE[64000000]                       mov esi,rezultat
+    92                                             loop_afisare:
+    93 00000065 AD                                  lodsd
+    94                                              ;printf(format,numar)
+    95 00000066 51                                  push ecx
+    96 00000067 50                                  push eax
+    97 00000068 68[F4010000]                        push format
+    98 0000006D FF15[00000000]                      call [printf]
+    99 00000073 83C408                              add esp,4*2
+   100 00000076 59                                  pop ecx
+   101 00000077 E2EC                                loop loop_afisare
+   102                                              
+   103                                              
+   104                                          finish:
+   105                                          ; exit(0)
+   106 00000079 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+   107 0000007B FF15[00000000]                  call    [exit]       ; call exit to terminate the program

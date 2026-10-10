@@ -1,0 +1,44 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit ,fopen,fclose              ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  import fopen msvcrt.dll
+    11                                  import fclose msvcrt.dll
+    12                                                            
+    13                                  ; our data is declared here (the variables needed by our program)
+    14                                  segment data use32 class=data
+    15 00000000 616E612E74787400            nume_fisier db "ana.txt",0
+    16 00000008 7700                        mod_acces db "w",0
+    17                                      
+    18 0000000A FFFFFFFF                    descriptor_fis dd -1
+    19                                  
+    20                                  ; our code starts here
+    21                                  segment code use32 class=code
+    22                                      start:
+    23                                          ;fopen(nume,mod_acces)
+    24 00000000 68[08000000]                    push dword mod_acces
+    25 00000005 68[00000000]                    push dword nume_fisier
+    26 0000000A FF15[00000000]                  call [fopen]
+    27 00000010 83C408                          add esp,4*2
+    28                                  
+    29 00000013 A3[0A000000]                    mov [descriptor_fis],eax
+    30                                          
+    31 00000018 83F800                          cmp eax,0
+    32 0000001B 740F                            je final
+    33                                          
+    34                                          ;fclose(descriptor)
+    35 0000001D FF35[0A000000]                  push dword[descriptor_fis]
+    36 00000023 FF15[00000000]                  call [fclose]
+    37 00000029 83C404                          add esp,4
+    38                                          
+    39                                          
+    40                                          final:
+    41                                          
+    42                                          ; exit(0)
+    43 0000002C 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    44 0000002E FF15[00000000]                  call    [exit]       ; call exit to terminate the program

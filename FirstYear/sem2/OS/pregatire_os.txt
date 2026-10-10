@@ -1,0 +1,18 @@
+SEMINAR 1
+
+AWK 
+- $0 AFISEAZA TOATE LINIILE
+- BEGIN se executa inainte de citirea fisierelor
+
+
+GREP
+Caracter	Este special fără \?
+*	Da
+.	Da
+^	Da
+$	Da
+[ ]	Da
++	Nu
+?	Nu
+`	`
+

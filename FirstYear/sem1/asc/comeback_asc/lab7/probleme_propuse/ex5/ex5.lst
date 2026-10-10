@@ -1,0 +1,89 @@
+     1                                  bits 32 ; assembling for the 32 bits architecture
+     2                                  
+     3                                  ; declare the EntryPoint (a label defining the very first instruction of the program)
+     4                                  global start        
+     5                                  
+     6                                  ; declare external functions needed by our program
+     7                                  extern exit,printf,scanf               ; tell nasm that exit exists even if we won't be defining it
+     8                                  import exit msvcrt.dll    ; exit is a function that ends the calling process. It is defined in msvcrt.dll
+     9                                                            ; msvcrt.dll contains exit, printf and all the other important C-runtime specific functions
+    10                                  import printf msvcrt.dll
+    11                                  import scanf msvcrt.dll
+    12                                  ; our data is declared here (the variables needed by our program)
+    13                                  segment data use32 class=data
+    14                                      ; ...
+    15                                  ; Se dau doua numere naturale a si b (a, b: word, definite in segmentul de date). Sa se calculeze a/b si sa se afiseze catul si restul impartirii in urmatorul format: "Cat = <cat>, rest = <rest>"
+    16                                  ; Exemplu: pentru a=23 si b=10 se va afisa: "Cat = 2, rest = 3"
+    17                                  ; Valorile vor fi afisate in format decimal (baza 10) cu semn
+    18                                      
+    19 00000000 0000                        a dw 0
+    20 00000002 0000                        b dw 0
+    21 00000004 00000000                    temp_a dd 0
+    22 00000008 00000000                    temp_b dd 0
+    23 0000000C 41203D2000                  mesaj1 db "A = ",0
+    24 00000011 42203D2000                  mesaj2 db "B = ",0
+    25 00000016 436174203D20256420-         mesaj3 db "Cat = %d , rest = %d ",0
+    25 0000001F 2C2072657374203D20-
+    25 00000028 25642000           
+    26 0000002C 256400                      format db "%d",0
+    27                                      
+    28 0000002F 00000000                    cat dd 0
+    29 00000033 00000000                    rest1 dd 0
+    30                                  
+    31                                  ; our code starts here
+    32                                  segment code use32 class=code
+    33                                      start:
+    34                                          ; ...
+    35                                          
+    36                                          ;printf
+    37 00000000 68[0C000000]                    push dword mesaj1
+    38 00000005 FF15[00000000]                  call [printf]
+    39 0000000B 83C404                          add esp,4*1
+    40                                          
+    41                                          ;scanf
+    42 0000000E 68[04000000]                    push dword temp_a
+    43 00000013 68[2C000000]                    push dword format
+    44 00000018 FF15[00000000]                  call [scanf]
+    45 0000001E 83C408                          add esp,4*2
+    46                                          
+    47                                          ;printf
+    48 00000021 68[11000000]                    push dword mesaj2
+    49 00000026 FF15[00000000]                  call [printf]
+    50 0000002C 83C404                          add esp,4*1
+    51                                          
+    52                                          ;scanf
+    53 0000002F 68[08000000]                    push dword temp_b
+    54 00000034 68[2C000000]                    push dword format
+    55 00000039 FF15[00000000]                  call [scanf]
+    56 0000003F 83C408                          add esp,4*2
+    57                                          
+    58 00000042 A1[04000000]                    mov eax,[temp_a]
+    59 00000047 66A3[00000000]                  mov [a],ax
+    60                                          
+    61 0000004D A1[08000000]                    mov eax,[temp_b]
+    62 00000052 66A3[02000000]                  mov [b],ax
+    63                                          
+    64                                          ;a/b
+    65                                          
+    66 00000058 66A1[00000000]                  mov ax,[a]
+    67 0000005E 6699                            cwd ; dx:ax = a cu semn
+    68 00000060 66F73D[02000000]                idiv word [b] ; ax = dx:ax / b dx = dx:ax % b
+    69                                          
+    70 00000067 0FBFC0                          movsx eax,ax
+    71 0000006A 0FBFD2                          movsx  edx,dx
+    72                                          
+    73 0000006D A3[2F000000]                    mov [cat],eax
+    74 00000072 8915[33000000]                  mov [rest1],edx
+    75                                          
+    76                                          ;afisare mesaj final
+    77 00000078 FF35[33000000]                  push dword [rest1]
+    78 0000007E FF35[2F000000]                  push dword [cat]
+    79 00000084 68[16000000]                    push dword mesaj3
+    80 00000089 FF15[00000000]                  call [printf]
+    81 0000008F 83C40C                          add esp,4*3
+    82                                          
+    83                                          
+    84                                          
+    85                                          ; exit(0)
+    86 00000092 6A00                            push    dword 0      ; push the parameter for exit onto the stack
+    87 00000094 FF15[00000000]                  call    [exit]       ; call exit to terminate the program
