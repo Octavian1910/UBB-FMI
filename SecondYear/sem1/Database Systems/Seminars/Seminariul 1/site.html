@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>SQL DDL Trainer - Seminar 1</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e2e;
+            color: #cdd6f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #181825;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            max-width: 750px;
+            width: 100%;
+        }
+        h1 {
+            color: #89b4fa;
+            margin-top: 0;
+            font-size: 24px;
+            text-align: center;
+        }
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #a6adc8;
+            border-bottom: 1px solid #313244;
+            padding-bottom: 10px;
+        }
+        .task-card {
+            background-color: #313244;
+            padding: 18px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            border-left: 5px solid #89b4fa;
+        }
+        .task-desc {
+            font-size: 17px;
+            line-height: 1.5;
+            color: #f5e0dc;
+        }
+        .hint-text {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #bac2de;
+            font-style: italic;
+        }
+        textarea {
+            width: 100%;
+            height: 90px;
+            background-color: #11111b;
+            color: #a6e3a1;
+            font-family: 'Consolas', 'Courier New', Courier, monospace;
+            font-size: 15px;
+            border: 2px solid #45475a;
+            border-radius: 6px;
+            padding: 12px;
+            box-sizing: border-box;
+            resize: vertical;
+            outline: none;
+        }
+        textarea:focus {
+            border-color: #89b4fa;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-check {
+            background-color: #a6e3a1;
+            color: #11111b;
+        }
+        .btn-check:hover {
+            background-color: #94e2d5;
+        }
+        .btn-show {
+            background-color: #fab387;
+            color: #11111b;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+        .feedback.success {
+            background-color: rgba(166, 227, 161, 0.2);
+            color: #a6e3a1;
+            border: 1px solid #a6e3a1;
+        }
+        .feedback.error {
+            background-color: rgba(243, 139, 168, 0.2);
+            color: #f38ba8;
+            border: 1px solid #f38ba8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SQL DDL Drill Arena</h1>
+    
+    <div class="score-board">
+        <span id="progress">Misiunea: 1 / 10</span>
+        <span id="streak">Scor / Serie: 0 corecte la rând</span>
+    </div>
+
+    <div class="task-card">
+        <div class="task-desc" id="task-title">Se încarcă cerința...</div>
+        <div class="hint-text" id="task-hint"></div>
+    </div>
+
+    <textarea id="sql-input" placeholder="Scrie comanda SQL aici..." spellcheck="false"></textarea>
+
+    <div class="btn-group">
+        <button class="btn-check" onclick="checkAnswer()">Verifică (Enter)</button>
+        <button class="btn-show" onclick="giveUp()">Arată soluția</button>
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+</div>
+
+<script>
+const challenges = [
+    {
+        title: "Redenumește coloana 'nume' în 'nume_s' din tabelul 'Sectiuni'.",
+        hint: "Format: EXEC sp_rename 'Tabel.ColoanaVeche', 'ColoanaNoua', 'COLUMN';",
+        expected: ["EXEC sp_rename 'Sectiuni.nume', 'nume_s', 'COLUMN'"]
+    },
+    {
+        title: "Adaugă o coloană nouă numită 'data_notare' de tip 'DATETIME' în tabelul 'Note'.",
+        hint: "Format: ALTER TABLE Tabel ADD NumeColoana TipDate;",
+        expected: ["ALTER TABLE Note ADD data_notare DATETIME"]
+    },
+    {
+        title: "Adaugă o constrângere DEFAULT numită 'df_data_notare' pe coloana 'data_notare' din tabelul 'Note', cu valoarea implicită GETDATE().",
+        hint: "Format: ALTER TABLE Tabel ADD CONSTRAINT NumeConstrangere DEFAULT Valoare FOR NumeColoana;",
+        expected: ["ALTER TABLE Note ADD CONSTRAINT df_data_notare DEFAULT GETDATE() FOR data_notare"]
+    },
+    {
+        title: "Modifică tipul de date al coloanei 'nume_a' din tabelul 'Atractii' la 'VARCHAR(150)'.",
+        hint: "Format: ALTER TABLE Tabel ALTER COLUMN NumeColoana TipNou;",
+        expected: ["ALTER TABLE Atractii ALTER COLUMN nume_a VARCHAR(150)"]
+    },
+    {
+        title: "Adaugă o constrângere UNIQUE numită 'uq_email' pe coloana 'email' din tabelul 'Vizitatori'.",
+        hint: "Format: ALTER TABLE Tabel ADD CONSTRAINT NumeConstrangere UNIQUE (Coloana);",
+        expected: ["ALTER TABLE Vizitatori ADD CONSTRAINT uq_email UNIQUE (email)"]
+    },
+    {
+        title: "Adaugă o constrângere CHECK numită 'ck_nota' pe coloana 'nota' din 'Note', astfel încât nota să fie între 1 și 10.",
+        hint: "Format: ALTER TABLE Tabel ADD CONSTRAINT NumeConstrangere CHECK (conditie);",
+        expected: [
+            "ALTER TABLE Note ADD CONSTRAINT ck_nota CHECK (nota >= 1 AND nota <= 10)",
+            "ALTER TABLE Note ADD CONSTRAINT ck_nota CHECK (nota BETWEEN 1 AND 10)"
+        ]
+    },
+    {
+        title: "Elimină (șterge) constrângerea DEFAULT numită 'df_data_notare' din tabelul 'Note'.",
+        hint: "Format: ALTER TABLE Tabel DROP CONSTRAINT NumeConstrangere;",
+        expected: ["ALTER TABLE Note DROP CONSTRAINT df_data_notare"]
+    },
+    {
+        title: "Elimină (șterge) coloana 'data_notare' din tabelul 'Note'.",
+        hint: "Format: ALTER TABLE Tabel DROP COLUMN NumeColoana;",
+        expected: ["ALTER TABLE Note DROP COLUMN data_notare"]
+    },
+    {
+        title: "Șterge complet tabelul 'Note' din baza de date.",
+        hint: "Format: DROP TABLE NumeTabel;",
+        expected: ["DROP TABLE Note"]
+    },
+    {
+        title: "Redenumește baza de date 'ParcDistractii' în 'AventuraPark'.",
+        hint: "Format: ALTER DATABASE NumeBaza MODIFY Name = NumeNou;",
+        expected: ["ALTER DATABASE ParcDistractii MODIFY Name = AventuraPark"]
+    }
+];
+
+let currentIndex = 0;
+let streak = 0;
+
+function cleanSql(text) {
+    return text
+        .replace(/;/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+}
+
+function loadTask() {
+    const task = challenges[currentIndex];
+    document.getElementById('task-title').innerText = task.title;
+    document.getElementById('task-hint').innerText = task.hint;
+    document.getElementById('sql-input').value = "";
+    document.getElementById('feedback').style.display = "none";
+    document.getElementById('progress').innerText = `Misiunea: ${currentIndex + 1} / ${challenges.length}`;
+    document.getElementById('streak').innerText = `Scor / Serie: ${streak} corecte la rând`;
+    document.getElementById('sql-input').focus();
+}
+
+function checkAnswer() {
+    const input = document.getElementById('sql-input').value;
+    const cleanedInput = cleanSql(input);
+    const task = challenges[currentIndex];
+    const feedbackBox = document.getElementById('feedback');
+
+    const isMatch = task.expected.some(exp => cleanSql(exp) === cleanedInput);
+
+    if (isMatch) {
+        streak++;
+        feedbackBox.className = "feedback success";
+        feedbackBox.innerText = "CORECT! Tastează în continuare!";
+        feedbackBox.style.display = "block";
+        setTimeout(() => {
+            currentIndex = (currentIndex + 1) % challenges.length;
+            loadTask();
+        }, 800);
+    } else {
+        streak = 0;
+        feedbackBox.className = "feedback error";
+        feedbackBox.innerText = "Nu este exact. Recitește structura din indiciu și încearcă din nou.";
+        feedbackBox.style.display = "block";
+        document.getElementById('streak').innerText = `Scor / Serie: ${streak} corecte la rând`;
+    }
+}
+
+function giveUp() {
+    const task = challenges[currentIndex];
+    const feedbackBox = document.getElementById('feedback');
+    streak = 0;
+    feedbackBox.className = "feedback error";
+    feedbackBox.innerText = "Soluție model:\n" + task.expected[0] + ";";
+    feedbackBox.style.display = "block";
+    document.getElementById('streak').innerText = `Scor / Serie: ${streak} corecte la rând`;
+}
+
+document.getElementById('sql-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        checkAnswer();
+    }
+});
+
+loadTask();
+</script>
+
+</body>
+</html>

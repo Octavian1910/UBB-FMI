@@ -1,0 +1,14 @@
+public class MultiplyOperation implements Operation {
+    @Override
+    public Complex execute(Complex first, Complex second) {
+        double a = first.getReal();
+        double b = first.getImaginary();
+        double c = second.getReal();
+        double d = second.getImaginary();
+
+        double real = a * c - b * d;a
+        double imaginary = a * d + b * c;
+
+        return new Complex(real, imaginary);
+    }
+}

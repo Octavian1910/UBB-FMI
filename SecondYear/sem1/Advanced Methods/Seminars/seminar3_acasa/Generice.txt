@@ -1,0 +1,43 @@
+Generice
+public class Shape<T>
+{
+
+}
+
+-circle
+-rectangle
+
+Shape<Circle> s1;
+Shape<Rectangle> s2;
+
+type safety -> compilatorul permite strict circle si rectangle
+
+List<Circle>
+List<Move>
+
+Genericele functioneaza doar cu referinte nu merg cu primitive 
+
+wrapper classes
+int Integer 
+short Short
+float Float
+double Double
+boolean Boolean
+int a = 10
+Integer b = new ...
+b = a;
+boxing sau autoboxing (inglobam primitiva in clasa wrapper echivalenta)
+daca facem 
+a = b atunci se numeste unboxing
+
+Java collection framework
+
+
+Colections sort(set) -> daca ii dau tipul din set trb sa implementeze comparable
+sau
+Collection.sort(set) si  definesc  un comparat
+
+
+Inner classes
+
+

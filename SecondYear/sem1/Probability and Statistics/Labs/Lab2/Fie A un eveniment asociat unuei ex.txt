@@ -1,0 +1,4 @@
+Fie A un eveniment asociat unuei expriente si Km(A) nr de realizari ale evenimentului A in  n repetari ale experimentului atunci Fn(A) = kn(A)/n sn frecventa relativa
+
+lim n->inf  Fn(A) = p ; p = prob teoretica adica nr caz fav aparitiei lui A / nr caz pos 
+frecventa absoluta este de cate ori a aparut concret 
