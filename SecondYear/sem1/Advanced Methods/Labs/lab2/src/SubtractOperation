@@ -1,8 +1,0 @@
-public class SubtractOperation implements Operation {
-    @Override
-    public Complex execute(Complex first, Complex second) {
-        double real = first.getReal() - second.getReal();
-        double imaginary = first.getImaginary() - second.getImaginary();
-        return new Complex(real, imaginary);
-    }
-}

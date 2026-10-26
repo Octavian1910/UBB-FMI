@@ -106,7 +106,9 @@ CREATE TABLE Echipament (
     marca VARCHAR(50) NOT NULL,
     data_achizitie DATE NOT NULL,
     stare VARCHAR(20) NOT NULL,
-    CONSTRAINT FK_Echipament_Zona FOREIGN KEY (id_zona) REFERENCES Zona(id_zona)
+    CONSTRAINT FK_Echipament_Zona
+    FOREIGN KEY (id_zona) REFERENCES Zona(id_zona),
+    CONSTRAINT CK_Echipament_Status CHECK (stare IN ('Functional', 'Defect'))
 );
 
 CREATE TABLE Mentenanta_Echipament (
@@ -118,3 +120,5 @@ CREATE TABLE Mentenanta_Echipament (
     CONSTRAINT FK_Mentenanta_Echipament FOREIGN KEY (id_echipament) REFERENCES Echipament(id_echipament),
     CONSTRAINT CK_Mentenanta_Cost CHECK (cost >= 0)
 );
+
+

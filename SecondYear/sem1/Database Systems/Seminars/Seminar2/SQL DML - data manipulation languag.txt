@@ -1,0 +1,30 @@
+SQL DML - data manipulation language
+
+SQL DML - limbaj de manipulare a datelor
+
+Comenzi pentri:
+-adaugarea datelor
+-citirea datelor
+-actualizarea datelor
+-stergerea datelor
+
+
+Operatii CRUD:
+C
+R
+U
+D
+
+TIPURI de date -string
+pt ascii:
+CHAR
+VARCHAR
+ex: 'Cluj'
+
+NCHAR
+NVARCHAR
+EX: N'Cluj'
+
+Date calendaristice
+DATE 			TIME
+ex: '2000-11-23'	'10:12:13'

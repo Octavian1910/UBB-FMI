@@ -45,3 +45,64 @@ CREATE TABLE Note
 	nota DECIMAL(4,2),
 	CONSTRAINT ck_nota CHECK (nota >= 1 AND nota <= 10)
 )
+
+
+INSERT INTO Categorii(nume_c)
+VALUES
+('copii'),
+('adulti'),
+('pensionari'),
+('studenti'),
+('angajati'),
+('turisti'),
+('familii')
+
+
+SELECT *
+FROM Categorii
+
+INSERT INTO Vizitatori(nume_v,email,id_c)
+VALUES
+('Stefania','stefania@email.com',4),
+('Octavian','octavian@email.com',1),
+('George','george@email.com',2),
+('Bobita','bobita@email.com',3),
+('Ovidiu','ovidiu@email.com',5),
+('Tavi','tavi@email.com',6),
+('Ana','ana@email.com',7)
+
+SELECT *
+FROM Vizitatori
+
+INSERT INTO Sectiuni(nume_s,descriere)
+VALUES
+('Copii','Loc de joaca pt copii'),
+('Horror','Loc horror'),
+('Nature','Loc in aer liber'),
+('Acvatica','Loc cu pesti'),
+('Parkour','Loc pt parkour'),
+('Pool','Loc cu piscina'),
+('Fotbal','Loc de fotbal')
+
+SELECT *
+FROM Sectiuni
+
+INSERT INTO Atractii (nume_a,descriere,varsta_minima,id_s)
+VALUES
+('Castel','un castel magic','3',1),
+('Turn','un castel magic','12',2),
+('Carusel','un castel magic','4',3),
+('Tobogan acvatic','un castel magic','1',4),
+('Roata panoramica','un castel magic','2',5),
+('Caleasca','un castel magic','19',6),
+('Trenulet','un castel magic','13',7)
+
+INSERT INTO Note(id_v,id_a,nota)
+VALUES
+(1,2,10),
+(2,2,4),
+(3,1,7),
+(4,3,8),
+(5,4,9),
+(6,5,6),
+(7,5,2);

@@ -51,19 +51,20 @@ public class Tests {
         assert ComplexParser.parse("abc") == null;
         assert ComplexParser.parse("5+5") == null; // lipseste i
         assert ComplexParser.parse("") == null;
+        assert ComplexParser.parse("+3*i") == null;
     }
 
     private static void testValidation() {
-        // Corect: 2+3*i + 5-6*i + -2+i
+        // Corect 2+3*i + 5-6*i + -2+i
         assert ExpressionParser.isValidExpression(new String[]{"2+3*i", "+", "5-6*i", "+", "-2+i"});
 
-        // Gresit: lungime para (lipseste un operand)
+        // Gresit lungime para (lipseste un operand)
         assert !ExpressionParser.isValidExpression(new String[]{"2+3*i", "+"});
 
-        // Gresit: operatori diferiti (+ si *)
+        // Gresit operatori diferiti (+ si *)
         assert !ExpressionParser.isValidExpression(new String[]{"2+3*i", "+", "5-6*i", "*", "-2+i"});
 
-        // Gresit: operator necunoscut
+        // Gresit operator necunoscut
         assert !ExpressionParser.isValidExpression(new String[]{"2+3*i", "^", "5-6*i"});
     }
 

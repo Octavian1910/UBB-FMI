@@ -1,4 +1,8 @@
-package PACKAGE_NAME;
+public class Cutie<T> {
+    private T type;
 
-public class Cutie {
+    public void seteaza(T type){
+        this.type = type;
+    }
+
 }

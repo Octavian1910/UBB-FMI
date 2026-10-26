@@ -1,4 +1,6 @@
 ### IntelliJ IDEA ###
+.idea/
+*.iml
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
@@ -28,3 +30,16 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Test generated files (Lab MAP) ###
+test_users.txt
+test_friendships.txt
+test_user_service.txt
+test_friendship_users.txt
+test_friendship_service.txt
+test_network_users.txt
+test_network_friendships.txt
+invalid_users.txt
+invalid_friendships.txt
+fisier_inexistent_test.txt
+*.tmp

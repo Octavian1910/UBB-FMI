@@ -1,0 +1,626 @@
+========================================
+Prolog
+Programare iperativa di declarativa
+========================================
+
+
+imperativ este c sau java ii spunem calculatorului CUM sa rezolve problema
+prolog este declarativ descriem ce  relatii sunt adevarate sau ce rezultatu cautam iar sistemul cauta solutia
+
+in prolog avem fapte si reguli
+
+
+========================================
+Recursivitatea 
+========================================
+
+Avem :
+1)caz de baza
+2)caz recursiv
+
+Bazele limbajului Prolog:
+
+1)Fapte reguli si intrebari
+
+fapte(predicate): informatii pe care le consideram adevarate
+parinte(maria,ion) maria e parintele lui ion
+parinte(ion,ana)
+parinte(maria,george)
+
+
+reguli: relatii pe care le deducem din alte relatii
+bunica(X,Y) :-
+          	parinte(X,Z),   x e bunica lui Y daca X e parintele lui Z
+		parinte(Z,Y).  Z e parintele lui Y
+
+
+intrebari(goaluri): ceea ce ii cerem lui Prolog sa verifice
+?- parinte(maria,ion).  => true. deoarece avem asta in fapte
+?- parinte(ion,aria). => false. 
+
+
+
+========================================
+2)Variabilele: diferenta dintre maria si X
+========================================
+
+constantele incep cu litere mici
+variabilele incep cu liteere mari
+
+
+Sa presupunem ca avem faptele de mai sus si intrebam :
+
+?- parinte(maria, X).  => X = ion ;
+			  X = george.
+
+	; punct si virgula cer urmatoarea solutie
+	Variabila X nu este o variabila in care atribui valori permanent ca in Java.Prolog o leaga temporar de o valoarea pentru a gasi o solutie.
+
+
+Exercitu :
+Avem urmatoarele fapte : 
+student(ana).
+student(mihai).
+student(ion).
+
+promovat(ana).
+promovat(ion).
+
+Goaluri:
+?- student(mihai) => true.
+?- promovat(X). => X = ana;
+		   X = ion.
+
+
+
+
+d) Scrie o regulă reusit(X) care este adevărată dacă X este student și a promovat.
+
+Indiciu: folosește :- și două predicate separate prin virgulă.
+
+
+reusit(X) :-
+    student(X),
+    promovat(X).
+
+========================================
+Unificarea si operatii de baza:
+========================================
+
+
+Unificarea (=) incearca sa faca 2 termeni compatibili legand variabilele libere daca este posibil
+
+?- X = ana.
+Rezultat : 
+ X = ana.
+
+dar si :
+?- persoana(X) = persoana(ana).   => X = ana.
+
+Structurile trebuie sa aiba acelasi nume si aceeas iaritate (acelasi numar de argumente) , iar argumentele trb sa se poate unifica
+
+In prolog = NU ESTE operatorul de atribuire din Java
+
+========================================
+Operatori 
+========================================
+
+=   incearca unificarea a 2  termeni
+\= reuseste daca termenii nu se pot unifica
+is  evalueaza o expresie aritmetica si leaga rezultatul
+=:= compara valorile numerice dupa evaluare
+== verifica daca doi termeni sunt deja identici , fara sa lege variabilele
+
+Explicatie mai clara:
+student(ana).
+student(mihai).
+
+?- student(ana). => true
+?- student(ion). => false
+
+
+Operatorul =   se pot potrivi?
+?- X = ana.   Prolog pune ana in spatiul gol din X 
+?- ana = ana. => true.
+?- ana = ion. => false.    = nu calcuelaz aexpresii matematice si nu functioneaza ca atribuirea din Java; ea incearca sa faca termenii compatibili
+
+Operatorul \= este opusul lui = adica opusul intrebarii se pot potrivi?
+?- ana \= ion. => true. fiindca ana si ion nu se por potrivi
+?- ana \= ana. => false. fiindca cei doi termeni se pot potrivi
+?- X \= ana.   => false deoarece X ar putea fi legata de ana , deci termenii se pot unifica
+
+Operatorul is - calculeaza
+?- X is 2 + 3.	=> prolog calculeaza 2 + 3 = 5 deci leaga X de 5
+?- X = 2 + 3. aici expresia primeste X = 2 + 3. NU 5
+
+Operatorii =:= si == acestia raspund la intrebari diferite
+?= 2 + 3 =:= 5. => true. deoarece =:= calculeaza ambele parti si compara rezultatele
+?= 2 + 3 = 5.   => false.  
+
+
+Ex:
+
+?- X = 2.  => X = 2.
+?- 2 = 3.  => false.
+?- 2 is 1 + 1. => true.
+?- 2 =:= 1 + 1. => true.
+?- 2 \= 3. => true.
+?- 2 == 2. => true.
+
+========================================
+CAPCANA CEA MAI IMPORTANTA IS VS =:=
+========================================
+
+is calculeaza expresia din dreapta
+
+?- X is 2 + 3.    => X = 5
+
+In schimb 
+?- X = 2 + 3.    => X = 2+3.
+Aici = nu calculeaza nimic. El leaga X de structura 2+3
+
+IAR : 
+?- 2 + 3 =:= 5.   => true.
+
+ATENTIE =:= EVALUEAZA ambele pparti si compara valorile numerice
+
+========================================
+LISTE SI RECURSIVITATE IN PROLOG
+========================================
+
+
+1) CUM REPREZENTAM O LISTA?
+
+[10,20,30]   o lista poate sa fie impartita in :
+						1) H - head primul element
+						2) T - tail,lista ramasa
+[H | T]
+de ex daca potrivim [10,20,30] cu [H|T] avem:
+H = 10,
+T = [20,30].
+
+iar pt o lista cu un singur elem gen [10] avem:
+H = 10,
+T = []. Lista vida nu are nici cap nici coada
+
+
+========================================
+2)Modelul standard al recursivitatii pe liste
+========================================
+
+
+De obicei, scriem 2 clauze:
+
+prredicat([],...)   	% cazul de baza
+
+predicat([H|T],...) :-
+	...,
+	predicat(T,...).	%cazul recursiv
+
+1)cand lista e vida ne oprim
+2)cand lista nue vida prelucram primul element
+3)apelam predicatul pe lista ramasa,mai mica
+
+Exemplu: verificam daca un element exista intr o lista
+
+predicatul membru
+
+membru(X,[X|_]).
+membru(X,[_|T]):-
+	membru(X,T).
+
+_ inseamna o variabila anonima: nu ne intereseaza valoarea respectiva
+Prima regula spune : X este in lista daca este chiar primul element
+A doua spune : daca nu am gasit elementul in prima pozitie , il cautam in coada
+
+ex: 
+>- membru(3,[1,2,3]). => true.
+
+
+Mai clar:
+
+membru(X, [X|_]).
+membru(X, [_|T]) :-     inseamna ca ignoram primul element (_) si pastram restul in T
+    membru(X, T).	verificam daca X apartine in lista ramasa
+
+
+Prima regula: am gasit elementul : membru(X, [X|_]).
+In romana : X este membru al listei daca X e chiar primul ei element
+de ex ?- membru(2,[2,5,8]).  => true deoarece face membru(2, [2|_]).
+Observam ca _ inseamna ca nu ne intereseaza elementele ce vin dupa primul element
+
+A doua regula: cautam mai departe
+membru(X, [_|T]) :-	
+	membru(X,T).
+Traducere : X este membru al listei daca este membru al cozii ei
+
+membru(X, [_|T]) Înseamnă că verificăm dacă X este membru al unei liste al cărei prim element nu ne interesează (_), iar restul listei este T.
+
+:-  Se citește „dacă”.
+
+membru(X, T) Înseamnă că X este membru al listei inițiale dacă este membru al cozii T.
+
+
+
+Traducerea întregii reguli:
+
+„X este în listă dacă X este în restul listei, după ce ignorăm primul element.”
+
+
+Alt ex:
+
+Exercițiu: lungime(L, N)
+Vrem ca interogarea:
+?- lungime([10, 20, 30], N).
+
+
+să returneze N = 3.
+
+lungime([],0).
+lungime([_|T],N) :-
+lungime(T,N1),   //calculeaza lungimea cozii
+N is N1 + 1     //adauga elementul pe care l am ignorat
+
+
+„Dacă lista are un prim element și o coadă, vreau să calculez lungimea ei și să o pun în N.”
+
+Dar încă nu am calculat lungimea. Asta facem în liniile următoare.
+
+========================================
+Următorul exercițiu
+Acum hai să vedem dacă poți aplica aceeași logică.
+
+Scrie un predicat suma(L, S) care calculează suma elementelor unei liste.
+========================================
+
+suma([],0).
+suma([X|T],S) :-
+suma(T,S1),
+S is S1 + X.
+
+========================================
+Numara nr pare dintr o lista
+========================================
+
+VARIANTA 1
+numara_pare([],0).
+numara_pare([X|T],N) :-
+numara_pare(T,N1),
+N is N1 + ((X % 2) + 1) % 2.
+
+VARIANTA 2 cu 2 cazuri:
+
+numara_pare([],0).
+
+numara_pare([X|T], N) :-
+X mod 2 =:= 0,
+numara_pare(T,N1),
+N is N1 + 1.
+
+numara_pare([X|T],N) :-
+X mod 2 =\= 0,
+numara_pare(T,N1),
+N is N1 + 0.
+
+
+========================================
+findall/3
+========================================
+
+de ex avem  faptele :
+1)
+student(ana).
+student(mihai).
+student(ion).
+
+?- student(X).
+
+=> X = ana;
+   X = mihai;
+   X = ion.
+
+
+?- findall(X,student(X),Lista).   => Lista = [ana, mihai, ion].
+Tradus : 
+X — valoarea pe care vrem să o colectăm;
+student(X) — condiția pe care trebuie să o îndeplinească valorile;
+Lista — lista în care punem toate soluțiile găsite.
+
+2)
+nota(ana, 9).
+nota(mihai, 7).
+nota(ion, 10).
+nota(maria, 8).
+
+Vrem să obținem o listă cu toate notele.
+
+?- findall(Y, nota(X,Y), Note).
+
+Vrem să obținem o listă cu toate numele studentilor.
+
+?- findall(X, nota(X,Y), Note).
+
+
+==========================================================
+  PREDICAT DETERMINIST SI PREDICAT NEDETERMINIST
+==========================================================
+
+ Un predicat determinist produce o singura solutie.
+ Un predicat nedeterminist produce mai multe solutii.
+
+========================================
+backtracking
+========================================
+Prolog încearcă o regulă, iar dacă îi ceri o altă soluție, 
+se întoarce la punctele unde mai există alternative și încearcă următoarea posibilitate.
+ Acest mecanism se numește backtracking.
+
+De exemplu:
+culoare(rosu).
+culoare(albastru).
+culoare(verde).
+
+La interogarea ?- culoare(X)., Prolog găsește rosu, apoi poate găsi albastru și verde.
+
+========================================
+ CE FACE OPERATORUL !  numit cut
+========================================
+
+
+Operatorul !, numit cut, îi spune lui Prolog să nu mai revină asupra anumitor alegeri făcute înainte de acel punct, în cadrul regulii curente.
+
+
+culoare(rosu).
+culoare(albastru).
+culoare(verde).
+
+?- culoare(X) . => primele 3 culori
+
+DAR :
+prima_culoare(X) :-
+    culoare(X),
+	!
+
+
+?- prima_culoare(X). da doar prima
+
+
+Atenție: ! nu oprește întregul program și nici nu elimină orice posibilitate de backtracking de oriunde; efectul său depinde de poziția în care apare.
+
+
+
+numar(1).
+numar(2).
+numar(3).
+
+test(X) :-
+    numar(X),
+    X > 1,
+    !.
+
+
+=> 2
+
+
+test(X) :-
+    numar(X),
+    !,
+    X > 1.
+
+=> false
+
+
+test(X) :-
+    numar(X),
+    !,
+    X > 0.  	=>  X = 1.
+
+
+========================================
+CE FACE FAIL
+========================================
+În Prolog, fail înseamnă pur și simplu eșec garantat. Nu poate reuși niciodată.
+
+Dar partea interesantă este că, atunci când apare fail, Prolog încearcă să găsească alte soluții prin backtracking.
+
+Ex:
+
+predicat(a, b).
+predicat(c, d).
+predicat(e, f).
+
+toate :-
+    predicat(X, Y),
+    write(X),
+    write(Y),
+    nl,			%nl afiseaza newline
+    fail.
+
+
+>- toate.
+
+prolog afiseaza :
+ab
+cd
+ef
+false
+
+DE CE?
+1
+Găsește prima soluție
+predicat(X,Y) găsește X = a, Y = b. Programul afișează ab.
+2
+Ajunge la fail
+Eșuează intenționat. Prolog revine la predicat(X,Y) ca să caute o altă soluție.
+
+3
+Repetă procesul
+Găsește (c,d), afișează cd, apoi găsește (e,f) și afișează ef. De fiecare dată, fail provoacă o nouă întoarcere.
+4
+Nu mai există soluții
+
+După ultima soluție, Prolog nu mai are unde să revină. Interogarea se termină cu false.
+
+
+Ideea esențială: fail nu înseamnă „oprește programul”. El forțează eșecul și declanșează backtracking-ul, astfel încât Prolog să caute următoarele soluții.
+
+
+========================================
+CONCATENARE  (unirea a 2 a liste)
+========================================
+
+concatenare([],L,L).			//daca prima lista e goala rezultatul este a 2 a lista
+
+concatenare([H|T],L2,[H|R]) :-        // pastram H in rezultat si concatenam recursiv restul listei
+ concatenare(T,L2,R).
+
+
+
+========================================
+SUBMULTIMEA UNEI LISTE
+========================================
+
+subm([],[]).
+subm([_|T],S):-			//eliminam primul element
+subm(T,S).
+subm([H|T],[H|S]) :-		// pastram primul element
+subm(T, S).
+
+ex.
+?- subm([],S).
+S = [].
+aici este punctul cand recursia se termina
+
+========================================
+Ce inseamna \+
+========================================
+În Prolog, \+ Scop reușește dacă Prolog nu poate demonstra că scopul este adevărat. Se mai numește negare prin eșec.
+Ex:
+
+student(ana).
+student(mihai).
+
+?- student(ana).
+Reușește, deoarece faptul există.
+
+dar 
+
+?- \+ student(ana).
+Eșuează, deoarece Prolog găsește student(ana).
+
+?- \+ student(ion).
+Reușește, deoarece Prolog nu găsește niciun fapt care să demonstreze student(ion).
+
+========================================
+PREDICATE PREDEFINITE IMPORTANTE
+========================================
+
+Predicat	Ce verifică
+var(X)		X este încă liberă?
+number(X)	X este un număr?
+integer(X)	X este număr întreg?
+float(X)	X este număr real?
+atom(X)		X este atom?	Un atom este un nume sau un simbol folosit ca valoare în Prolog. De obicei, începe cu literă mică.
+atomic(X)	X este atom sau număr?
+
+
+Ex:
+?- number(25).
+true.
+
+?- integer(3.5).
+false.
+
+?- var(X).
+true.
+
+?- X = ana, var(X).
+false.
+
+student(ana).  aici ana este un atom , iar student este numele predicatului
+
+
+În ultimul exemplu, X = ana leagă variabila X. De aceea, var(X) eșuează.
+
+========================================
+FACTORIALUL
+========================================
+Factorialul este important pentru a exersa recursivitatea.
+
+fact(0, 1).
+
+fact(N, F) :-
+    N > 0,
+    N1 is N - 1,
+    fact(N1, F1),
+    F is N * F1.
+
+!!!În Prolog, un predicat poate avea mai multe clauze care se potrivesc cu același apel. Dacă prima clauză reușește, Prolog poate totuși să caute soluții alternative dacă i se cere să continue, de exemplu prin ;.
+
+!!!Pentru fact(0, 1)., există și clauza recursivă. Fără N > 0, Prolog ar putea încerca și acea clauză pentru N = 0, calcula N1 = -1 și continua recursiv.
+
+
+========================================
+Modele de flux
+========================================
+
+
+Un model de flux descrie dacă un argument este furnizat ca intrare sau trebuie determinat ca ieșire.
+- i = input — valoarea este cunoscută când apelăm predicatul.
+- o = output — vrem ca Prolog să determine valoarea.
+
+ex:
+lungime([], 0).
+lungime([_|T], N) :-
+    lungime(T, N1),
+    N is N1 + 1.
+
+Modul (i,o)
+Dăm lista, cerem lungimea
+
+?- lungime([10,20,30], N).
+N = 3.
+
+Lista este cunoscută (i), iar lungimea este calculată (o).
+
+Modul (i,i)
+Dăm lista și lungimea, verificăm dacă se potrivesc
+?- lungime([10,20,30], 3).
+true.
+
+Ambele argumente sunt cunoscute, iar Prolog verifică dacă lungimea este într-adevăr 3.
+
+
+Nu orice predicat funcționează automat în orice mod de flux. De exemplu, N is N1 + 1 are nevoie ca N1 să fie deja numeric când se execută.
+
+
+În cursul 2, exemplul este factorial(N,F):
+Model	Ce înseamnă
+(i,o)	Cunoaștem N, calculăm F.
+(i,i)	Cunoaștem N și F, verificăm dacă (N! = F).
+(o,i)	Cunoaștem F și căutăm N pentru care N! = F.
+
+ex:
+fact(0, 1).
+fact(N, F) :-
+    N > 0,
+    N1 is N - 1,
+    fact(N1, F1),
+    F is N * F1.
+
+?- fact(3, F). — modul (i,o), calculăm factorialul lui 3.
+?- fact(3, 6). — modul (i,i), verificăm dacă factorialul lui 3 este 6.
+?- fact(N, 6). — încercăm modul (o,i), dar această implementare nu îl suportă corect: condiția N > 0 este executată când N este încă necunoscută.
+
+Asta este o idee importantă pentru examen: nu e suficient să identifici modelul de flux; trebuie să verifici și dacă predicatul a fost implementat pentru acel mod.
+Așadar, avem o diferență între:
+- ce vrem să aflăm matematic;
+- ce poate determina efectiv implementarea Prolog.
+
+
+De reținut pentru examen: același predicat poate verifica apartenența sau poate genera valori, în funcție de argumentele cunoscute.
+
+
+
+
+
