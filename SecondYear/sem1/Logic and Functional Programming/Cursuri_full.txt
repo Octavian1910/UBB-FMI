@@ -622,5 +622,71 @@ De reținut pentru examen: același predicat poate verifica apartenența sau poa
 
 
 
+========================================
+Nedeterminism și backtracking (Curs 5)
+========================================
+
+În Prolog, un predicat nedeterminist poate produce mai multe soluții pentru aceeași interogare. Prolog găsește o soluție, iar când apeși ;, încearcă să găsească următoarea soluție prin backtracking.
 
 
+
+========================================
+Combinari de K elemente
+========================================
+
+
+De exemplu, pentru lista [1,2,3] și K = 2, combinările sunt:
+- [1,2]
+- [1,3]
+- [2,3]
+
+
+comb([H|_],1,[H]).		//alegem un singur element ; Dacă vrem o combinare cu un singur element, putem alege primul element H. Restul listei nu ne interesează în această regulă.
+
+comb([_|T], K , C):-		// nu alegem H
+	comb(T,K,C).		//Ignorăm primul element și căutăm aceeași cantitate K în coada T.
+
+comb([H|T], K, [H|C]):-		//alegem H
+	K>1,
+	K1 is K -1,		//Îl punem pe H în rezultat și mai avem nevoie de K-1 elemente din coadă.
+	comb(T,K1,C).
+
+================================================================================
+Inserearea unui element pe toate pozitiile posibile
+================================================================================
+
+insereaza(E,L,[E|L]).   //Inserează elementul E la începutul listei.
+
+insereaza(E,[H|T],[H|Rez]) :- //Păstrează primul element H pe poziția sa și încearcă să insereze E în coada listei.
+	insereaza(E,T, Rez).
+
+
+?- insereaza(1, [2,3], L).
+
+L = [1,2,3] ;
+L = [2,1,3] ;
+L = [2,3,1] ;
+false.
+
+
+Obs:  insereaza(E,L,[E|L]).  aici L accepta orice lista chair si una goala []
+      insereaza(E, [H|T], [H|Rez]) :- aici [H|T] obliga sa fie cel putin un element de ex 7 => 7 si []
+
+
+========================================
+PERMUTARI
+========================================
+
+perm([],[]).	//permutarea listei goale este lista goala
+
+perm([E|T], P):-	// separa lista in primul element si restul
+	perm(T,L),	// genereaza o permutare a restului listei
+	insereaza(E, L, P).	//insereaza elementul E in fiecare pozitie posibila din acea permutare
+
+
+
+
+
+
+
+	

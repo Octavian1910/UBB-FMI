@@ -12,9 +12,10 @@ import service.NetworkService;
 import service.ServiceException;
 import service.UserService;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 
 public class Test {
@@ -22,6 +23,24 @@ public class Test {
     private static final String USERS_FILE = "test_users.txt";
     private static final String FRIENDSHIPS_FILE = "test_friendships.txt";
     private static final String CORRUPTED_USERS_FILE = "test_corrupted_users.txt";
+
+    @FunctionalInterface
+    interface Executable {
+        void execute() throws Exception;
+    }
+
+    private static <T extends Throwable> void assertThrows(Class<T> expectedType, Executable executable, String expectedMessagePart) {
+        try {
+            executable.execute();
+            assert false : "Expected exception: " + expectedType.getSimpleName();
+        } catch (Throwable actual) {
+            assert expectedType.isInstance(actual) : "Wrong exception type: " + actual.getClass();
+            if (expectedMessagePart != null) {
+                assert actual.getMessage() != null && actual.getMessage().contains(expectedMessagePart)
+                        : "Message does not contain: " + expectedMessagePart;
+            }
+        }
+    }
 
     public static void runAll() {
         testDomainAndValidators();
@@ -79,21 +98,10 @@ public class Test {
         UserValidator userVal = new UserValidator();
         userVal.validate(u1);
 
-        try {
-            userVal.validate(null);
-            assert false;
-        } catch (ValidationException e) {
-            assert e.getMessage().contains("null");
-        }
-
-        try {
-            userVal.validate(new User(-1, "ana", ""));
-            assert false;
-        } catch (ValidationException e) {
-            assert e.getMessage().contains("positive") &&
-                    e.getMessage().contains("uppercase") &&
-                    e.getMessage().contains("empty");
-        }
+        assertThrows(ValidationException.class, () -> userVal.validate(null), "null");
+        assertThrows(ValidationException.class, () -> userVal.validate(new User(-1, "ana", "")), "positive");
+        assertThrows(ValidationException.class, () -> userVal.validate(new User(-1, "ana", "")), "uppercase");
+        assertThrows(ValidationException.class, () -> userVal.validate(new User(-1, "ana", "")), "empty");
 
         FriendShip f1 = new FriendShip(1, 2);
         FriendShip f2 = new FriendShip(2, 1);
@@ -102,19 +110,8 @@ public class Test {
         FriendShipValidator fsVal = new FriendShipValidator();
         fsVal.validate(f1);
 
-        try {
-            fsVal.validate(new FriendShip(1, 1));
-            assert false;
-        } catch (ValidationException e) {
-            assert e.getMessage().contains("themselves");
-        }
-
-        try {
-            fsVal.validate(new FriendShip(-1, 0));
-            assert false;
-        } catch (ValidationException e) {
-            assert e.getMessage().contains("positive");
-        }
+        assertThrows(ValidationException.class, () -> fsVal.validate(new FriendShip(1, 1)), "themselves");
+        assertThrows(ValidationException.class, () -> fsVal.validate(new FriendShip(-1, 0)), "positive");
     }
 
     private static void testRepositories() {
@@ -124,26 +121,14 @@ public class Test {
         memRepo.add(new User(11, "Radu", "Iliescu"));
         assert memRepo.findAll().size() == 1 && memRepo.findById(11).isPresent();
 
-        try {
-            memRepo.add(new User(11, "Alt", "Nume"));
-            assert false;
-        } catch (RepositoryException e) {
-            assert e.getMessage().contains("already exists");
-        }
-
+        assertThrows(RepositoryException.class, () -> memRepo.add(new User(11, "Alt", "Nume")), "already exists");
         assert memRepo.remove(999).isEmpty();
         assert memRepo.remove(11).isPresent() && memRepo.findAll().isEmpty();
 
         UserFileRepository userRepo = new UserFileRepository(USERS_FILE);
         assert userRepo.findAll().size() == 10 && userRepo.findById(1).isPresent() && userRepo.findById(999).isEmpty();
 
-        try {
-            userRepo.add(new User(1, "Duplicat", "Nume"));
-            assert false;
-        } catch (RepositoryException e) {
-            assert e.getMessage().contains("already exists");
-        }
-
+        assertThrows(RepositoryException.class, () -> userRepo.add(new User(1, "Duplicat", "Nume")), "already exists");
         userRepo.add(new User(11, "Paul", "Enache"));
         assert userRepo.findAll().size() == 11;
 
@@ -151,13 +136,7 @@ public class Test {
         assert fsRepo.findAll().size() == 8;
         assert fsRepo.findById("2-1").isPresent() && fsRepo.findById("8-7").isPresent() && fsRepo.findById("10-1").isEmpty();
 
-        try {
-            fsRepo.add(new FriendShip(2, 1));
-            assert false;
-        } catch (RepositoryException e) {
-            assert e.getMessage().contains("already exists");
-        }
-
+        assertThrows(RepositoryException.class, () -> fsRepo.add(new FriendShip(2, 1)), "already exists");
         assert fsRepo.remove("999-1000").isEmpty();
         assert fsRepo.remove("10-9").isPresent() && fsRepo.findAll().size() == 7;
     }
@@ -183,37 +162,14 @@ public class Test {
         assert service.getAllUsers().size() == 10;
         assert service.findUserById(1).getFirstName().equals("Ana");
 
-        try {
-            service.findUserById(999);
-            assert false;
-        } catch (ServiceException e) {
-            assert e.getMessage().contains("does not exist");
-        }
-
-        try {
-            service.addUser(-1, "Ion", "Pop");
-            assert false;
-        } catch (ValidationException e) {
-            assert e.getMessage().contains("positive");
-        }
-
-        try {
-            service.addUser(1, "Alt", "Nume");
-            assert false;
-        } catch (RepositoryException e) {
-            assert e.getMessage().contains("already exists");
-        }
+        assertThrows(ServiceException.class, () -> service.findUserById(999), "does not exist");
+        assertThrows(ValidationException.class, () -> service.addUser(-1, "Ion", "Pop"), "positive");
+        assertThrows(RepositoryException.class, () -> service.addUser(1, "Alt", "Nume"), "already exists");
 
         service.addUser(11, "George", "Vasile");
         assert service.getAllUsers().size() == 11;
 
-        try {
-            service.removeUser(999);
-            assert false;
-        } catch (ServiceException e) {
-            assert e.getMessage().contains("cannot be deleted");
-        }
-
+        assertThrows(ServiceException.class, () -> service.removeUser(999), "cannot be deleted");
         service.removeUser(11);
         assert service.getAllUsers().size() == 10;
     }
@@ -230,33 +186,10 @@ public class Test {
         assert service.getAllFriendShips().size() == 8;
         assert service.getFriendIds(2).contains(1) && service.getFriendIds(2).contains(3);
 
-        try {
-            service.addFriendShip(1, 1);
-            assert false;
-        } catch (ValidationException e) {
-            assert e.getMessage().contains("themselves");
-        }
-
-        try {
-            service.addFriendShip(1, 999);
-            assert false;
-        } catch (ServiceException e) {
-            assert e.getMessage().contains("does not exist");
-        }
-
-        try {
-            service.addFriendShip(2, 1);
-            assert false;
-        } catch (RepositoryException e) {
-            assert e.getMessage().contains("already exists");
-        }
-
-        try {
-            service.removeFriendShip(1, 10);
-            assert false;
-        } catch (ServiceException e) {
-            assert e.getMessage().contains("does not exist");
-        }
+        assertThrows(ValidationException.class, () -> service.addFriendShip(1, 1), "themselves");
+        assertThrows(ServiceException.class, () -> service.addFriendShip(1, 999), "does not exist");
+        assertThrows(RepositoryException.class, () -> service.addFriendShip(2, 1), "already exists");
+        assertThrows(ServiceException.class, () -> service.removeFriendShip(1, 10), "does not exist");
 
         service.addFriendShip(1, 10);
         assert service.getAllFriendShips().size() == 9 && service.getFriendIds(1).contains(10);
@@ -288,22 +221,12 @@ public class Test {
         Set<Integer> comm3 = networkService.getCommunity(10);
         assert comm3.size() == 2 && comm3.contains(9) && comm3.contains(10);
 
-        try {
-            networkService.getCommunity(999);
-            assert false;
-        } catch (ServiceException e) {
-            assert e.getMessage().contains("does not exist");
-        }
+        assertThrows(ServiceException.class, () -> networkService.getCommunity(999), "does not exist");
 
         Set<Integer> mostSociable = networkService.getMostSociableCommunity();
         assert mostSociable.size() == 5 && mostSociable.contains(1) && mostSociable.contains(5);
 
-        try {
-            networkService.removeUserAndFriendships(999);
-            assert false;
-        } catch (ServiceException e) {
-            assert e.getMessage().contains("cannot be deleted");
-        }
+        assertThrows(ServiceException.class, () -> networkService.removeUserAndFriendships(999), "cannot be deleted");
 
         networkService.removeUserAndFriendships(3);
         assert userService.getAllUsers().size() == 9;
@@ -316,13 +239,10 @@ public class Test {
     }
 
     private static void writeFile(String path, String... lines) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-            for (String line : lines) {
-                writer.write(line);
-                writer.newLine();
-            }
+        try {
+            Files.write(Path.of(path), List.of(lines));
         } catch (IOException e) {
-            throw new RuntimeException("Eroare la scrierea fisierului: " + path, e);
+            throw new RuntimeException("Eroare la scriere: " + path, e);
         }
     }
 }

@@ -57,11 +57,8 @@ public class UserService {
      * @throws ServiceException if user was not found
      */
     public User findUserById(Integer id) {
-        Optional<User> user = repository.findById(id);
-        if (user.isEmpty()) {
-            throw new ServiceException("User with ID " + id + " does not exist!");
-        }
-        return user.get();
+        return repository.findById(id)
+                .orElseThrow( () -> new ServiceException("User with ID " + id + " does not exist!"));
     }
 
     /**

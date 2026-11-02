@@ -2,8 +2,11 @@ package repository;
 
 import domain.Entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Generic CRUD repository interface.
@@ -55,4 +58,18 @@ public interface Repository<ID, E extends Entity<ID>> {
      * @throws IllegalArgumentException if entity is null or entity.getId() is null
      */
     Optional<E> update(E entity);
+
+    /**
+     * Retrieves all entities that satisfy a given filter condition.
+     *
+     * @param filter predicate representing the condition to test entities against
+     * @return a list containing all matched entities
+     */
+    default List<E> findAll(Predicate<E> filter) {
+        return findAll().stream() //deschide fluxul peste colectia de entitati
+                .filter(filter) // metoda filter din Stream Api primeste un predicate si apeleaza in spate metoda filter.test(elem) pt fiecare elem
+                .toList(); //aduna rezultatele intr o lista noua si o returneaza
+    }
+
+    ;
 }

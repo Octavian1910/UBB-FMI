@@ -1,71 +1,40 @@
-DOCUMENTATIE PROIECT - LABORATOR 3 (Retea de socializare)
+Documentatie Lab - Retea de socializare
 
+1. Factory si configurare
+- In RepositoryFactory citesc tipul de repo din config.properties (MEMORY, FILE, DB).
+- Am folosit un Map cu Supplier (ex: InMemoryRepository::new sau lambda) ca sa nu mai fac switch clasic. Repository-ul se instantiaza doar cand apelez metoda de create.
+- Daca vreau sa adaug un repo nou, doar il trec in map-ul de suppliers si nu trebuie sa modific restul aplicatiei.
 
-1. FUNCTIONAREA FACTORY-ULUI SI TRANZITIA LA BAZA DE DATE (LABORATORUL 4)
----
-- RepositoryFactory (Simple Factory) este singura clasa din aplicatie
-  care cunoaste implementarile concrete de repository (InMemoryRepository,
-  UserFileRepository/FriendShipFileRepository, UserDbRepository/FriendShipDbRepository).
-- Tipul persistenței (MEMORY, FILE, DATABASE) si parametrii de conectare/fisiere
-  sunt incarcati la runtime din "resources/config.properties" folosind java.util.Properties.
-- Service-urile, Consola si clasa Main depind exclusiv de interfata generica
-  Repository<ID, E>, fara a folosi operatorul "new" pe clase concrete de repository.
-- Pentru trecerea la baza de date la Laboratorul 4:
-  1) Se va schimba in config.properties: "repository.type=DATABASE".
-  2) Se va implementa codul JDBC in metodele claselor schelet existente
-     (UserDbRepository si FriendShipDbRepository).
-  3) Straturile Service, UI (Console) si Main vor ramane 100% NESCHIMBATE.
+2. Gestionare fisiere si erori
+- Daca fisierul text nu exista cand porneste aplicatia, nu dau crash. Verific cu Files.exists(), iar daca lipseste, aplicatia pleaca cu repo-ul gol. Fisierul se creaza automat la primul add() prin Files.createDirectories() si Files.write().
+- Pentru linii corupte (date aiurea, format gresit, id-uri care nu-s numere), am pus try-catch in forEach. Daca o linie crapa la parsare, se afiseaza un mesaj de eroare in consola si se trece mai departe, ca sa nu pierdem restul datelor valide.
 
-Discutie OCP (Simple Factory vs Abstract Factory):
-- Varianta aleasa (Simple Factory cu switch pe enum) este directa si simpla,
-  insa la adaugarea unui nou tip de persistenta necesita modificarea switch-ului
-  (incalca partial Open-Closed Principle).
-- Alternativa (Abstract Factory cu o interfata Factory si implementari precum
-  FileRepositoryFactory, DbRepositoryFactory) respecta strict OCP (adaugarea unui
-  mecanism nou se face prin adaugarea unei clase noi, fara modificare de cod existent),
-  dar creste numarul de clase si complexitatea initiala a proiectului.
+3. SOLID si Design Patterns
+- SRP: User/FriendShip tin datele, validatorii doar verifica, AbstractFileRepository se ocupa de fisiere, serviciile au logica de business, iar Console doar afiseaza.
+- OCP: Pot adauga usor reguli noi de validare sau tipuri de repo fara sa rescriu codul existent.
+- LSP: Orice repo concret poate inlocui direct interfata Repository peste tot in proiect.
+- ISP: Interfetele sunt mici si contin doar ce trebuie (Entity, Validator, Repository).
+- DIP: Serviciile depind doar de interfetele Repository si Validator, nu de clase concrete.
+- Patterns:
+  * Factory: RepositoryFactory pentru crearea repo-urilor.
+  * Template Method: in AbstractFileRepository (loadFromFile si writeToFile sunt scheletul, iar clasele copil implementeaza extractEntity si createEntityAsString).
+  * Strategy: interfata Validator cu implementarile UserValidator si FriendShipValidator.
 
-2. GESTIUNEA FISIERULUI LIPSĂ SI A LINIILOR CORUPTE
+4. Modificari cu Stream API si Functional
+- In UserValidator si FriendShipValidator am facut un record intern ValidationRule(Predicate, String):
+  * L-am folosit ca sa leg conditia de mesajul de eroare intr-un mod imutabil si scurt, fara boilerplate (fara getteri, equals etc.).
+  * In validate() parcurg lista de reguli cu stream(): filtrez ce nu respecta predicatul, iau mesajul de eroare cu map() si le strang intr-o lista cu toList(). Nu mai am niciun if si niciun StringBuilder.
+- In interfata Repository am pus o metoda default findAll(Predicate filter) care filtreaza entitatile direct cu Stream.
+- In FriendShipService am inlocuit buclele pentru extragerea prietenilor cu stream(), filter(), map() si toList().
+- In NetworkService am folosit stream() cu max() si comparator pentru a gasi cea mai sociabila comunitate.
 
-- Fisier inexistent: Daca fisierul configurat nu exista la pornirea aplicatiei,
-  AbstractFileRepository nu arunca eroare; aplicatia porneste cu un repository gol,
-  iar fisierul este creat automat la prima operatie de salvare (add).
-- Linii corupte / invalide: In metoda loadFromFile(), fiecare linie este citita
-  si validata individual intr-un bloc try-catch. Daca o linie contine date invalide
-  (numar incorect de campuri, ID ne-numeric, format data ISO invalid etc.),
-  linia respectiva este raportata in System.err cu numarul liniei si motivul,
-  fiind ignorata. Am ales ignorarea liniilor corupte (in loc de oprirea aplicatiei)
-  pentru a asigura disponibilitatea aplicatiei si recuperarea datelor valide ramase.
+Unde am inlocuit cod vechi cu Stream:
+- Citire fisiere: in loc de BufferedReader si while(readLine), am folosit Files.lines() cu filter() si forEach().
+- Scriere fisiere: in loc de BufferedWriter si for clasic, am folosit Files.write() cu entities.values().stream().map().toList().
+- Validari: in loc de if-uri multe si StringBuilder, am folosit lista de reguli cu stream().filter().map().toList().
+- Extragere prieteni: in loc de for si if, am pus repository.findAll().stream().filter().map().toList().
+- Teste: in loc de 6 linii de try-catch pentru fiecare eroare asteptata, am facut metoda assertThrows() cu lambda intr-o singura linie.
 
-3. PRINCIPII DE PROIECTARE (SOLID) APLICATE
-
-- Single Responsibility Principle (SRP):
-  * Domain entities (User, FriendShip) pastreaza doar datele si identitatea.
-  * UserValidator / FriendShipValidator se ocupa exclusiv de regulile de validare.
-  * AbstractFileRepository gestioneaza exclusiv I/O-ul pe disc.
-  * UserService / FriendShipService coordoneaza logica de afaceri.
-  * NetworkService raspunde exclusiv de algoritmii pe graf (DFS, BFS).
-  * Console se ocupa doar de I/O cu utilizatorul.
-  * Main doar asambleaza dependintele aplicatiei.
-- Open-Closed Principle (OCP):
-  * Adaugarea de validari noi sau tipuri noi de stocare se face prin extinderea
-    interfetelor Validator<T> si Repository<ID, E>, fara modificarea codului client.
-- Liskov Substitution Principle (LSP):
-  * Orice clasa care mosteneste AbstractFileRepository sau InMemoryRepository poate
-    fi substituita in locul interfetei Repository<ID, E> fara a afecta corectitudinea aplicatiei.
-- Dependency Inversion Principle (DIP):
-  * Modulele de nivel inalt (Services, UI) nu depind de modulele de nivel jos (File Repositories),
-    ci ambele depind de abstractiuni (Repository<ID, E>, Validator<T>).
-
-4. SABLOANE DE PROIECTARE (DESIGN PATTERNS)
-
-- Factory Pattern (Simple Factory): Incapsulat in RepositoryFactory pentru crearea
-  instantei corespunzatoare de Repository pe baza fisierului de configurare.
-- Template Method Pattern: In AbstractFileRepository, unde scheletul algoritmului
-  de citire/scriere (loadFromFile, writeToFile) este definit in clasa parinte,
-  iar pasii variabili de serializare/deserializare sunt delegati metodelor abstracte
-  extractEntity(String) si createEntityAsString(E) implementate in subclase.
-- Strategy Pattern: Interfata Validator<T> defineste strategia de validare,
-  implementata concret de UserValidator si FriendShipValidator si injectata in servicii.
-- Decorator Pattern: Utilizat la operatiile de I/O prin impachetarea fluxurilor pe caractere:
-  BufferedReader peste FileReader si BufferedWriter peste FileWriter pentru eficienta I/O.
+De ce am pastrat bucle clasice in NetworkService:
+- In getDistance() (algoritmul BFS): avem o coada (Queue) din care scoatem si adaugam noduri in timp ce o parcurgem. Coada variaza mereu ca dimensiune, deci un while (!queue.isEmpty()) este mult mai clar, natural si eficient decat daca as fi fortat un Stream.
+- In getLongestPathInCommunity(): parcurg toate perechile de noduri cu doua bucle for clasice pentru ca e simplu de urmarit si nu creeaza obiecte inutile in memorie.

@@ -14,7 +14,7 @@ import ui.Console;
  */
 public class Main {
     public static void main(String[] args) {
-        //Test.runAll();
+        Test.runAll();
         RepositoryFactory factory = new RepositoryFactory("src/resources/config.properties");
 
         UserValidator userValidator = new UserValidator();

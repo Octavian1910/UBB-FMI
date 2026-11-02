@@ -78,15 +78,10 @@ public class FriendShipService {
      * @return collection of friend IDs
      */
     public Collection<Integer> getFriendIds(int userId) {
-        Collection<Integer> friendIds = new ArrayList<>();
-        for (FriendShip fs : repository.findAll()) {
-            if (fs.getFirstUserId() == userId) {
-                friendIds.add(fs.getSecondUserId());
-            } else if (fs.getSecondUserId() == userId) {
-                friendIds.add(fs.getFirstUserId());
-            }
-        }
-        return friendIds;
+        return repository.findAll().stream()
+                .filter(fs -> fs.getFirstUserId() == userId || fs.getSecondUserId() == userId)
+                .map(fs -> fs.getFirstUserId() == userId ? fs.getSecondUserId() : fs.getFirstUserId())
+                .toList();
     }
 
     /**
@@ -95,9 +90,7 @@ public class FriendShipService {
      * @param userId the user ID
      */
     public void removeAllFriendshipsOfUser(int userId) {
-        List<Integer> friends = new ArrayList<>(getFriendIds(userId));
-        for (Integer friendId : friends) {
-            removeFriendShip(userId, friendId);
-        }
+        new ArrayList<>(getFriendIds(userId))
+                .forEach(friendId -> removeFriendShip(userId, friendId));
     }
 }

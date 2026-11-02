@@ -22,7 +22,13 @@ VALUES
     ('Dobre', 'Vlad', '0727777777', 'vlad.dobre@gmail.com', '1999-12-08'),
     ('Marin', 'Ana', '0728888888', 'ana.marin@gmail.com', '2004-03-30'),
     ('Tudor', 'Cristian', '0729999999', 'cristian.tudor@gmail.com', '1997-08-14'),
-    ('Florea', 'Gabriela', '0720000000', 'gabriela.florea@gmail.com', '2002-10-05');
+    ('Florea', 'Gabriela', '0720000000', 'gabriela.florea@gmail.com', '2002-10-05'),
+    ('Popa', 'Andrei', '0721111222', 'andrei.popa@gmail.com', '1995-03-14'),
+    ('Ion', 'Elena', '0732333444', 'elena.ion@yahoo.com', '1998-07-22'),
+    ('Petrica', 'Mihai', '0743555666', 'mihai.petrica@outlook.com', '2001-11-30'),
+    ('Pop', 'Ioana', '0754777888', 'ioana.pop@gmail.com', '1993-01-18');
+
+
 
 
 SELECT *
@@ -76,7 +82,11 @@ VALUES
     (3, 7, 1100.00, '2026-03-01', '2027-02-28', 'Activ'),
     (1, 8, 100.00, '2026-10-15', '2026-11-13', 'Activ'),
     (4, 9, 3000.00, '2026-01-01', '2026-12-31', 'Activ'),
-    (2, 10, 350.00, '2026-08-01', '2026-08-30', 'Anulat');
+    (2, 10, 350.00, '2026-08-01', '2026-08-30', 'Anulat'),
+    (2, 11, 350.00, '2026-08-01', '2026-09-24', 'Expirat'),
+    (1, 12, 350.00, '2026-08-01', '2026-08-14', 'Expirat'),
+    (4, 13, 350.00, '2026-08-01', '2026-08-15', 'Anulat'),
+    (1, 14, 350.00, '2026-08-01', '2026-08-16', 'Anulat');
 
 SELECT * 
 FROM Abonament_Membru;
@@ -93,7 +103,16 @@ VALUES
 (4, 1500.00, '2025-10-15', 'Numerar'),
 (5, 100.00, '2026-09-01', 'Numerar'),
 (6, 350.00, '2026-10-10', 'Card'),
-(9, 1500.00, '2026-01-01', 'Transfer bancar');
+(9, 1500.00, '2026-01-01', 'Transfer bancar'),
+(7, 1100.00, '2026-03-01', 'Card'),           
+(8, 100.00, '2026-10-15', 'Numerar'),           
+(9, 1500.00, '2026-01-15', 'Transfer bancar'),   
+(10, 350.00, '2026-08-01', 'Card'),             -- achitat inainte de anulare
+(11, 350.00, '2026-08-01', 'Numerar'),        
+(12, 350.00, '2026-08-01', 'Card'),          
+(13, 150.00, '2026-08-01', 'Transfer bancar'),   -- plata partiala inainte de anulare
+(14, 350.00, '2026-08-01', 'Card');             -- achitat inainte de anulare)
+
 
 
 SELECT *
@@ -128,13 +147,16 @@ VALUES
     (1, 1, 1, '2026-10-22 09:00:00', 60),
     (2, 2, 3, '2026-10-22 10:00:00', 60),
     (3, 4, 3, '2026-10-22 11:00:00', 50),
-    (4, 5, 2, '2026-10-22 12:00:00', 45),
+    (4, 4, 2, '2026-10-22 12:00:00', 45),
     (5, 7, 5, '2026-10-22 14:00:00', 60),
     (6, 6, 4, '2026-10-22 15:00:00', 45),
-    (7, 8, 4, '2026-10-22 16:00:00', 60),
-    (8, 3, 6, '2026-10-23 09:00:00', 60),
+    (7, 6, 4, '2026-10-22 16:00:00', 60),
+    (8, 6, 6, '2026-10-23 09:00:00', 60),
     (9, 2, 3, '2026-10-23 10:00:00', 30),
-    (10, 9, 1, '2026-10-23 11:00:00', 45);
+    (10, 4, 1, '2026-10-23 11:00:00', 45);
+
+
+
 
 SELECT *
 FROM Programare_Clasa;
@@ -155,10 +177,22 @@ VALUES
     (6, 7, '2026-10-16', 'Prezent'),
     (7, 8, '2026-10-21', 'Inscris'),
     (8, 9, '2026-10-19', 'Anulat'),
-    (9, 1, '2026-10-20', 'Inscris');
+    (9, 1, '2026-10-20', 'Inscris'),
+    (4, 10, '2026-10-21', 'Inscris'),
+    (6,11, '2026-10-22', 'Inscris'),
+    (6, 12, '2026-10-23', 'Anulat'),
+    (9, 13, '2026-10-24', 'Anulat'),
+    (9, 14, '2026-10-25', 'Anulat');
+
+
 
 SELECT *
 FROM Inscriere_Clasa;
+
+
+SELECT definition 
+FROM sys.check_constraints 
+WHERE name = 'CK_Echipament_Stare';
 
 
 INSERT INTO Echipament
@@ -169,11 +203,13 @@ VALUES
     (1, 'Aparat pentru extensii picioare', 'Technogym', '2024-01-10', 'Functional'),
     (5, 'Set gantere', 'Decathlon', '2023-09-05', 'Functional'),
     (6, 'Saltele fitness', 'Reebok', '2024-05-12', 'Functional'),
-    (2, 'Bicicleta eliptica', 'NordicTrack', '2022-11-18', 'Necesita revizie'),
+    (2, 'Bicicleta eliptica', 'NordicTrack', '2022-11-18', 'Defect'),
     (1, 'Banca pentru impins', 'Hammer Strength', '2023-04-22', 'Functional'),
     (5, 'Bara olimpica', 'Eleiko', '2024-02-08', 'Functional'),
     (3, 'Saltele yoga', 'Domyos', '2024-07-14', 'Functional'),
-    (1, 'Aparat pentru tractiuni', 'Technogym', '2022-08-30', 'Necesita reparatie');
+    (1, 'Aparat pentru tractiuni', 'Technogym', '2022-08-30', 'Defect'),
+    (2, 'Aparat de vaslit', 'Concept2', '2022-05-14', 'Defect'),
+    (1, 'Presa pentru picioare', 'Hammer Strength', '2021-11-20', 'Defect');
 
 SELECT *
 FROM Echipament;
@@ -190,13 +226,16 @@ VALUES
     (7, '2025-05-22', 120.00, 'Verificare banca pentru impins'),
     (8, '2025-07-09', 200.00, 'Schimbare bara olimpica'),
     (9, '2025-09-14', 60.00, 'Verificare saltele yoga'),
-    (10, '2026-02-11', 450.00, 'Schimbare aparat pentru tractiuni');
+    (10, '2026-02-11', 450.00, 'Schimbare aparat pentru tractiuni'),
+    (15, '2026-02-12', 550.00, 'Schimbare aparat pentru vaslit'),
+    (16, '2026-02-13', 400.00, 'Schimbare presa picioare');
+
 
 SELECT *
 FROM Mentenanta_Echipament;
 
 
---1)Numele membrilor care au abonamente active , si data cand expira acestea
+-- 1) Afiseaza numele si prenumele membrilor, tipul abonamentului si data expirarii pentru abonamentele active.
 SELECT m.nume, m.prenume,t.denumire AS tip_abonament,a.data_sfarsit
 FROM Membru m
 INNER JOIN Abonament_Membru a
@@ -206,7 +245,7 @@ INNER JOIN Tip_Abonament t
 WHERE a.status = 'Activ'
 ORDER BY a.data_sfarsit;
 
---2)Membrii care au abonamentele expirate
+-- 2) Afiseaza numele si prenumele membrilor, tipul abonamentului si data expirarii pentru abonamentele expirate.
 SELECT m.nume,m.prenume,t.denumire AS Tip_Abonament,a.data_sfarsit
 FROM Membru m
 INNER JOIN Abonament_Membru a
@@ -216,7 +255,7 @@ ON a.id_tip_abonament= t.id_tip_abonament
 WHERE a.status = 'Expirat'
 ORDER BY a.data_inceput DESC;
 
---3)Echipamente care necesita interventii
+-- 3) Afiseaza denumirea, marca si starea echipamentelor defecte, precum si zona in care se afla acestea.
 SELECT e.denumire , e.marca,e.stare,z.denumire as zona
 FROM Echipament e
 INNER JOIN Zona z
@@ -224,24 +263,24 @@ ON e.id_zona = z.id_zona
 WHERE e.stare = 'Defect'
 ORDER BY e.denumire
 
---4)Antrenorii cu salariu mai mare de 4500 lei
+-- 4) Afiseaza numele, prenumele, specializarea si salariul antrenorilor care au un salariu mai mare de 4500 lei.
 SELECT nume,prenume,specializare,salariu
 FROM Antrenor
 WHERE salariu > 4500
 ORDER BY salariu DESC;
 
---5)Membrii inscrisi la calsele de fitness M:N
+-- 5) Afiseaza membrii inscrisi la clasele de grup, denumirea clasei, data si ora programarii si statusul prezentei.
 SELECT m.id_membru ,m.nume,m.prenume,c.id_clasa,c.denumire AS clasa , p.data_ora_start,i.status_prezenta
-FROM Inscriere_Clasa i
+FROM Inscriere_Clasa i  
 INNER JOIN Membru m
 ON i.id_membru = m.id_membru
-INNER JOIN Programare_Clasa p
+INNER JOIN Programare_Clasa p 
 ON p.id_programare = i.id_programare
-INNER JOIN Clasa_Grup c
+INNER JOIN Clasa_Grup c 
 ON p.id_clasa = c.id_clasa
 ORDER BY c.id_clasa;
 
---6)Clasele la care s au inscris cel putin 2 membrii M:N
+-- 6) Afiseaza denumirea claselor la care s-au inregistrat cel putin doua inscrieri si numarul inscrierilor pentru fiecare clasa.
 SELECT c.denumire AS clasa, COUNT(i.id_membru) AS numar_inscrieri
 FROM Clasa_Grup c
 INNER JOIN Programare_Clasa p
@@ -252,7 +291,7 @@ GROUP BY c.id_clasa,c.denumire
 HAVING COUNT(i.id_membru) >= 2
 ORDER BY numar_inscrieri DESC;
 
---7) Clasele programate si numarul de antrenori diferiti
+-- 7) Afiseaza denumirea claselor programate si numarul de antrenori DIFERITI care sustin fiecare clasa.
 SELECT c.denumire AS clasa,COUNT(DISTINCT a.id_antrenor) AS numar_antrenori
 FROM Clasa_Grup c
 INNER JOIN Programare_Clasa p
@@ -262,7 +301,7 @@ ON p.id_antrenor = a.id_antrenor
 GROUP BY c.id_clasa, c.denumire
 ORDER BY numar_antrenori DESC;
 
---8)Totalul platilor pentru fiecare tip de abonament
+-- 8) Afiseaza denumirea fiecarui tip de abonament, numarul platilor efectuate si suma totala incasata pentru acesta.
 SELECT t.denumire AS tip_abonament, COUNT(p.id_plata) as numar_plati,SUM(p.suma) AS total_incasat
 FROM Tip_Abonament t
 INNER JOIN Abonament_Membru a
@@ -273,7 +312,7 @@ GROUP BY t.id_tip_abonament,t.denumire
 ORDER BY total_incasat DESC;
 
 
---9)Membrii care au anulat inscrieri la clase
+-- 9) Afiseaza ID-ul, numele si prenumele membrilor care au anulat cel putin o inscriere la o clasa, fara a repeta membrii.
 SELECT DISTINCT m.id_membru, m.nume,m.prenume
 FROM Membru m
 INNER JOIN Inscriere_Clasa i
@@ -281,7 +320,7 @@ ON m.id_membru = i.id_membru
 WHERE i.status_prezenta = 'Anulat'
 ORDER BY m.nume,m.prenume
 
---10)Antrenorii care au sustinut deja cel putin 2 clase diferite
+-- 10) Afiseaza ID-ul, numele si prenumele antrenorilor care au sustinut cel putin doua clase diferite in trecut sau sunt inca in desfasurare, precum si numarul acestor clase.
 SELECT  a.id_antrenor,a.nume,a.prenume,COUNT(DISTINCT c.id_clasa) AS numar_clase
 FROM Antrenor a
 INNER JOIN Programare_Clasa p
@@ -292,5 +331,8 @@ WHERE p.data_ora_start < GETDATE()
 GROUP BY a.id_antrenor,a.nume,a.prenume
 HAVING COUNT(DISTINCT c.id_clasa) >= 2
 ORDER BY numar_clase DESC;
+
+
+--1, 2, 5, 6, 7, 8 ,10 cel putin 3 tabele
 
 

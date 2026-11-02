@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="af5fd87d-fe40-4380-8bb6-51b071ca9637" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab3/Seminar 5-start/src/ex/functional/Arie.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab3/Seminar 5-start/src/ex/functional/Cerc.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab3/Seminar 5-start/src/ex/functional/Patrat.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab3/Seminar 5-start/src/ex/functional/TestArie.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Probability and Statistics/Labs/Lab3/ex1ii.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Probability and Statistics/Labs/Lab3/ex2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Probability and Statistics/Labs/Lab3/ex3.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../Probability and Statistics/Labs/Lab3/ex4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../FirstYear/sem1/FundamenteleProgramarii" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../FirstYear/sem1/FundamenteleProgramarii" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/Lab2_again.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/Console.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/domain/Entity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/domain/FriendShip.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/domain/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/domain/validator/FriendShipValidator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/domain/validator/UserValidator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/domain/validator/ValidationException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/domain/validator/Validator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/AbstractFileRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/FriendShipDbRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/FriendShipFileRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/InMemoryRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/Repository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/RepositoryException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/UserDbRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/UserFileRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/factory/RepositoryFactory.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/repository/factory/RepositoryType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/resources/config.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/service/FriendShipService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/service/NetworkService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/service/ServiceException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Advanced Methods/Labs/Lab2_again/src/service/UserService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Client/src/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/Client/src/Client.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Logic and Functional Programming/Cursuri_full.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../Logic and Functional Programming/Cursuri_full.txt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 4
+}]]></component>
+  <component name="ProjectId" id="3LIGWY4lspjmdLJecgpVxmCSX6Y" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-37e91769500f-intellij.indexing.shared.core-IU-261.26222.65" />
+        <option value="bundled-js-predefined-d6986cc7102b-31caf2ab9e3c-JavaScript-IU-261.26222.65" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="af5fd87d-fe40-4380-8bb6-51b071ca9637" name="Changes" comment="" />
+      <created>1793134201965</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1793134201965</updated>
+      <workItem from="1793134203327" duration="15000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

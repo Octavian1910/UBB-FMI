@@ -2,13 +2,12 @@ package repository;
 
 import domain.Entity;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Abstract generic file repository coordinating file persistence.
@@ -40,27 +39,21 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
      * Corrupted lines are reported and skipped.
      */
     private void loadFromFile() {
-        File file = new File(fileName);
-        if (!file.exists()) {
+        Path path = Path.of(fileName);
+        if (!Files.exists(path)) {
             return;
         }
 
-        // Decorator pattern: BufferedReader wrapping FileReader
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            int lineNumber = 0;
-            while ((line = br.readLine()) != null) {
-                lineNumber++;
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-                try {
-                    E entity = extractEntity(line);
-                    super.add(entity);
-                } catch (RepositoryException e) {
-                    System.err.println("Skipping corrupted line " + lineNumber + " in " + fileName + ": " + e.getMessage());
-                }
-            }
+        try (Stream<String> lines = Files.lines(path)) {
+            lines.filter(line -> !line.isBlank())
+                    .forEach(line -> {
+                        try {
+                            E entity = extractEntity(line);
+                            super.add(entity);
+                        } catch (RepositoryException e) {
+                            System.err.println("Skipping corrupted line in " + fileName + ": " + e.getMessage());
+                        }
+                    });
         } catch (IOException e) {
             throw new RepositoryException("Error reading from file: " + fileName, e);
         }
@@ -87,18 +80,22 @@ public abstract class AbstractFileRepository<ID, E extends Entity<ID>> extends I
      * Rewrites all in-memory entities back to the text file.
      */
     private void writeToFile() {
-        File file = new File(fileName);
-        File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) {
-            parent.mkdirs();
+        Path path = Path.of(fileName);
+        Path parent = path.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new RepositoryException("Could not create directories for: " + fileName, e);
+            }
         }
 
-        // Decorator pattern: BufferedWriter wrapping FileWriter
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-            for (E entity : entities.values()) {
-                bw.write(createEntityAsString(entity));
-                bw.newLine();
-            }
+        List<String> lines = entities.values().stream()
+                .map(entity -> createEntityAsString(entity))
+                .toList();
+
+        try {
+            Files.write(path, lines);
         } catch (IOException e) {
             throw new RepositoryException("Error writing to file: " + fileName, e);
         }
